@@ -1,5 +1,10 @@
 #include "php_taglib.h"
-#include "taglib-1.9.1\taglib\tag.h"
+#include <iostream>
+#include <iomainip>
+#include <stdio.h>
+#include <fileref.h>
+
+#include <tag.h>
 
 zend_object_handlers taglib_object_handlers;
 
