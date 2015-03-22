@@ -1,0 +1,15 @@
+# PHP 
+/usr/local/bin/php
+/usr/local/lib/php/modules
+
+# sv_cheats 1
+make 2> /tmp/fuck; cat /tmp/fuck | less
+
+# required
+export C_INCLUDE_PATH="/usr/local/include/taglib"
+export CPLUS_INCLUDE_PATH="/usr/local/include/taglib"
+
+# ...
+phpize; ./configure; make
+
+# TODO: alias these or something
