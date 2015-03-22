@@ -177,8 +177,8 @@ distclean: clean
 
 .PHONY: all clean install distclean test
 .NOEXPORT:
-taglib.lo: /home/tso/taglib-php/php-5.6.7/ext/taglib/taglib.c
-	$(LIBTOOL) --mode=compile $(CC)  -I. -I/home/tso/taglib-php/php-5.6.7/ext/taglib $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /home/tso/taglib-php/php-5.6.7/ext/taglib/taglib.c -o taglib.lo 
+taglib.lo: /home/tso/taglib-php/php-5.6.7/ext/taglib/taglib.cpp
+	$(LIBTOOL) --mode=compile $(CXX)  -I. -I/home/tso/taglib-php/php-5.6.7/ext/taglib $(COMMON_FLAGS) $(CXXFLAGS_CLEAN) $(EXTRA_CXXFLAGS)  -c /home/tso/taglib-php/php-5.6.7/ext/taglib/taglib.cpp -o taglib.lo 
 $(phplibdir)/taglib.la: ./taglib.la
 	$(LIBTOOL) --mode=install cp ./taglib.la $(phplibdir)
 

@@ -4647,7 +4647,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
   old_IFS=$IFS
-  for ac_src in taglib.c; do
+  for ac_src in taglib.cpp; do
   
       IFS=.
       set $ac_src
@@ -4696,7 +4696,7 @@ EOF
 
 
   old_IFS=$IFS
-  for ac_src in taglib.c; do
+  for ac_src in taglib.cpp; do
   
       IFS=.
       set $ac_src
@@ -4826,7 +4826,7 @@ _ACEOF
 
 
   old_IFS=$IFS
-  for ac_src in taglib.c; do
+  for ac_src in taglib.cpp; do
   
       IFS=.
       set $ac_src
@@ -4872,7 +4872,7 @@ EOF
 
 
   old_IFS=$IFS
-  for ac_src in taglib.c; do
+  for ac_src in taglib.cpp; do
   
       IFS=.
       set $ac_src

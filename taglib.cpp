@@ -1,17 +1,20 @@
 #include "php_taglib.h"
 #include <iostream>
-#include <iomainip>
+#include <iomanip>
 #include <stdio.h>
 #include <fileref.h>
 
 #include <tag.h>
+#include <id3v1tag.h>
 
+//:wqusing namespace TagLib;
+using namespace TagLib::ID3v1;
 zend_object_handlers taglib_object_handlers;
 
 struct taglib_object {
     zend_object std;
     Tag *tag;
-}
+};
 
 void taglib_free_storage(void *object TSRMLS_DC)
 {
@@ -24,7 +27,7 @@ void taglib_free_storage(void *object TSRMLS_DC)
     efree(obj);
 }
 
-zend_object_value tag_create_handler(zend_class_entry *type TSRMLS_DC)
+zend_object_value taglib_create_handler(zend_class_entry *type TSRMLS_DC)
 {
     zval *tmp;
     zend_object_value retval;
@@ -35,8 +38,12 @@ zend_object_value tag_create_handler(zend_class_entry *type TSRMLS_DC)
 
     ALLOC_HASHTABLE(obj->std.properties);
     zend_hash_init(obj->std.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
+    
+#if PHP_VERSION_ID < 50399
     zend_hash_copy(obj->std.properties, &type->default_properties, (copy_ctor_func_t)zval_add_ref, (void *)&tmp, sizeof(zval *));
-
+#else
+    object_properties_init((zend_object *) &(obj->std.properties), type);
+#endif 
     retval.handle = zend_objects_store_put(obj, NULL, taglib_free_storage, NULL TSRMLS_CC);
     retval.handlers = &taglib_object_handlers;
 
@@ -51,13 +58,13 @@ PHP_METHOD(Tag, __construct)
     zval *object = getThis();
 
     tag = new Tag();
-    tag_object *obj = (taglib_object *)zend_object_store_get_object(object TSRMLS_CC);
+    taglib_object *obj = (taglib_object *)zend_object_store_get_object(object TSRMLS_CC);
     obj->tag = tag;
 }
 PHP_METHOD(Tag, year)
 {
     Tag *tag;
-    tag_object *obj = (taglib_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglib_object *obj = (taglib_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
     tag = obj->tag;
     if(tag != NULL)
     {

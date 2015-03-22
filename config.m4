@@ -9,5 +9,5 @@ if test $PHP_TAGLIB != "no"; then
         PHP_ADD_LIBRARY(stdc++, 1, TAGLIB_SHARED_LIBADD)
 
         PHP_SUBST(TAGLIB_SHARED_LIBADD)
-        PHP_NEW_EXTENSION(taglib, taglib.c, $ext_shared)
+        PHP_NEW_EXTENSION(taglib, taglib.cpp, $ext_shared)
 fi

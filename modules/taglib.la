@@ -14,7 +14,7 @@ library_names='taglib.so taglib.so taglib.so'
 old_library=''
 
 # Libraries that this one depends upon.
-dependency_libs=''
+dependency_libs=' -lstdc++'
 
 # Version information for taglib.
 current=0
