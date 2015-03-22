@@ -3,6 +3,8 @@ PHP_ARG_ENABLE(taglib,
     [ --enable-taglib Enable "taglib" extension support])
 
 if test $PHP_TAGLIB != "no"; then
+        PHP_REQUIRE_CXX()
         PHP_SUBST(TAGLIB_SHARED_LIBADD)
+        PHP_ADD_LIBRARY(stdc++, 1, TAGLIB_SHARED_LIBADD)
         PHP_NEW_EXTENSION(taglib, taglib.c, $ext_shared)
 fi
