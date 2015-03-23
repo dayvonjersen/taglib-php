@@ -49,7 +49,6 @@ zend_object_value taglib_create_handler(zend_class_entry *type TSRMLS_DC)
 
     return retval;
 }
-
 zend_class_entry *tag_ce;
 
 PHP_METHOD(Tag, __construct)

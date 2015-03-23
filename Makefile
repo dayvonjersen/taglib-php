@@ -4,8 +4,8 @@ top_srcdir = /home/tso/taglib-php/php-5.6.7/ext/taglib
 top_builddir = /home/tso/taglib-php/php-5.6.7/ext/taglib
 EGREP = /bin/grep -E
 SED = /bin/sed
-CONFIGURE_COMMAND = './configure' '--with-taglib=yes'
-CONFIGURE_OPTIONS = '--with-taglib=yes'
+CONFIGURE_COMMAND = './configure' '--with-taglib'
+CONFIGURE_OPTIONS = '--with-taglib'
 SHLIB_SUFFIX_NAME = so
 SHLIB_DL_SUFFIX_NAME = so
 ZEND_EXT_TYPE = zend_extension

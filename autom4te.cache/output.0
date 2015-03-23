@@ -4667,7 +4667,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
   save_old_LDFLAGS=$LDFLAGS
   ac_stuff="
-            -L/usr/local/lib -ldl
+            -L/usr/local/lib -ldl -ltag
         "
   
   save_ext_shared=$ext_shared
@@ -4915,6 +4915,7 @@ else
   
 fi
 
+        -L/usr/local/lib -ldl -ltag
         
   if test "/usr/local/include" != "/usr/include"; then
     

@@ -307,9 +307,9 @@ m4trace:config.m4:10: -1- AC_DEFINE_TRACE_LITERAL([HAVE_TAGLIB])
 m4trace:config.m4:10: -1- m4_pattern_allow([^HAVE_TAGLIB$])
 m4trace:config.m4:10: -1- AH_OUTPUT([HAVE_TAGLIB], [/* */
 @%:@undef HAVE_TAGLIB])
-m4trace:config.m4:21: -1- AC_DEFINE_TRACE_LITERAL([COMPILE_DL_TAGLIB])
-m4trace:config.m4:21: -1- m4_pattern_allow([^COMPILE_DL_TAGLIB$])
-m4trace:config.m4:21: -1- AH_OUTPUT([COMPILE_DL_TAGLIB], [/* Whether to build taglib as dynamic module */
+m4trace:config.m4:22: -1- AC_DEFINE_TRACE_LITERAL([COMPILE_DL_TAGLIB])
+m4trace:config.m4:22: -1- m4_pattern_allow([^COMPILE_DL_TAGLIB$])
+m4trace:config.m4:22: -1- AH_OUTPUT([COMPILE_DL_TAGLIB], [/* Whether to build taglib as dynamic module */
 @%:@undef COMPILE_DL_TAGLIB])
 m4trace:configure.in:149: -1- AC_PROG_LIBTOOL
 m4trace:configure.in:149: -1- AC_SUBST([LN_S], [$as_ln_s])

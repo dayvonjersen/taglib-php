@@ -14,8 +14,9 @@ if test $PHP_TAGLIB != "no"; then
         ], [
             AC_MSG_ERROR([fuck fuck fuck])
         ], [
-            -L/usr/local/lib -ldl
+            -L/usr/local/lib -ldl -ltag
         ])
+        -L/usr/local/lib -ldl -ltag
         PHP_ADD_INCLUDE(/usr/local/include)
         PHP_SUBST(TAGLIB_SHARED_LIBADD)
         PHP_NEW_EXTENSION(taglib, taglib.cpp, $ext_shared)
