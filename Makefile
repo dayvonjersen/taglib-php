@@ -4,14 +4,14 @@ top_srcdir = /home/tso/taglib-php/php-5.6.7/ext/taglib
 top_builddir = /home/tso/taglib-php/php-5.6.7/ext/taglib
 EGREP = /bin/grep -E
 SED = /bin/sed
-CONFIGURE_COMMAND = './configure'
-CONFIGURE_OPTIONS =
+CONFIGURE_COMMAND = './configure' '--with-taglib=yes'
+CONFIGURE_OPTIONS = '--with-taglib=yes'
 SHLIB_SUFFIX_NAME = so
 SHLIB_DL_SUFFIX_NAME = so
 ZEND_EXT_TYPE = zend_extension
 RE2C = exit 0;
 AWK = nawk
-TAGLIB_SHARED_LIBADD = -lstdc++
+TAGLIB_SHARED_LIBADD = -Wl,-rpath,/usr/local/lib -L/usr/local/lib -ltag -lstdc++
 shared_objects_taglib = taglib.lo
 PHP_PECL_EXTENSION = taglib
 PHP_MODULES = $(phplibdir)/taglib.la
@@ -36,7 +36,7 @@ EXTENSION_DIR = /usr/local/lib/php/extensions/debug-non-zts-20131226
 PHP_EXECUTABLE = /usr/local/bin/php
 EXTRA_LDFLAGS =
 EXTRA_LIBS =
-INCLUDES = -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+INCLUDES = -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -I/usr/local/include
 LFLAGS =
 LDFLAGS =
 SHARED_LIBTOOL =

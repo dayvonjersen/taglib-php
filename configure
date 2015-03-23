@@ -857,7 +857,7 @@ ac_user_opts='
 enable_option_checking
 with_libdir
 with_php_config
-enable_taglib
+with_taglib
 enable_shared
 enable_static
 enable_fast_install
@@ -1495,7 +1495,7 @@ Optional Features and Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-libdir=NAME      Look for libraries in .../NAME rather than .../lib
   --with-php-config=PATH  Path to php-config php-config
- --enable-taglib Enable "taglib" extension support
+
   --enable-shared=PKGS    Build shared libraries default=yes
   --enable-static=PKGS    Build static libraries default=yes
   --enable-fast-install=PKGS
@@ -1794,6 +1794,52 @@ fi
   as_fn_set_status $ac_retval
 
 } # ac_fn_cxx_try_cpp
+
+# ac_fn_cxx_try_link LINENO
+# -------------------------
+# Try to link conftest.$ac_ext, and return whether this succeeded.
+ac_fn_cxx_try_link ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  rm -f conftest.$ac_objext conftest$ac_exeext
+  if { { ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_link") 2>conftest.err
+  ac_status=$?
+  if test -s conftest.err; then
+    grep -v '^ *+' conftest.err >conftest.er1
+    cat conftest.er1 >&5
+    mv -f conftest.er1 conftest.err
+  fi
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } && {
+	 test -z "$ac_cxx_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 test -x conftest$ac_exeext
+       }; then :
+  ac_retval=0
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_retval=1
+fi
+  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
+  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
+  # interfere with the next link command; also delete a directory that is
+  # left behind by Apple's compiler.  We do this before executing the actions.
+  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_cxx_try_link
 
 # ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
 # -------------------------------------------------------
@@ -4132,13 +4178,14 @@ $as_echo "no" >&6; }
 
 
 
-php_enable_taglib=no
+php_with_taglib=no
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Whether to enable the \"taglib\" extension" >&5
-$as_echo_n "checking Whether to enable the \"taglib\" extension... " >&6; }
-# Check whether --enable-taglib was given.
-if test "${enable_taglib+set}" = set; then :
-  enableval=$enable_taglib; PHP_TAGLIB=$enableval
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking    with-taglib     Include taglib support" >&5
+$as_echo_n "checking    with-taglib     Include taglib support... " >&6; }
+
+# Check whether --with-taglib was given.
+if test "${with_taglib+set}" = set; then :
+  withval=$with_taglib; PHP_TAGLIB=$withval
 else
 
   PHP_TAGLIB=no
@@ -4615,6 +4662,289 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
   esac
 
 
+
+
+
+  save_old_LDFLAGS=$LDFLAGS
+  ac_stuff="
+            -L/usr/local/lib -ldl
+        "
+
+  save_ext_shared=$ext_shared
+  ext_shared=yes
+
+  for ac_i in $ac_stuff; do
+    case $ac_i in
+    -pthread)
+      if test "$ext_shared" = "yes"; then
+        LDFLAGS="$LDFLAGS -pthread"
+      else
+
+
+  unique=`echo $ac_i|$SED 's/[^a-zA-Z0-9]/_/g'`
+
+  cmd="echo $ac_n \"\$EXTRA_LDFLAGS$unique$ac_c\""
+  if test -n "$unique" && test "`eval $cmd`" = "" ; then
+    eval "EXTRA_LDFLAGS$unique=set"
+    EXTRA_LDFLAGS="$EXTRA_LDFLAGS $ac_i"
+  fi
+
+      fi
+    ;;
+    -l*)
+      ac_ii=`echo $ac_i|cut -c 3-`
+
+
+  case $ac_ii in
+  c|c_r|pthread*) ;;
+  *)
+    if test "$ext_shared" = "yes"; then
+        LDFLAGS="$LDFLAGS -l$ac_ii"
+    else
+
+
+  case $ac_ii in
+  c|c_r|pthread*) ;;
+  *)
+      LIBS="$LIBS -l$ac_ii"
+   ;;
+  esac
+
+
+    fi
+   ;;
+  esac
+
+
+    ;;
+    -L*)
+      ac_ii=`echo $ac_i|cut -c 3-`
+
+  if test "$ac_ii" != "/usr/$PHP_LIBDIR" && test "$ac_ii" != "/usr/lib"; then
+
+  if test -z "$ac_ii" || echo "$ac_ii" | grep '^/' >/dev/null ; then
+    ai_p=$ac_ii
+  else
+
+    ep_dir=`echo $ac_ii|$SED 's%/*[^/][^/]*/*$%%'`
+
+    ep_realdir=`(cd "$ep_dir" && pwd)`
+    ai_p="$ep_realdir"/`basename "$ac_ii"`
+  fi
+
+
+      if test "$ext_shared" = "yes"; then
+        LDFLAGS="-L$ai_p $LDFLAGS"
+        test -n "$ld_runpath_switch" && LDFLAGS="$ld_runpath_switch$ai_p $LDFLAGS"
+      else
+
+
+
+  unique=`echo $ai_p|$SED 's/[^a-zA-Z0-9]/_/g'`
+
+  cmd="echo $ac_n \"\$LIBPATH$unique$ac_c\""
+  if test -n "$unique" && test "`eval $cmd`" = "" ; then
+    eval "LIBPATH$unique=set"
+
+    test -n "$ld_runpath_switch" && LDFLAGS="$LDFLAGS $ld_runpath_switch$ai_p"
+    LDFLAGS="$LDFLAGS -L$ai_p"
+    PHP_RPATHS="$PHP_RPATHS $ai_p"
+
+  fi
+
+
+      fi
+
+  fi
+
+    ;;
+    esac
+  done
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for _ZN10ByteReaderD0Ev in -ltag" >&5
+$as_echo_n "checking for _ZN10ByteReaderD0Ev in -ltag... " >&6; }
+if ${ac_cv_lib_tag__ZN10ByteReaderD0Ev+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-ltag  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char _ZN10ByteReaderD0Ev ();
+int
+main ()
+{
+return _ZN10ByteReaderD0Ev ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  ac_cv_lib_tag__ZN10ByteReaderD0Ev=yes
+else
+  ac_cv_lib_tag__ZN10ByteReaderD0Ev=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_tag__ZN10ByteReaderD0Ev" >&5
+$as_echo "$ac_cv_lib_tag__ZN10ByteReaderD0Ev" >&6; }
+if test "x$ac_cv_lib_tag__ZN10ByteReaderD0Ev" = xyes; then :
+
+    LDFLAGS=$save_old_LDFLAGS
+    ext_shared=$save_ext_shared
+
+
+
+  if test "$ext_shared" = "yes"; then
+    TAGLIB_SHARED_LIBADD="-ltag $TAGLIB_SHARED_LIBADD"
+    if test -n "/usr/local/lib"; then
+
+  if test "/usr/local/lib" != "/usr/$PHP_LIBDIR" && test "/usr/local/lib" != "/usr/lib"; then
+
+  if test -z "/usr/local/lib" || echo "/usr/local/lib" | grep '^/' >/dev/null ; then
+    ai_p=/usr/local/lib
+  else
+
+    ep_dir=`echo /usr/local/lib|$SED 's%/*[^/][^/]*/*$%%'`
+
+    ep_realdir=`(cd "$ep_dir" && pwd)`
+    ai_p="$ep_realdir"/`basename "/usr/local/lib"`
+  fi
+
+
+      if test "$ext_shared" = "yes"; then
+        TAGLIB_SHARED_LIBADD="-L$ai_p $TAGLIB_SHARED_LIBADD"
+        test -n "$ld_runpath_switch" && TAGLIB_SHARED_LIBADD="$ld_runpath_switch$ai_p $TAGLIB_SHARED_LIBADD"
+      else
+
+
+
+  unique=`echo $ai_p|$SED 's/[^a-zA-Z0-9]/_/g'`
+
+  cmd="echo $ac_n \"\$LIBPATH$unique$ac_c\""
+  if test -n "$unique" && test "`eval $cmd`" = "" ; then
+    eval "LIBPATH$unique=set"
+
+    test -n "$ld_runpath_switch" && LDFLAGS="$LDFLAGS $ld_runpath_switch$ai_p"
+    LDFLAGS="$LDFLAGS -L$ai_p"
+    PHP_RPATHS="$PHP_RPATHS $ai_p"
+
+  fi
+
+
+      fi
+
+  fi
+
+    fi
+  else
+
+
+  if test -n "/usr/local/lib"; then
+
+  if test "/usr/local/lib" != "/usr/$PHP_LIBDIR" && test "/usr/local/lib" != "/usr/lib"; then
+
+  if test -z "/usr/local/lib" || echo "/usr/local/lib" | grep '^/' >/dev/null ; then
+    ai_p=/usr/local/lib
+  else
+
+    ep_dir=`echo /usr/local/lib|$SED 's%/*[^/][^/]*/*$%%'`
+
+    ep_realdir=`(cd "$ep_dir" && pwd)`
+    ai_p="$ep_realdir"/`basename "/usr/local/lib"`
+  fi
+
+
+
+
+
+  unique=`echo $ai_p|$SED 's/[^a-zA-Z0-9]/_/g'`
+
+  cmd="echo $ac_n \"\$LIBPATH$unique$ac_c\""
+  if test -n "$unique" && test "`eval $cmd`" = "" ; then
+    eval "LIBPATH$unique=set"
+
+    test -n "$ld_runpath_switch" && LDFLAGS="$LDFLAGS $ld_runpath_switch$ai_p"
+    LDFLAGS="$LDFLAGS -L$ai_p"
+    PHP_RPATHS="$PHP_RPATHS $ai_p"
+
+  fi
+
+
+
+  fi
+
+  fi
+
+
+  case tag in
+  c|c_r|pthread*) ;;
+  *)
+      LIBS="-ltag $LIBS"
+   ;;
+  esac
+
+
+
+
+  fi
+
+
+
+$as_echo "#define HAVE_TAGLIB 1" >>confdefs.h
+
+
+
+else
+
+    LDFLAGS=$save_old_LDFLAGS
+    ext_shared=$save_ext_shared
+    unset ac_cv_lib_tag__ZN10ByteReaderD0Ev
+
+            as_fn_error $? "fuck fuck fuck" "$LINENO" 5
+
+
+fi
+
+
+  if test "/usr/local/include" != "/usr/include"; then
+
+  if test -z "/usr/local/include" || echo "/usr/local/include" | grep '^/' >/dev/null ; then
+    ai_p=/usr/local/include
+  else
+
+    ep_dir=`echo /usr/local/include|$SED 's%/*[^/][^/]*/*$%%'`
+
+    ep_realdir=`(cd "$ep_dir" && pwd)`
+    ai_p="$ep_realdir"/`basename "/usr/local/include"`
+  fi
+
+
+
+  unique=`echo $ai_p|$SED 's/[^a-zA-Z0-9]/_/g'`
+
+  cmd="echo $ac_n \"\$INCLUDEPATH$unique$ac_c\""
+  if test -n "$unique" && test "`eval $cmd`" = "" ; then
+    eval "INCLUDEPATH$unique=set"
+
+      if test ""; then
+        INCLUDES="-I$ai_p $INCLUDES"
+      else
+        INCLUDES="$INCLUDES -I$ai_p"
+      fi
+
+  fi
+
+  fi
 
 
   PHP_VAR_SUBST="$PHP_VAR_SUBST TAGLIB_SHARED_LIBADD"
@@ -5417,7 +5747,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5420 "configure"' > conftest.$ac_ext
+  echo '#line 5750 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -6956,7 +7286,7 @@ else
       LDFLAGS="$LDFLAGS -Wl,-exported_symbols_list,conftest.sym"
 
 cat > conftest.$ac_ext <<EOF
-#line 6959 "configure"
+#line 7289 "configure"
 #include "confdefs.h"
 int main() {
 ; return 0; }
@@ -7114,11 +7444,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"configure:7117: $lt_compile\"" >&5)
+   (eval echo "\"configure:7447: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "configure:7121: \$? = $ac_status" >&5
+   echo "configure:7451: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7412,11 +7742,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"configure:7415: $lt_compile\"" >&5)
+   (eval echo "\"configure:7745: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "configure:7419: \$? = $ac_status" >&5
+   echo "configure:7749: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7516,11 +7846,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"configure:7519: $lt_compile\"" >&5)
+   (eval echo "\"configure:7849: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "configure:7523: \$? = $ac_status" >&5
+   echo "configure:7853: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -7980,7 +8310,7 @@ _LT_EOF
        # Determine the default libpath from the value encoded in an empty executable.
 
 cat > conftest.$ac_ext <<EOF
-#line 7983 "configure"
+#line 8313 "configure"
 #include "confdefs.h"
 int main() {
 ; return 0; }
@@ -8022,7 +8352,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
 	 # Determine the default libpath from the value encoded in an empty executable.
 
 cat > conftest.$ac_ext <<EOF
-#line 8025 "configure"
+#line 8355 "configure"
 #include "confdefs.h"
 int main() {
 ; return 0; }
@@ -9539,7 +9869,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9542 "configure"
+#line 9872 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9639,7 +9969,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9642 "configure"
+#line 9972 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10704,7 +11034,7 @@ case $host_os in
       # Determine the default libpath from the value encoded in an empty executable.
 
 cat > conftest.$ac_ext <<EOF
-#line 10707 "configure"
+#line 11037 "configure"
 #include "confdefs.h"
 int main() {
 ; return 0; }
@@ -10747,7 +11077,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
 	# Determine the default libpath from the value encoded in an empty executable.
 
 cat > conftest.$ac_ext <<EOF
-#line 10750 "configure"
+#line 11080 "configure"
 #include "confdefs.h"
 int main() {
 ; return 0; }
@@ -11999,11 +12329,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"configure:12002: $lt_compile\"" >&5)
+   (eval echo "\"configure:12332: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "configure:12006: \$? = $ac_status" >&5
+   echo "configure:12336: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -12103,11 +12433,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"configure:12106: $lt_compile\"" >&5)
+   (eval echo "\"configure:12436: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "configure:12110: \$? = $ac_status" >&5
+   echo "configure:12440: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
