@@ -1,14 +1,39 @@
-#include "php_taglib.h"
+/**
+ * TagLib implementation and php extension
+ * Mostly for manipulating Tags
+ * But also reading audioProperties
+ * Aiming to implement MPEG (MP3), FLAC, and OGG */
+
+/**
+ * standard libs */
 #include <iostream>
 #include <iomanip>
 #include <stdio.h>
-#include <fileref.h>
 
+/**
+ * TagLib libs 
+ * - Currently using these environment variables to compile:
+ *     C_INCLUDE_PATH="/usr/local/include/taglib"
+ *     CPLUS_INCLUDE_PATH="/usr/local/include/taglib"
+ */
+#include <fileref.h>
 #include <tag.h>
 #include <id3v1tag.h>
 
-//:wqusing namespace TagLib;
+/**
+ * .h for this file (taglib.cpp) */
+#include "php_taglib.h"
+
+/**
+ * namespacing */
+//using namespace TagLib;
 using namespace TagLib::ID3v1;
+
+/**
+ * XXX Below is all test code (subject to change) */
+
+/**
+ * Memory management, ho!" */
 zend_object_handlers taglib_object_handlers;
 
 struct taglib_object {
@@ -49,8 +74,15 @@ zend_object_value taglib_create_handler(zend_class_entry *type TSRMLS_DC)
 
     return retval;
 }
+
+/**
+ * // I'm gonna try to annotate this with php where applicable
+ * <?php
+ *   class Tag { ... */
 zend_class_entry *tag_ce;
 
+/**
+ *  public function __construct() { ... */
 PHP_METHOD(Tag, __construct)
 {
     Tag *tag = NULL;
@@ -60,6 +92,9 @@ PHP_METHOD(Tag, __construct)
     taglib_object *obj = (taglib_object *)zend_object_store_get_object(object TSRMLS_CC);
     obj->tag = tag;
 }
+/**
+ * } // __construct()
+ * public function year() { ... */
 PHP_METHOD(Tag, year)
 {
     Tag *tag;
@@ -72,7 +107,12 @@ PHP_METHOD(Tag, year)
         RETURN_FALSE;
     }
 }
+/**
+ * } // year()
+ * } // class Tag */
 
+/**
+ * Now we assemble the above defined methods into the class or something */
 static zend_function_entry php_taglib_methods[] = {
     PHP_ME(Tag, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(Tag, year,        NULL, ZEND_ACC_PUBLIC)
@@ -114,4 +154,3 @@ zend_module_entry taglib_module_entry = {
 #ifdef COMPILE_DL_TAGLIB
 ZEND_GET_MODULE(taglib)
 #endif
-
