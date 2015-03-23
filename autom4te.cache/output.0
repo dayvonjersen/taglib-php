@@ -4177,6 +4177,7 @@ $as_echo "no" >&6; }
 
 
 
+# Since we require an external lib we use --with instead of --enable
 
 php_with_taglib=no
 
@@ -4227,6 +4228,7 @@ $as_echo "$ext_output" >&6; }
 
 
 if test $PHP_TAGLIB != "no"; then
+        # need to compile with C++
         
   if test -z "$php_cxx_done"; then
     ac_ext=cpp
@@ -4639,6 +4641,7 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
  
          
+        # and the standard libraries
         
   
   case stdc++ in
@@ -4663,6 +4666,8 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
+        # but we also need libtag.so so there's this strange macro
+        # this is just a random symbol from libtag
         
 
   save_old_LDFLAGS=$LDFLAGS
@@ -4910,12 +4915,15 @@ else
     ext_shared=$save_ext_shared
     unset ac_cv_lib_tag__ZN10ByteReaderD0Ev
     
-            as_fn_error $? "fuck fuck fuck" "$LINENO" 5
+            as_fn_error $? "libtag.so not found! Make sure you have installed (taglib.github.io) and libtag.so is in /usr/local/lib (and the .h files are in /usr/local/include/taglib)" "$LINENO" 5
         
   
 fi
 
+        # this line twice because I don't know what I'm doing
         -L/usr/local/lib -ldl -ltag
+
+        # where the taglib .h files live
         
   if test "/usr/local/include" != "/usr/include"; then
     
@@ -4947,6 +4955,8 @@ fi
 
   fi
 
+
+        # and some magic incantations
         
   PHP_VAR_SUBST="$PHP_VAR_SUBST TAGLIB_SHARED_LIBADD"
 
@@ -5244,6 +5254,7 @@ EOF
   fi
 
 fi
+# m4 is GNU/dumb
 
 
 enable_static=no
