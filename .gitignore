@@ -1,6 +1,7 @@
 *.swp
 *.swo
 *.mp3
+.libs/
 acinclude.m4
 aclocal.m4
 autom4te.cache/
