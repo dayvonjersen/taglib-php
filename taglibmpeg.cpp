@@ -1,3 +1,4 @@
+#include <typeinfo>
 #include <tlist.h>
 
 #include <mpegfile.h>
@@ -17,8 +18,8 @@ zend_object_handlers taglibfile_object_handlers;
 
 struct taglibfile_object {
     zend_object std;
-    void *file;
-}
+    TagLib::MPEG::File *file;
+};
 
 void taglibfile_free_storage(void *object TSRMLS_DC)
 {
@@ -37,7 +38,7 @@ zend_object_value taglibfile_create_handler(zend_class_entry *type TSRMLS_DC)
     zend_object_value retval;
 
     taglibfile_object *obj = (taglibfile_object *) emalloc(sizeof(taglibfile_object));
-    memset(obj, 0, sizeof(taglib_object));
+    memset(obj, 0, sizeof(taglibfile_object));
     obj->std.ce = type;
 
     ALLOC_HASHTABLE(obj->std.properties);
@@ -49,7 +50,7 @@ zend_object_value taglibfile_create_handler(zend_class_entry *type TSRMLS_DC)
     object_properties_init((zend_object *) &(obj->std.properties), type);
 #endif 
     retval.handle = zend_objects_store_put(obj, NULL, taglibfile_free_storage, NULL TSRMLS_CC);
-    retval.handlers = &taglib_object_handlers;
+    retval.handlers = &taglibfile_object_handlers;
 
     return retval;
 }
@@ -69,25 +70,19 @@ zend_class_entry *taglibmpeg_class_entry;
  *  // constructor  */
 PHP_METHOD(TagLibMPEG, __construct)
 {
-    char *fileName;
+    const char *fileName;
     zend_bool readProperties = true;
 
-    if(zend_parse__parameters(
-        ZEND_NUM_ARGS() TSRMLS_CSS, 
-        "s|b", 
-        &fileName, &readProperties) == FAILURE) 
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &fileName, &readProperties) == FAILURE) 
     {
         RETURN_NULL();
     }
 
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    
-    using namespace TagLib
-    {
-        ID3v2FrameFactory frameFactory = ID3v2::FrameFactory::instance();
-        MPEG::File mpegFile = new MPEG::File((FileName) fileName, &frameFactory, (bool) readProperties);
-        thisobj->file = mpegFile;
-    }
+
+    TagLib::ID3v2::FrameFactory *frameFactory = TagLib::ID3v2::FrameFactory::instance();
+    TagLib::MPEG::File *mpegFile = new TagLib::MPEG::File((TagLib::FileName) fileName, frameFactory, (bool) readProperties);
+    thisobj->file = mpegFile;
 }
 /**
  *  public function getAudioProperties() { ... 
@@ -95,55 +90,48 @@ PHP_METHOD(TagLibMPEG, __construct)
 PHP_METHOD(TagLibMPEG, getAudioProperties)
 {
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    void *audioProperties = thisobj->audioProperties();
-    if(typeid(TagLib::MPEG::Properties) != typeid(*audioProperties))
-    {
-        RETURN_FALSE;
-    }
-    array_init(properties);
-    add_assoc_long(properties, "length", audioProperties->length());
-    add_assoc_long(properties, "bitrate", audioProperties->bitrate());
-    add_assoc_long(properties, "sampleRate", audioProperties->sampleRate());
-    add_assoc_long(properties, "channels", audioProperties->channels());
+    TagLib::MPEG::Properties *audioProperties = thisobj->file->audioProperties();
+    array_init(return_value);
+    add_assoc_long(return_value, "length", audioProperties->length());
+    add_assoc_long(return_value, "bitrate", audioProperties->bitrate());
+    add_assoc_long(return_value, "sampleRate", audioProperties->sampleRate());
+    add_assoc_long(return_value, "channels", audioProperties->channels());
 
-    char *ver = "Unknown";
+    const char *ver = "Unknown";
     switch(audioProperties->version())
     {
-        case TagLib::MPEG::Header::Version::Version1:
+        case TagLib::MPEG::Header::Version1:
             ver = "MPEG Version 1";
             break;
-        case TagLib::MPEG::Header::Version::Version2:
+        case TagLib::MPEG::Header::Version2:
             ver = "MPEG Version 2";
             break;
-        case TagLib::MPEG::Header::Version::Version2_5:
+        case TagLib::MPEG::Header::Version2_5:
             ver = "MPEG Version 2.5";
             break;
     }
-    add_assoc_string(properties, "version", ver, 1);
+    add_assoc_string(return_value, "version", (char *)ver, 1);
 
-    char *mode = "Unknown";
+    const char *mode = "Unknown";
     switch(audioProperties->channelMode())
     {
-        case TagLib::MPEG::Header::ChannelMode::Stereo:
-        case TagLib::MPEG::Header::ChannelMode::JointStereo:
+        case TagLib::MPEG::Header::Stereo:
+        case TagLib::MPEG::Header::JointStereo:
             mode = "Stereo";
             break;
-        case TagLib::MPEG::Header::ChannelMode::DualChannel:
+        case TagLib::MPEG::Header::DualChannel:
             mode = "Dual Mono";
             break;
-        case TagLib::MPEG::Header::ChannelMode::SingleChannel:
+        case TagLib::MPEG::Header::SingleChannel:
             mode = "Mono";
             break;
     }
-    add_assoc_string(properties, "channelMode", mode, 1);
+    add_assoc_string(return_value, "channelMode", (char *)mode, 1);
 
-    add_assoc_long(properties, "layer", audioProperties->layer());
-    add_assoc_bool(properties, "protectionEnabled", (zend_bool) audioProperties->protectionEnabled());
-    add_assoc_bool(properties, "isCopyrighted", (zend_bool) audioProperties->isCopyrighted());
-    add_assoc_bool(properties, "isOriginal", (zend_bool) audioProperties->isOriginal());
-
-    // zend will use the variable passed to array_init() as return value apparently
-    // aka return properties;
+    add_assoc_long(return_value, "layer", audioProperties->layer());
+    add_assoc_bool(return_value, "protectionEnabled", (zend_bool) audioProperties->protectionEnabled());
+    add_assoc_bool(return_value, "isCopyrighted", (zend_bool) audioProperties->isCopyrighted());
+    add_assoc_bool(return_value, "isOriginal", (zend_bool) audioProperties->isOriginal());
 }
 
 /** XXX
@@ -178,11 +166,11 @@ static zend_function_entry php_taglibmpeg_methods[] = {
 PHP_MINIT_FUNCTION(taglibmpeg_minit)
 {
     zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, "Tag", php_taglibmpeg_methods);
-    tag_ce = zend_register_internal_class(&ce TSRMLS_CC);
-    tag_ce->create_object = taglibfile_create_handler;
-    memcpy(&taglib_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    taglib_object_handlers.clone_obj = NULL;
+    INIT_CLASS_ENTRY(ce, "TagLibMPEG", php_taglibmpeg_methods);
+    taglibmpeg_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
+    taglibmpeg_class_entry->create_object = taglibfile_create_handler;
+    memcpy(&taglibfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    taglibfile_object_handlers.clone_obj = NULL;
 
     return SUCCESS;
 }
