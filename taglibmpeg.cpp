@@ -81,7 +81,7 @@ PHP_METHOD(TagLibMPEG, __construct)
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
     TagLib::ID3v2::FrameFactory *frameFactory = TagLib::ID3v2::FrameFactory::instance();
-    TagLib::MPEG::File *mpegFile = new TagLib::MPEG::File((TagLib::FileName) fileName, frameFactory, (bool) readProperties);
+    TagLib::MPEG::File *mpegFile = new TagLib::MPEG::File((TagLib::FileName) "/home/tso/personal_jesus.mp3", frameFactory, (bool) readProperties);
     thisobj->file = mpegFile;
 }
 /**
