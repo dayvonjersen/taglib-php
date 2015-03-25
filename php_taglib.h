@@ -19,4 +19,9 @@
  * Zend will use when loading this module */ 
 extern zend_module_entry taglib_module_entry;
 #define phpext_taglib_ptr &taglib_module_entry
+
+ZEND_BEGIN_MODULE_GLOBALS(taglib)
+    const char *fileName;
+ZEND_END_MODULE_GLOBALS(taglib)
+
 #endif /* PHP_TAGLIB_H */

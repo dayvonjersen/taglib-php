@@ -28,4 +28,6 @@
  * .h for this file (taglib.cpp) */
 #include "php_taglib.h"
 
+ZEND_DECLARE_MODULE_GLOBALS(taglib);
+
 #include "taglibmpeg.cpp"

@@ -1,4 +1,4 @@
-#include <typeinfo>
+#include "TSRM.h"
 #include <tlist.h>
 
 #include <mpegfile.h>
@@ -70,18 +70,19 @@ zend_class_entry *taglibmpeg_class_entry;
  *  // constructor  */
 PHP_METHOD(TagLibMPEG, __construct)
 {
-    const char *fileName;
+    zval *fileName;
     zend_bool readProperties = true;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &fileName, &readProperties) == FAILURE) 
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &fileName, &readProperties) == FAILURE) 
     {
         RETURN_NULL();
     }
 
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
+
     TagLib::ID3v2::FrameFactory *frameFactory = TagLib::ID3v2::FrameFactory::instance();
-    TagLib::MPEG::File *mpegFile = new TagLib::MPEG::File((TagLib::FileName) "/home/tso/personal_jesus.mp3", frameFactory, (bool) readProperties);
+    TagLib::MPEG::File *mpegFile = new TagLib::MPEG::File((TagLib::FileName) Z_STRVAL_P(fileName), frameFactory, (bool) readProperties);
     thisobj->file = mpegFile;
 }
 /**
@@ -147,7 +148,10 @@ PHP_METHOD(TagLibMPEG, getID3v2)
     TagLib::ID3v2::FrameList frameList = thisobj->file->ID3v2Tag()->frameList();
     for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator frame = frameList.begin(); frame != frameList.end(); frame++)
     {
-        add_assoc_string(return_value, (*frame)->frameID().data(), (char *) (*frame)->toString().toCString(), 1);
+        char *key;
+        spprintf(&key, 4, "%s", (*frame)->frameID().data());
+        add_assoc_string(return_value, key, (char *) (*frame)->toString().toCString(), 1);
+        efree(key);
     }
 
 }
