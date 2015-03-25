@@ -134,8 +134,6 @@ PHP_METHOD(TagLibMPEG, getAudioProperties)
     add_assoc_bool(return_value, "isOriginal", (zend_bool) audioProperties->isOriginal());
 }
 
-/** XXX
-********************************************
 PHP_METHOD(TagLibMPEG, getID3v2)
 {
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
@@ -144,23 +142,22 @@ PHP_METHOD(TagLibMPEG, getID3v2)
         RETURN_FALSE;
     }
 
-    array_init(frames);
-    Iterator i;
+    array_init(return_value);
 
-    TagLib::ID3v2::FrameList frameList = thisobj->file->frameList();
-    for(i = frameList->begin(); i != frameList->end(); i++)
+    TagLib::ID3v2::FrameList frameList = thisobj->file->ID3v2Tag()->frameList();
+    for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator frame = frameList.begin(); frame != frameList.end(); frame++)
     {
-        
+        add_assoc_string(return_value, (*frame)->frameID().data(), (char *) (*frame)->toString().toCString(), 1);
     }
+
 }
-*********************************************
- XXX **/
 
 /**
  * Now we assemble the above defined methods into the class or something */
 static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, __construct,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(TagLibMPEG, getAudioProperties,  NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, getID3v2,  NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
 PHP_MINIT_FUNCTION(taglibmpeg_minit)

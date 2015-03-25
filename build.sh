@@ -20,5 +20,5 @@ if [ "$CATFILE" == "" ]; then
     sudo cp -R modules/* /usr/local/lib/php/modules 
     echo "Hey you, make a test.php and add it to build.sh"
 else
-    echo $CATFILE | less
+    cat /tmp/q | less
 fi
