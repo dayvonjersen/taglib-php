@@ -18,7 +18,15 @@ CATFILE=$(cat /tmp/q)
 if [ "$CATFILE" == "" ]; then 
     echo "Build succeeded, copying new module..."
     sudo cp -R modules/* /usr/local/lib/php/modules 
-    echo "Hey you, make a test.php and add it to build.sh"
+    for test in $(ls test); do 
+        php -f test/$test > /tmp/q;
+        if [ "$?" -eq 0 ]; then
+            echo -ne "\033[1;32m $test succeeded!\033[0m"
+        else
+            echo -ne "\033[0;31m :: $test FAILED :: \033[0m"
+            cat /tmp/q | less
+        fi
+    done
 else
     cat /tmp/q | less
 fi
