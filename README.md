@@ -1,4 +1,4 @@
-taglib wrapper for php
+#taglib wrapper for php
 http://taglib.github.io
 http://php.net
 
@@ -21,7 +21,7 @@ by the way) to accomplish this. I am basing much of this on those scripts.
 At this time I am planning to support MP3, OGG, and FLAC. Here is some 
 sample pseudo-php for what this will (hopefully, maybe) turn out like:
 
-class TagLibMP3 {
+    class TagLibMP3 {
 
     public function __construct( string $fileName );
 
@@ -52,12 +52,12 @@ class TagLibMP3 {
         // writes stuff to the file, or tries to at least    
     }
 
-}
+    }
 
 I mean that's all I need from taglib: to read and write tags from audio 
 files, preferably as stupid-simple and self-contained as possible.
 
 I don't want to be messing with ByteVectors and casting things to and from 
 TagLib::String while juggling the practically undocumented PHP internals
-[http://php.net/manual/en/internals2.php](inb4 someone links me to the php 
-internals) just to expose the entire API to php. Ain't nobody got time for that.
+[inb4 someone links me to the php internals](http://php.net/manual/en/internals2.php)
+just to expose the entire API to php. Ain't nobody got time for that.
