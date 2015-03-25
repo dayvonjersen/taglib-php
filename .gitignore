@@ -1,6 +1,7 @@
 *.swp
 *.swo
 *.mp3
+.deps
 *.o
 .libs/
 acinclude.m4
