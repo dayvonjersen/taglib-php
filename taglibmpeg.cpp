@@ -83,6 +83,11 @@ PHP_METHOD(TagLibMPEG, __construct)
 
     TagLib::ID3v2::FrameFactory *frameFactory = TagLib::ID3v2::FrameFactory::instance();
     TagLib::MPEG::File *mpegFile = new TagLib::MPEG::File((TagLib::FileName) Z_STRVAL_P(fileName), frameFactory, (bool) readProperties);
+
+    if(taglib_error())
+    {
+        RETURN_NULL();
+    }
     thisobj->file = mpegFile;
 }
 /**
