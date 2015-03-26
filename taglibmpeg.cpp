@@ -161,46 +161,46 @@ PHP_METHOD(TagLibMPEG, getID3v2)
 
 }
 
-// "foreach($newFrames as $key => $value)"
-int taglib_setID3v2_frames(void *value, int num_args, va_list args, zend_hash_key *key)
-{
-    zval *tmpcopy = ((zval *)value);
-    TSRMLS_FETCH();
-
-    zval_copy_ctor(tmpcopy);
-    INIT_PZVAL(tmpcopy);
-    convert_to_string(tmpcopy);
-
-    if(key->nKeyLength != 4)
-    {
-        // this will trigger taglib_error() : see taglib.cpp
-        std::cerr << "TagLibMPEG::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames";
-
-        return ZEND_HASH_APPLY_STOP;
-    }
-
-    const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(key->arKey, 4);
-    TagLib::ID3v2::Frame *newFrame = TagLib::ID3v2::FrameFactory::instance()->createFrame(byteVector);
-
-    TagLib::String frametext = (TagLib::String::null = Z_STRVAL_P(tmpcopy));
-    newFrame->setText(frametext);
-
-    TagLib::ID3v2::Tag *tag = va_arg(args,TagLib::ID3v2::Tag*);
-    tag->addFrame(newFrame);
-
-    return ZEND_HASH_APPLY_KEEP;
-}
 PHP_METHOD(TagLibMPEG, setID3v2)
 {
-    HashTable *newFrames;
+    zval *newFrames;
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &newFrames) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &newFrames) == FAILURE)
     {
         RETURN_FALSE;
     }
 
     TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
-    zend_hash_apply_with_arguments(newFrames, taglib_setID3v2_frames, 1, tag);
+
+    HashTable *hIndex = Z_ARRVAL_P(newFrames);
+    HashPosition pointer;
+    zval **data;
+
+    for(zend_hash_internal_pointer_reset_ex(hIndex, &pointer);
+        zend_hash_get_current_data_ex(hIndex, (void**)&data, &pointer) == SUCCESS;
+        zend_hash_move_forward_ex(hIndex, &pointer))
+    {
+        char *frameID;
+        uint frameID_length, index_type;
+        ulong index;
+        index_type = zend_hash_get_current_key_ex(hIndex, &frameID, &frameID_length, &index, 0, &pointer);
+
+        if(index_type != HASH_KEY_IS_STRING || frameID_length != 4)
+        {
+            // this will trigger taglib_error() : see taglib.cpp
+            std::cerr << "TagLibMPEG::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames";
+            break;
+        }
+ 
+        const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
+        TagLib::ID3v2::Frame *newFrame = TagLib::ID3v2::FrameFactory::instance()->createFrame(byteVector);
+
+        TagLib::String frametext = (TagLib::String::null = Z_STRVAL_P(data));
+        newFrame->setText(frametext);
+
+        tag->addFrame(newFrame);
+    }
+
     if(taglib_error())
     {
         RETURN_FALSE;
