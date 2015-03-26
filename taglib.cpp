@@ -15,16 +15,16 @@
  * .h for this file (taglib.cpp) */
 #include "php_taglib.h"
 
-#include "zend.h"
-#include "zend_API.h"
-#include "zend_interfaces.h"
-#include "zend_exceptions.h"
-#include "zend_vm.h"
-
 /**
  * taglib reports errors through std::cerr
  * let's expose these messages to PHP 
  * so they can actually be detected and handled */
+
+/**
+ * This idea came from a post I found on Google Groups
+ * posted August 15, 2002 by Chris Uzdavinis
+ * https://groups.google.com/d/msg/borland.public.cppbuilder.language/Uua6t3VhELA/vGyq-ituxN8J
+ */
 static std::stringstream taglib_cerr;
 class Stream_Swapper {
 public:
@@ -53,13 +53,18 @@ static bool taglib_error()
  * if you have any insight into this matter, please email me [tso@teknik.io] */
 //  static zend_class_entry *taglib_exception;
 //  zend_replace_error_handling( EH_THROW, taglib_exception, NULL TSRMLS_CC );
+//  zend_throw_exception_ex(taglib_exception, 0 TSRMLS_CC, errorMessage);
 
-//      zend_throw_exception_ex(taglib_exception, 0 TSRMLS_CC, errorMessage);
-    if(taglib_cerr.peek() == 'T')
+    // all TagLib errors happen to be prefixed with either
+    // "TagLib: " - debug() - tdebug.cpp
+    // "*** " - debugData() - tdebug.cpp
+    // and std::cerr sometimes contains more than just '\0'
+
+    if(taglib_cerr.peek() == 'T' || taglib_cerr.peek() == '*')
     {
-        char fgsfds[255];
-        taglib_cerr.getline(fgsfds,255);
-        php_error(E_WARNING, "%s", fgsfds);
+        char errorMessage[255];
+        taglib_cerr.getline(errorMessage,255);
+        php_error(E_WARNING, "%s", errorMessage);
         retval = true;
     }
 //    zend_replace_error_handling( EH_NORMAL, NULL, NULL TSRMLS_CC);
