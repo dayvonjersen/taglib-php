@@ -185,32 +185,33 @@ PHP_METHOD(TagLibMPEG, setID3v2)
         ulong index;
         index_type = zend_hash_get_current_key_ex(hIndex, &frameID, &frameID_length, &index, 0, &pointer);
 
-        if(index_type != HASH_KEY_IS_STRING || frameID_length != 4)
+        if(index_type != HASH_KEY_IS_STRING)
         {
             // this will trigger taglib_error() : see taglib.cpp
-            std::cerr << "TagLibMPEG::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames";
+            php_error(E_WARNING, "TagLibMPEG::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames");
+            RETURN_FALSE;
             break;
         }
- 
         const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
         TagLib::ID3v2::Frame *newFrame = TagLib::ID3v2::FrameFactory::instance()->createFrame(byteVector);
 
-        TagLib::String frametext = (TagLib::String::null = Z_STRVAL_P(data));
+        TagLib::String frametext = Z_STRVAL_P(*data);
         newFrame->setText(frametext);
 
         tag->addFrame(newFrame);
+
+        if(taglib_error())
+        {
+            RETURN_FALSE;
+            break;
+        }
     }
 
-    if(taglib_error())
-    {
-        RETURN_FALSE;
-    }
-    thisobj->file->save();
-    if(taglib_error())
-    {
-        RETURN_FALSE;
-    }
-    RETURN_TRUE;
+    if(thisobj->file->save())
+        RETURN_TRUE;
+
+    taglib_error();
+    RETURN_FALSE;
 }
 
 
@@ -220,6 +221,7 @@ static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, __construct,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(TagLibMPEG, getAudioProperties,  NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, getID3v2,  NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, setID3v2,  NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
 PHP_MINIT_FUNCTION(taglibmpeg_minit)
