@@ -19,6 +19,7 @@ zend_object_handlers taglibfile_object_handlers;
 struct taglibfile_object {
     zend_object std;
     TagLib::MPEG::File *file;
+    TagLib::ID3v2::FrameFactory *frameFactory;
 };
 
 void taglibfile_free_storage(void *object TSRMLS_DC)
@@ -81,8 +82,8 @@ PHP_METHOD(TagLibMPEG, __construct)
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 
-    TagLib::ID3v2::FrameFactory *frameFactory = TagLib::ID3v2::FrameFactory::instance();
-    TagLib::MPEG::File *mpegFile = new TagLib::MPEG::File((TagLib::FileName) Z_STRVAL_P(fileName), frameFactory, (bool) readProperties);
+    thisobj->frameFactory = TagLib::ID3v2::FrameFactory::instance();
+    TagLib::MPEG::File *mpegFile = new TagLib::MPEG::File((TagLib::FileName) Z_STRVAL_P(fileName), thisobj->frameFactory, (bool) readProperties);
 
     if(taglib_error())
     {
@@ -171,7 +172,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
     }
 
     TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
-
+    TagLib::ID3v2::Header *header = tag->header();
     HashTable *hIndex = Z_ARRVAL_P(newFrames);
     HashPosition pointer;
     zval **data;
@@ -187,18 +188,21 @@ PHP_METHOD(TagLibMPEG, setID3v2)
 
         if(index_type != HASH_KEY_IS_STRING)
         {
-            // this will trigger taglib_error() : see taglib.cpp
             php_error(E_WARNING, "TagLibMPEG::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames");
             RETURN_FALSE;
             break;
         }
         const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
-        TagLib::ID3v2::Frame *newFrame = TagLib::ID3v2::FrameFactory::instance()->createFrame(byteVector);
+php_printf("%s", "Got through byteVector");
+        TagLib::ID3v2::Frame *newFrame = thisobj->frameFactory->createFrame(byteVector,header);
+php_printf("%s", "created frame");
+//        TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
+//php_printf("%s", "made a TagLib::String");
+//        *newFrame->setText();
+//php_printf("%s", "set text on new frame from TagLib::String");
 
-        TagLib::String frametext = Z_STRVAL_P(*data);
-        newFrame->setText(frametext);
-
-        tag->addFrame(newFrame);
+//        tag->addFrame(newFrame);
+//php_printf("%s", "added frame to tag");
 
         if(taglib_error())
         {
@@ -208,7 +212,10 @@ PHP_METHOD(TagLibMPEG, setID3v2)
     }
 
     if(thisobj->file->save())
+{
+php_printf("%s", "saved the file");
         RETURN_TRUE;
+}
 
     taglib_error();
     RETURN_FALSE;
