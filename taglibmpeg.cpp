@@ -161,6 +161,59 @@ PHP_METHOD(TagLibMPEG, getID3v2)
 
 }
 
+// "foreach($newFrames as $key => $value)"
+int taglib_setID3v2_frames(void *value, int num_args, va_list args, zend_hash_key *key)
+{
+    zval *tmpcopy = ((zval *)value);
+    TSRMLS_FETCH();
+
+    zval_copy_ctor(tmpcopy);
+    INIT_PZVAL(tmpcopy);
+    convert_to_string(tmpcopy);
+
+    if(key->nKeyLength != 4)
+    {
+        // this will trigger taglib_error() : see taglib.cpp
+        std::cerr << "TagLibMPEG::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames";
+
+        return ZEND_HASH_APPLY_STOP;
+    }
+
+    const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(key->arKey, 4);
+    TagLib::ID3v2::Frame *newFrame = TagLib::ID3v2::FrameFactory::instance()->createFrame(byteVector);
+
+    TagLib::String frametext = (TagLib::String::null = Z_STRVAL_P(tmpcopy));
+    newFrame->setText(frametext);
+
+    TagLib::ID3v2::Tag *tag = va_arg(args,TagLib::ID3v2::Tag*);
+    tag->addFrame(newFrame);
+
+    return ZEND_HASH_APPLY_KEEP;
+}
+PHP_METHOD(TagLibMPEG, setID3v2)
+{
+    HashTable *newFrames;
+    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &newFrames) == FAILURE)
+    {
+        RETURN_FALSE;
+    }
+
+    TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
+    zend_hash_apply_with_arguments(newFrames, taglib_setID3v2_frames, 1, tag);
+    if(taglib_error())
+    {
+        RETURN_FALSE;
+    }
+    thisobj->file->save();
+    if(taglib_error())
+    {
+        RETURN_FALSE;
+    }
+    RETURN_TRUE;
+}
+
+
 /**
  * Now we assemble the above defined methods into the class or something */
 static zend_function_entry php_taglibmpeg_methods[] = {
