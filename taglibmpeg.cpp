@@ -204,20 +204,61 @@ PHP_METHOD(TagLibMPEG, setID3v2)
             break;
         }
         const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
-php_printf("%s", "Got through byteVector");
-//        TagLib::ID3v2::TextIdentificationFrame *newFrame = new TagLib::ID3v2::TextIdentificationFrame(byteVector);//,header);
+        /**
+         * this abstraction would make things much, much nicer:
         TagLib::ID3v2::Frame *newFrame = thisobj->frameFactory->createFrame(byteVector);
-php_printf("%s", newFrame->frameID().data());
-        TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
-//        const TagLib::ByteVector frametext = TagLib::ByteVector::fromCString(Z_STRVAL_P(*data), Z_STRLEN_P(*data));
-//php_printf("%s", (*frametext).toCString());
-php_printf("%s", "made a TagLib::String");
-        newFrame->setText(*frametext);
-//        newFrame->setData(frametext);
-php_printf("%s", "set text on new frame from TagLib::String");
 
-        tag->addFrame(newFrame);
-php_printf("%s", "added frame to tag");
+         * however it seems to cause a segfault if we try to manipulate the frame
+         * so let's get stupid */
+        switch(_charArrForSwitch(frameID))
+        {
+            case "TALB"_CASE:
+            case "TBPM"_CASE:
+            case "TCOM"_CASE:
+            case "TCON"_CASE:
+            case "TCOP"_CASE:
+            case "TDAT"_CASE:
+            case "TDLY"_CASE:
+            case "TENC"_CASE:
+            case "TEXT"_CASE:
+            case "TFLT"_CASE:
+            case "TIME"_CASE:
+            case "TIT1"_CASE:
+            case "TIT2"_CASE:
+            case "TIT3"_CASE:
+            case "TKEY"_CASE:
+            case "TLAN"_CASE:
+            case "TLEN"_CASE:
+            case "TMED"_CASE:
+            case "TOAL"_CASE:
+            case "TOFN"_CASE:
+            case "TOLY"_CASE:
+            case "TOPE"_CASE:
+            case "TORY"_CASE:
+            case "TOWN"_CASE:
+            case "TPE1"_CASE:
+            case "TPE2"_CASE:
+            case "TPE3"_CASE:
+            case "TPE4"_CASE:
+            case "TPOS"_CASE:
+            case "TPUB"_CASE:
+            case "TRCK"_CASE:
+            case "TRDA"_CASE:
+            case "TRSN"_CASE:
+            case "TRSO"_CASE:
+            case "TSIZ"_CASE:
+            case "TSRC"_CASE:
+            case "TSSE"_CASE:
+            case "TYER"_CASE:
+            {   TagLib::ID3v2::TextIdentificationFrame *newFrame = new TagLib::ID3v2::TextIdentificationFrame(byteVector);
+                TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
+
+                newFrame->setText(*frametext);
+                tag->addFrame(newFrame);
+            }   break;
+            default:
+                php_error(E_WARNING, "Invalid FRAME_ID or not implemented yet.");
+        }
 
         if(taglib_error())
         {
@@ -227,10 +268,7 @@ php_printf("%s", "added frame to tag");
     }
 
     if(thisobj->file->save())
-{
-php_printf("%s", "saved the file");
         RETURN_TRUE;
-}
 
     taglib_error();
     RETURN_FALSE;

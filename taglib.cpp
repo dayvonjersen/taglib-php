@@ -71,4 +71,16 @@ static bool taglib_error()
     return retval;
 }
 
+/**
+ * baby duck syndrome */
+constexpr unsigned int _charArrForSwitch(const char* str, int index = 0)
+{
+    return !str[index] ? 0x1505 : (_charArrForSwitch(str, index + 1) * 0x21) ^ str[index];
+}
+
+constexpr unsigned int operator"" _CASE ( const char str[], size_t size )
+{
+    return _charArrForSwitch(str);
+}
+
 #include "taglibmpeg.cpp"

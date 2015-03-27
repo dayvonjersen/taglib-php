@@ -22,7 +22,6 @@ include/
 install-sh
 libtool
 ltmain.sh
-Makefile
 Makefile.*
 missing
 mkinstalldirs
