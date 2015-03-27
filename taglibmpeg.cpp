@@ -1,6 +1,8 @@
 #include "TSRM.h"
 #include <tlist.h>
 
+/**
+ * all aboard */
 #include <mpegfile.h>
 #include <mpegheader.h>
 #include <mpegproperties.h>
@@ -22,6 +24,7 @@
 #include <uniquefileidentifierframe.h>
 #include <unknownframe.h>
 #include <unsynchronizedlyricsframe.h>
+#include <urllinkframe.h>
 
 /**
  * Memory management, ho!" */
@@ -170,7 +173,12 @@ PHP_METHOD(TagLibMPEG, getID3v2)
         add_assoc_string(return_value, key, (char *) (*frame)->toString().toCString(), 1);
         efree(key);
     }
+}
 
+PHP_METHOD(TagLibMPEG, clearID3v2)
+{
+    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    RETVAL_BOOL(thisobj->file->strip());
 }
 
 PHP_METHOD(TagLibMPEG, setID3v2)
@@ -335,6 +343,94 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                 newFrame->setText(*frametext);
                 tag->addFrame(newFrame);
             }   break;
+
+            /**
+             * UserTextIdentificationFrame FUN */
+            case "TXXX"_CASE:
+            {   TagLib::ID3v2::UserTextIdentificationFrame *newFrame = new TagLib::ID3v2::UserTextIdentificationFrame(byteVector);
+
+                const char* genericWarning = "TXXX aka UserTextIdentificationFrame requires an array argument e.g. ['desc' => 'Description of Frame', 'text' => 'Some text']";
+
+                HashTable *txxxArray = Z_ARRVAL_PP(data);
+                zval **desc, **text;
+                if(zend_hash_find(txxxArray, "desc", 4, (void **)&desc) == SUCCESS)
+                {
+                    TagLib::String *framedesc = new TagLib::String(Z_STRVAL_PP(desc));
+                    newFrame->setDescription(*framedesc);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }   
+                if(zend_hash_find(txxxArray, "text", 4, (void **)&text) == SUCCESS)
+                {
+                    TagLib::String *frametext = new TagLib::String(Z_STRVAL_PP(text));
+                    newFrame->setText(*frametext);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                tag->addFrame(newFrame);
+            }   break;
+
+            /**
+             * CommentsFrame FUN */
+            case "COMM"_CASE:
+            {   TagLib::ID3v2::CommentsFrame *newFrame = new TagLib::ID3v2::CommentsFrame(byteVector);
+                TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
+
+                newFrame->setText(*frametext);
+                tag->addFrame(newFrame);
+            }   break;
+
+            /**
+             * UrlLinkFrame FUN */
+            case "WCOM"_CASE:
+            case "WCOP"_CASE:
+            case "WOAF"_CASE:
+            case "WOAR"_CASE:
+            case "WOAS"_CASE:
+            case "WORS"_CASE:
+            case "WPAY"_CASE:
+            case "WPUB"_CASE:
+            {   TagLib::ID3v2::UrlLinkFrame *newFrame = new TagLib::ID3v2::UrlLinkFrame(byteVector);
+                TagLib::String *frameURL = new TagLib::String(Z_STRVAL_P(*data));
+                newFrame->setUrl(*frameURL);
+                tag->addFrame(newFrame);
+            } break;
+
+            /**
+             * UserUrlLinkFrame FUN */
+            case "WXXX"_CASE:
+            {   
+                TagLib::ID3v2::UserUrlLinkFrame *newFrame = new TagLib::ID3v2::UserUrlLinkFrame(byteVector);
+                const char* genericWarning = "WXXX aka UserUrlLinkFrame requires an array argument e.g. ['desc' => 'Description of URL', 'text' => 'http://www.example.com/']";
+
+                HashTable *txxxArray = Z_ARRVAL_PP(data);
+                zval **desc, **text;
+                if(zend_hash_find(txxxArray, "desc", 4, (void **)&desc) == SUCCESS)
+                {
+                    TagLib::String *framedesc = new TagLib::String(Z_STRVAL_PP(desc));
+                    newFrame->setDescription(*framedesc);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }   
+                if(zend_hash_find(txxxArray, "text", 4, (void **)&text) == SUCCESS)
+                {
+                    TagLib::String *frametext = new TagLib::String(Z_STRVAL_PP(text));
+                    newFrame->setUrl(*frametext);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                tag->addFrame(newFrame);
+            } break;
+
+            /**
+             * ... */
+
+            /**
+             * u dun fucked up rtfm n00b xD */
             default:
                 php_error(E_WARNING, "Invalid FRAME_ID or not implemented yet.");
         }
@@ -359,8 +455,9 @@ PHP_METHOD(TagLibMPEG, setID3v2)
 static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, __construct,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(TagLibMPEG, getAudioProperties,  NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(TagLibMPEG, getID3v2,  NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(TagLibMPEG, setID3v2,  NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, getID3v2,            NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, clearID3v2,          NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, setID3v2,            NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
 PHP_MINIT_FUNCTION(taglibmpeg_minit)
