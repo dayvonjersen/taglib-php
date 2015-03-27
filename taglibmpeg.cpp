@@ -11,6 +11,17 @@
 #include <id3v2header.h>
 #include <id3v2synchdata.h>
 #include <id3v2tag.h>
+#include <attachedpictureframe.h>
+#include <commentsframe.h>
+#include <generalencapsulatedobjectframe.h>
+#include <ownershipframe.h>
+#include <popularimeterframe.h>
+#include <privateframe.h>
+#include <relativevolumeframe.h>
+#include <textidentificationframe.h>
+#include <uniquefileidentifierframe.h>
+#include <unknownframe.h>
+#include <unsynchronizedlyricsframe.h>
 
 /**
  * Memory management, ho!" */
@@ -194,15 +205,19 @@ PHP_METHOD(TagLibMPEG, setID3v2)
         }
         const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
 php_printf("%s", "Got through byteVector");
-        TagLib::ID3v2::Frame *newFrame = thisobj->frameFactory->createFrame(byteVector,header);
-php_printf("%s", "created frame");
-//        TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
-//php_printf("%s", "made a TagLib::String");
-//        *newFrame->setText();
-//php_printf("%s", "set text on new frame from TagLib::String");
+//        TagLib::ID3v2::TextIdentificationFrame *newFrame = new TagLib::ID3v2::TextIdentificationFrame(byteVector);//,header);
+        TagLib::ID3v2::Frame *newFrame = thisobj->frameFactory->createFrame(byteVector);
+php_printf("%s", newFrame->frameID().data());
+        TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
+//        const TagLib::ByteVector frametext = TagLib::ByteVector::fromCString(Z_STRVAL_P(*data), Z_STRLEN_P(*data));
+//php_printf("%s", (*frametext).toCString());
+php_printf("%s", "made a TagLib::String");
+        newFrame->setText(*frametext);
+//        newFrame->setData(frametext);
+php_printf("%s", "set text on new frame from TagLib::String");
 
-//        tag->addFrame(newFrame);
-//php_printf("%s", "added frame to tag");
+        tag->addFrame(newFrame);
+php_printf("%s", "added frame to tag");
 
         if(taglib_error())
         {
