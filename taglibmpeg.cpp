@@ -81,6 +81,52 @@ zend_object_value taglibfile_create_handler(zend_class_entry *type TSRMLS_DC)
 zend_class_entry *taglibmpeg_class_entry;
 
 /**
+ * Expose Class Constants from TagLib */
+
+/**
+ * babby's first macro :3 */
+#define _defineclassconstant(name, value) \
+zval * _##name##_ ;\
+_##name##_ = (zval*)(pemalloc(sizeof(zval),1));\
+INIT_PZVAL(_##name##_);\
+ZVAL_LONG(_##name##_,value);\
+zend_hash_add(&ce->constants_table,#name,sizeof(#name),(void *)&_##name##_,sizeof(zval*),NULL);
+
+void taglibmpeg_register_constants(zend_class_entry *ce)
+{
+    /**
+     * see TagLib::AttachedPictureFrame::Type in attachedpictureframe.h */
+/**    zval *_other, *_fileicon, *__colouredfish;
+    _colouredfish = (zval*)( pemalloc(sizeof(zval),1) );
+    INIT_PZVAL(_colouredfish);
+    ZVAL_LONG(_colouredfish, 0x11);
+    zend_hash_add(&ce->constants_table, "APIC_COLOUREDFISH", sizeof("APIC_COLOUREDFISH"), (void *)&_colouredfish, sizeof(zval*), NULL);
+**/
+    _defineclassconstant( APIC_OTHER,              0x00);
+    _defineclassconstant( APIC_FILEICON,           0x01);
+    _defineclassconstant( APIC_OTHERFILEICON,      0x02);
+    _defineclassconstant( APIC_FRONTCOVER,         0x03);
+    _defineclassconstant( APIC_BACKCOVER,          0x04);
+    _defineclassconstant( APIC_LEAFLETPAGE,        0x05);
+    _defineclassconstant( APIC_MEDIA,              0x06);
+    _defineclassconstant( APIC_LEADARTIST,         0x07);
+    _defineclassconstant( APIC_ARTIST,             0x08);
+    _defineclassconstant( APIC_CONDUCTOR,          0x09);
+    _defineclassconstant( APIC_BAND,               0x0A);
+    _defineclassconstant( APIC_COMPOSER,           0x0B);
+    _defineclassconstant( APIC_LYRICIST,           0x0C);
+    _defineclassconstant( APIC_RECORDINGLOCATION,  0x0D);
+    _defineclassconstant( APIC_DURINGRECORDING,    0x0E);
+    _defineclassconstant( APIC_DURINGPERFORMANCE,  0x0F);
+    _defineclassconstant( APIC_MOVIESCREENCAPTURE, 0x10);
+    _defineclassconstant( APIC_COLOUREDFISH,       0x11);
+    _defineclassconstant( APIC_ILLUSTRATION,       0x11);
+    _defineclassconstant( APIC_BANDLOGO,           0x13);
+    _defineclassconstant( APIC_PUBLISHERLOGO,      0x14);
+
+}
+
+/**
  *  public function __construct() { ... 
  *  // constructor  */
 PHP_METHOD(TagLibMPEG, __construct)
@@ -237,7 +283,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                 TagLib::ID3v2::AttachedPictureFrame *pictureFrame = new TagLib::ID3v2::AttachedPictureFrame(byteVector);
                 HashTable *pictureArray = Z_ARRVAL_P(*data);
                 zval **data, **mime, **type, **desc;
-                if(zend_hash_find(pictureArray, "data", 4, (void **)&data) == SUCCESS)
+                if(zend_hash_find(pictureArray, "data", 5, (void **)&data) == SUCCESS)
                 {
                     TagLib::ByteVector *dataVector = new TagLib::ByteVector();
                     dataVector->setData(Z_STRVAL_PP(data), Z_STRLEN_PP(desc));
@@ -246,7 +292,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                     php_error(E_WARNING, genericWarning);
                     RETURN_FALSE;
                 }
-                if(zend_hash_find(pictureArray, "mime", 4, (void **)&mime) == SUCCESS)
+                if(zend_hash_find(pictureArray, "mime", 5, (void **)&mime) == SUCCESS)
                 {
                     TagLib::String *mimeType = new TagLib::String(Z_STRVAL_PP(mime));
                     pictureFrame->setMimeType(*mimeType);
@@ -254,7 +300,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                     php_error(E_WARNING, genericWarning);
                     RETURN_FALSE;
                 }
-                if(zend_hash_find(pictureArray, "type", 4, (void **)&type) == SUCCESS)
+                if(zend_hash_find(pictureArray, "type", 5, (void **)&type) == SUCCESS)
                 {
                     using namespace TagLib::ID3v2;
                     AttachedPictureFrame::Type pictureType;
@@ -282,7 +328,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                         case AttachedPictureFrame::BandLogo: pictureType = AttachedPictureFrame::BandLogo; break;
                         case AttachedPictureFrame::PublisherLogo: pictureType = AttachedPictureFrame::PublisherLogo; break;
                         default:
-                            php_error(E_WARNING, "Invalid value for AttachedPictureFrame::Type. HINT: Range is 0x00 - 0x14");
+                            php_error(E_WARNING, "Invalid value for AttachedPictureFrame::Type. Try using TagLibMPEG::APIC_* constants");
                             RETURN_FALSE;
                     }
                     pictureFrame->setType(pictureType);
@@ -290,7 +336,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                     php_error(E_WARNING, genericWarning);
                     RETURN_FALSE;
                 }
-                if(zend_hash_find(pictureArray, "desc", 4, (void **)&desc) == SUCCESS)
+                if(zend_hash_find(pictureArray, "desc", 5, (void **)&desc) == SUCCESS)
                 {  
                     TagLib::String *description = new TagLib::String(Z_STRVAL_PP(desc));
                     pictureFrame->setDescription(*description);
@@ -353,7 +399,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
 
                 HashTable *txxxArray = Z_ARRVAL_PP(data);
                 zval **desc, **text;
-                if(zend_hash_find(txxxArray, "desc", 4, (void **)&desc) == SUCCESS)
+                if(zend_hash_find(txxxArray, "desc", 5, (void **)&desc) == SUCCESS)
                 {
                     TagLib::String *framedesc = new TagLib::String(Z_STRVAL_PP(desc));
                     newFrame->setDescription(*framedesc);
@@ -361,7 +407,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                     php_error(E_WARNING, genericWarning);
                     RETURN_FALSE;
                 }   
-                if(zend_hash_find(txxxArray, "text", 4, (void **)&text) == SUCCESS)
+                if(zend_hash_find(txxxArray, "text", 5, (void **)&text) == SUCCESS)
                 {
                     TagLib::String *frametext = new TagLib::String(Z_STRVAL_PP(text));
                     newFrame->setText(*frametext);
@@ -407,7 +453,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
 
                 HashTable *txxxArray = Z_ARRVAL_PP(data);
                 zval **desc, **text;
-                if(zend_hash_find(txxxArray, "desc", 4, (void **)&desc) == SUCCESS)
+                if(zend_hash_find(txxxArray, "desc", 5, (void **)&desc) == SUCCESS)
                 {
                     TagLib::String *framedesc = new TagLib::String(Z_STRVAL_PP(desc));
                     newFrame->setDescription(*framedesc);
@@ -415,7 +461,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                     php_error(E_WARNING, genericWarning);
                     RETURN_FALSE;
                 }   
-                if(zend_hash_find(txxxArray, "text", 4, (void **)&text) == SUCCESS)
+                if(zend_hash_find(txxxArray, "text", 5, (void **)&text) == SUCCESS)
                 {
                     TagLib::String *frametext = new TagLib::String(Z_STRVAL_PP(text));
                     newFrame->setUrl(*frametext);
@@ -465,9 +511,12 @@ PHP_MINIT_FUNCTION(taglibmpeg_minit)
     zend_class_entry ce;
     INIT_CLASS_ENTRY(ce, "TagLibMPEG", php_taglibmpeg_methods);
     taglibmpeg_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
+    taglibmpeg_register_constants(taglibmpeg_class_entry);
+
     taglibmpeg_class_entry->create_object = taglibfile_create_handler;
     memcpy(&taglibfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     taglibfile_object_handlers.clone_obj = NULL;
+
 
     return SUCCESS;
 }

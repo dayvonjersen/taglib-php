@@ -8,6 +8,11 @@ foreach($ext->getClasses() as $class)
         echo 'final ';
     echo 'class ', $class->getName(), "\n";
 
+    foreach($class->getConstants() as $const => $value)
+    {
+        echo $class->getName(), '::', $const, ' = ', $value, "\n";
+    }
+
     foreach($class->getProperties() as $prop)
     {
         if(!$prop->isDefault())
