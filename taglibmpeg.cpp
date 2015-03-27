@@ -212,6 +212,85 @@ PHP_METHOD(TagLibMPEG, setID3v2)
          * so let's get stupid */
         switch(_charArrForSwitch(frameID))
         {
+            /**
+             * AttachedPictureFrame FUN */
+            case "APIC"_CASE:
+            {
+                /**
+                 * example argument supplied from php userland:
+                 * ["APIC" => ["data" => file_get_contents('album_art.jpg'), // required
+                 *             "mime" => "image/jpeg",                       // required
+                 *             "type" => TagLibMPEG_AttachedPictureFrame::FrontCover // required TODO: expose constants
+                 *             "desc" => "photo by Tavis Lochhead"           // optional
+                 *            ]
+                 * ]; */
+                const char *genericWarning = "AttachedPictureFrame expects a specific array argument, e.g.: ['data' => file_get_contents($newPicture), 'mime' => 'image/jpeg', 'type' => TagLibMPEG_AttachedPictureFrame::FrontCover, 'desc' => 'optional description']";
+
+                TagLib::ID3v2::AttachedPictureFrame *pictureFrame = new TagLib::ID3v2::AttachedPictureFrame(byteVector);
+                HashTable *pictureArray = Z_ARRVAL_P(*data);
+                zval **data, **mime, **type, **desc;
+                if(zend_hash_find(pictureArray, "data", 4, (void **)&data) == SUCCESS)
+                {
+                    TagLib::ByteVector *dataVector = new TagLib::ByteVector();
+                    dataVector->setData(Z_STRVAL_PP(data), Z_STRLEN_PP(desc));
+                    pictureFrame->setPicture(*dataVector);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                if(zend_hash_find(pictureArray, "mime", 4, (void **)&mime) == SUCCESS)
+                {
+                    TagLib::String *mimeType = new TagLib::String(Z_STRVAL_PP(mime));
+                    pictureFrame->setMimeType(*mimeType);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                if(zend_hash_find(pictureArray, "type", 4, (void **)&type) == SUCCESS)
+                {
+                    using namespace TagLib::ID3v2;
+                    AttachedPictureFrame::Type pictureType;
+                    switch(Z_LVAL_PP(type))
+                    {
+                        case AttachedPictureFrame::Other: pictureType = AttachedPictureFrame::Other; break;
+                        case AttachedPictureFrame::FileIcon: pictureType = AttachedPictureFrame::FileIcon; break;
+                        case AttachedPictureFrame::OtherFileIcon: pictureType = AttachedPictureFrame::OtherFileIcon; break;
+                        case AttachedPictureFrame::FrontCover: pictureType = AttachedPictureFrame::FrontCover; break;
+                        case AttachedPictureFrame::BackCover: pictureType = AttachedPictureFrame::BackCover; break;
+                        case AttachedPictureFrame::LeafletPage: pictureType = AttachedPictureFrame::LeafletPage; break;
+                        case AttachedPictureFrame::Media: pictureType = AttachedPictureFrame::Media; break;
+                        case AttachedPictureFrame::LeadArtist: pictureType = AttachedPictureFrame::LeadArtist; break;
+                        case AttachedPictureFrame::Artist: pictureType = AttachedPictureFrame::Artist; break;
+                        case AttachedPictureFrame::Conductor: pictureType = AttachedPictureFrame::Conductor; break;
+                        case AttachedPictureFrame::Band: pictureType = AttachedPictureFrame::Band; break;
+                        case AttachedPictureFrame::Composer: pictureType = AttachedPictureFrame::Composer; break;
+                        case AttachedPictureFrame::Lyricist: pictureType = AttachedPictureFrame::Lyricist; break;
+                        case AttachedPictureFrame::RecordingLocation: pictureType = AttachedPictureFrame::RecordingLocation; break;
+                        case AttachedPictureFrame::DuringRecording: pictureType = AttachedPictureFrame::DuringRecording; break;
+                        case AttachedPictureFrame::DuringPerformance: pictureType = AttachedPictureFrame::DuringPerformance; break;
+                        case AttachedPictureFrame::MovieScreenCapture: pictureType = AttachedPictureFrame::MovieScreenCapture; break;
+                        case AttachedPictureFrame::ColouredFish: pictureType = AttachedPictureFrame::ColouredFish; break;
+                        case AttachedPictureFrame::Illustration: pictureType = AttachedPictureFrame::Illustration; break;
+                        case AttachedPictureFrame::BandLogo: pictureType = AttachedPictureFrame::BandLogo; break;
+                        case AttachedPictureFrame::PublisherLogo: pictureType = AttachedPictureFrame::PublisherLogo; break;
+                        default:
+                            php_error(E_WARNING, "Invalid value for AttachedPictureFrame::Type. HINT: Range is 0x00 - 0x14");
+                            RETURN_FALSE;
+                    }
+                    pictureFrame->setType(pictureType);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                if(zend_hash_find(pictureArray, "desc", 4, (void **)&desc) == SUCCESS)
+                {  
+                    TagLib::String *description = new TagLib::String(Z_STRVAL_PP(desc));
+                    pictureFrame->setDescription(*description);
+                }
+                tag->addFrame(pictureFrame);
+            }   break;
+            /**
+             * TextIdentificationFrame FUN */
             case "TALB"_CASE:
             case "TBPM"_CASE:
             case "TCOM"_CASE:

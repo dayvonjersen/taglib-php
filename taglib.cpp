@@ -72,7 +72,13 @@ static bool taglib_error()
 }
 
 /**
- * baby duck syndrome */
+ * baby duck syndrome - using strings in switch statements
+ * 
+ * Thanks to Captain Oblivious:
+ * http://stackoverflow.com/a/16721551
+ *
+ * NOTE: This requires C++11
+ */
 constexpr unsigned int _charArrForSwitch(const char* str, int index = 0)
 {
     return !str[index] ? 0x1505 : (_charArrForSwitch(str, index + 1) * 0x21) ^ str[index];
