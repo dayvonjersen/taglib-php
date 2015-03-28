@@ -6,8 +6,11 @@
 
 right now it doesn't do much, but
 ##update Fri 27 Mar 2015 10:19:44 PM EDT
+
  - we can get, set, and clear ID3v2 tags from MP3s. I am excited.
+
 ##update Sat 28 Mar 2015 02:41:55 PM EDT
+
  - we can get, set, and clear ID3v1 tags
  - exposed hasID3v1Tag, has ID3v2Tag, hasAPETag
  - abstracted clear(ID3v1|ID3v2|APE) to stripTags(TagLibMPEG::STRIP_\*)
@@ -23,7 +26,9 @@ right now it doesn't do much, but
 
  - TagLib uses these terms consistently, so if you're confused or want to know the specific implemenation details, head over to http://taglib.github.io/api for better descriptions.
 
- - While you need to use "ARTIST" in an ID3v1 tag and "TPE1" in an ID3v2 tag with this extension and TagLib has the `artist()` method for each Tag to do this seemlessly behind the scenes, I have deliberately chosen not to expose these methods to PHP at this time. My reasoning for this is that I plan to use this to read **all** of the tagging metadata from an audio file, process it, destroy all of the metadata, and rebuild it according to a specification I have determined in order to have fully consistent audio files with no extraneous tags that might have come from other taggers and certain specific tags (such as ID3v2's TCOP and WCOP) for which (rightly) no such abstractions exist in TagLib. Going the other way and abstracting *every possible ID3v2 tag* is beyond my threshold for pain.
+ - While you need to use "ARTIST" in an ID3v1 tag and "TPE1" in an ID3v2 tag with this extension and TagLib has the `artist()` method for each Tag to do this seemlessly behind the scenes, I have deliberately chosen not to expose these methods to PHP at this time.
+    - My reasoning for this is that I plan to use this to read **all** of the tagging metadata from an audio file, process it, destroy all of the metadata, and rebuild it according to a specification I have determined in order to have fully consistent audio files with no extraneous tags that might have come from other taggers and certain specific tags (such as ID3v2's TCOP and WCOP) for which (rightly) no such abstractions exist in TagLib. 
+    - Going the other way and abstracting *every possible ID3v2 tag* is beyond my threshold for pain.
 
 #a note about errors
 
@@ -34,17 +39,25 @@ I'm considering and looking into throwing exceptions but maybe it is better this
 e.g. if you try to read a file that doesn't exist:
 
 `try {`
+
 `  $mp3 = new TagLibMPEG('/file/that/does/not/exist');`
+
 `} catch($e Exception) {`
+
 `  echo 'No such file!';`
+
 `}`
 
 seems like an anti pattern since when dealing with files you would usually do something like
 
 `if(file_exists($file) && (new finfo(FILEINFO_MIME_TYPE))->file($file) == 'audio/mpeg') {`
-`// note there are multiple valid mimetypes for mp3 other than audio/mpeg
+
+`// note there are multiple valid mimetypes for mp3 other than audio/mpeg`
+
 `   $mp3 = new TagLibMPEG($file);`
+
 `}`
+
 since you normally wouldn't attempt to open a file that wasn't valid under any circumstance
 
 #what gets exposed to php
@@ -54,34 +67,61 @@ since you normally wouldn't attempt to open a file that wasn't valid under any c
 
 ###constants
 
- - for use with TagLibMPEG::stripTags()
+for use with TagLibMPEG::stripTags()
+
 `TagLibMPEG::STRIP_NOTAGS = 0`
+
 `TagLibMPEG::STRIP_ID3V1 = 1`
+
 `TagLibMPEG::STRIP_ID3V2 = 2`
+
 `TagLibMPEG::STRIP_APE = 4`
+
 `TagLibMPEG::STRIP_ALLTAGS = 65535`
 
- - for use with APIC ID3v2 tag (attached picture frame aka "Album Art")
+
+for use with APIC ID3v2 tag (attached picture frame aka "Album Art")
+
 `TagLibMPEG::APIC_OTHER = 0`
+
 `TagLibMPEG::APIC_FILEICON = 1`
+
 `TagLibMPEG::APIC_OTHERFILEICON = 2`
+
 `TagLibMPEG::APIC_FRONTCOVER = 3`
+
 `TagLibMPEG::APIC_BACKCOVER = 4`
+
 `TagLibMPEG::APIC_LEAFLETPAGE = 5`
+
 `TagLibMPEG::APIC_MEDIA = 6`
+
 `TagLibMPEG::APIC_LEADARTIST = 7`
+
 `TagLibMPEG::APIC_ARTIST = 8`
+
 `TagLibMPEG::APIC_CONDUCTOR = 9`
+
 `TagLibMPEG::APIC_BAND = 10`
+
 `TagLibMPEG::APIC_COMPOSER = 11`
+
 `TagLibMPEG::APIC_LYRICIST = 12`
+
 `TagLibMPEG::APIC_RECORDINGLOCATION = 13`
+
 `TagLibMPEG::APIC_DURINGRECORDING = 14`
+
 `TagLibMPEG::APIC_DURINGPERFORMANCE = 15`
+
 `TagLibMPEG::APIC_MOVIESCREENCAPTURE = 16`
+
 `TagLibMPEG::APIC_COLOUREDFISH = 17`
-`TagLibMPEG::APIC_ILLUSTRATION = 17`
+
+`TagLibMPEG::APIC_ILLUSTRATION = 18`
+
 `TagLibMPEG::APIC_BANDLOGO = 19`
+
 `TagLibMPEG::APIC_PUBLISHERLOGO = 20`
 
 ##methods
@@ -95,7 +135,9 @@ since you normally wouldn't attempt to open a file that wasn't valid under any c
  - will return an assocative array of file properties such as bitrate in kbps and length in seconds
 
 `public bool hasID3v1( void )`
+
 `public bool hasID3v2( void )`
+
 `public hasAPE( void )`
  - will return true if the file has the respective tag`
 
@@ -128,9 +170,21 @@ since you normally wouldn't attempt to open a file that wasn't valid under any c
 
  - T\*\*\* frames are string values
  - APIC (AttachedPictureFrame) expects a specific array argument, e.g.: 
-`['data' => file_get_contents($newPicture), 'mime' => 'image/jpeg', 'type' => TagLibMPEG::APIC_FRONTCOVER, 'desc' => 'optional description']`
+
+`['data' => file_get_contents($newPicture),`
+
+` 'mime' => 'image/jpeg', `
+
+` 'type' => TagLibMPEG::APIC_FRONTCOVER,` 
+
+` 'desc' => 'optional description']`
+
  - TXXX (User-defined TextIdentificationFrame or something) also requires an array:
-`['desc' => 'Description of Custom Field', 'text' => 'The contents of that field']`
+
+`['desc' => 'Description of Custom Field', `
+
+`'text' => 'The contents of that field']`
+
  - Will trigger E_WARNING if you pass invalid arguments with a (hopefully) helpful hint
 
 `public bool stripTags( int tagtypes = TagLibMPEG::STRIP_ALL )`

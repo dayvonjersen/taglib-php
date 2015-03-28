@@ -131,7 +131,7 @@ void taglibmpeg_register_constants(zend_class_entry *ce)
     _defineclassconstant( APIC_DURINGPERFORMANCE,  0x0F);
     _defineclassconstant( APIC_MOVIESCREENCAPTURE, 0x10);
     _defineclassconstant( APIC_COLOUREDFISH,       0x11);
-    _defineclassconstant( APIC_ILLUSTRATION,       0x11);
+    _defineclassconstant( APIC_ILLUSTRATION,       0x12);
     _defineclassconstant( APIC_BANDLOGO,           0x13);
     _defineclassconstant( APIC_PUBLISHERLOGO,      0x14);
 
