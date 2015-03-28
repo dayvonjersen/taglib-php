@@ -35,10 +35,16 @@ struct tagliboggfile_object {
 
 /**
  * Memory Management */
+zend_object_handlers tagliboggfile_object_handlers;
 void tagliboggfile_free_storage(void *object TSRMLS_DC)
 {
     tagliboggfile_object *obj = (tagliboggfile_object *)object;
-    delete obj->file;
+    switch(obj->type)
+    {
+        case _OGG_VORBIS_: delete obj->vorbisfile; break;
+        case _OGG_OPUS_:   delete obj->opusfile;   break;
+        case _OGG_FLAC_:   delete obj->flacfile;   break;
+    }
 
     zend_hash_destroy(obj->std.properties);
     FREE_HASHTABLE(obj->std.properties);
