@@ -1,4 +1,5 @@
-#include <tpropertymap.h>
+/**
+ * the ride never ends */
 #include <oggfile.h>
 #include <oggflacfile.h>
 #include <oggpage.h>
@@ -22,12 +23,6 @@
 #define _OGG_OPUS_   0x02
 #define _OGG_FLAC_   0x03
 #define _OGG_SPEEX_  0x04
-#define _defineclassconstant(name, value) \
-zval * _##name##_ ;\
-_##name##_ = (zval*)(pemalloc(sizeof(zval),1));\
-INIT_PZVAL(_##name##_);\
-ZVAL_LONG(_##name##_,value);\
-zend_hash_add(&ce->constants_table,#name,sizeof(#name),(void *)&_##name##_,sizeof(zval*),NULL);
 
 struct tagliboggfile_object {
     zend_object std;
@@ -38,13 +33,55 @@ struct tagliboggfile_object {
     TagLib::Ogg::XiphComment  *xiphcomment;
 };
 
+/**
+ * Memory Management */
+void tagliboggfile_free_storage(void *object TSRMLS_DC)
+{
+    tagliboggfile_object *obj = (tagliboggfile_object *)object;
+    delete obj->file;
+
+    zend_hash_destroy(obj->std.properties);
+    FREE_HASHTABLE(obj->std.properties);
+
+    efree(obj);
+}
+
+zend_object_value tagliboggfile_create_handler(zend_class_entry *type TSRMLS_DC)
+{
+    zval *tmp;
+    zend_object_value retval;
+
+    tagliboggfile_object *obj = (tagliboggfile_object *) emalloc(sizeof(tagliboggfile_object));
+    memset(obj, 0, sizeof(tagliboggfile_object));
+    obj->std.ce = type;
+
+    ALLOC_HASHTABLE(obj->std.properties);
+    zend_hash_init(obj->std.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
+    
+#if PHP_VERSION_ID < 50399
+    zend_hash_copy(obj->std.properties, &type->default_properties, (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
+#else
+    object_properties_init((zend_object *) &(obj->std.properties), type);
+#endif 
+    retval.handle = zend_objects_store_put(obj, NULL, tagliboggfile_free_storage, NULL TSRMLS_CC);
+    retval.handlers = &tagliboggfile_object_handlers;
+
+    return retval;
+}
+
+/**
+ * End Memory Management */
+
+
 /*
  * class entry */
 zend_class_entry *taglibogg_class_entry;
 
-/**
- * class constants */
 
+/**
+ * Class Constants
+ * _defineclassconstant macro defined in taglib.cpp
+ */
 void taglibogg_register_constants(zend_class_entry *ce)
 {
     _defineclassconstant( VORBIS, _OGG_VORBIS_ );
@@ -232,41 +269,3 @@ static zend_function_entry php_taglibogg_methods[] = {
     PHP_ME(TagLibOGG, setXiphComment,      NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
-PHP_MINIT_FUNCTION(taglibogg_minit)
-{
-    zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, "TagLibOGG", php_taglibogg_methods);
-    taglibogg_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
-    taglibogg_register_constants(taglibogg_class_entry);
-
-//    taglibogg_class_entry->create_object = taglibfile_create_handler;
-//    memcpy(&taglibfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-//    taglibfile_object_handlers.clone_obj = NULL;
-
-
-    return SUCCESS;
-}
-
-zend_module_entry taglib_module_entry = {
-
-#if ZEND_MODULE_API_NO >= 20010901
-    STANDARD_MODULE_HEADER,
-#endif
-
-    PHP_TAGLIB_EXTNAME,
-    NULL, /* Functions */
-    PHP_MINIT(taglibogg_minit), /* MINIT */
-    NULL, /* MSHUTDOWN */
-    NULL, /* RINIT */
-    NULL, /* RSHUTDOWN */
-    NULL, /* MINFO */
-
-#if ZEND_MODULE_API_NO >= 20010901
-    PHP_TAGLIB_EXTVER,
-#endif
-    STANDARD_MODULE_PROPERTIES
-};
-
-#ifdef COMPILE_DL_TAGLIB
-ZEND_GET_MODULE(taglib)
-#endif

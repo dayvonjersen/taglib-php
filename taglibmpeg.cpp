@@ -1,7 +1,3 @@
-#include "TSRM.h"
-#include <tlist.h>
-#include <tpropertymap.h>
-#include <tstringlist.h>
 /**
  * all aboard */
 #include <mpegfile.h>
@@ -36,17 +32,17 @@
 
 /**
  * Memory management, ho!" */
-zend_object_handlers taglibfile_object_handlers;
+zend_object_handlers taglibmpegfile_object_handlers;
 
-struct taglibfile_object {
+struct taglibmpegfile_object {
     zend_object std;
     TagLib::MPEG::File *file;
     TagLib::ID3v2::FrameFactory *frameFactory;
 };
 
-void taglibfile_free_storage(void *object TSRMLS_DC)
+void taglibmpegfile_free_storage(void *object TSRMLS_DC)
 {
-    taglibfile_object *obj = (taglibfile_object *)object;
+    taglibmpegfile_object *obj = (taglibmpegfile_object *)object;
     delete obj->file;
 
     zend_hash_destroy(obj->std.properties);
@@ -55,13 +51,13 @@ void taglibfile_free_storage(void *object TSRMLS_DC)
     efree(obj);
 }
 
-zend_object_value taglibfile_create_handler(zend_class_entry *type TSRMLS_DC)
+zend_object_value taglibmpegfile_create_handler(zend_class_entry *type TSRMLS_DC)
 {
     zval *tmp;
     zend_object_value retval;
 
-    taglibfile_object *obj = (taglibfile_object *) emalloc(sizeof(taglibfile_object));
-    memset(obj, 0, sizeof(taglibfile_object));
+    taglibmpegfile_object *obj = (taglibmpegfile_object *) emalloc(sizeof(taglibmpegfile_object));
+    memset(obj, 0, sizeof(taglibmpegfile_object));
     obj->std.ce = type;
 
     ALLOC_HASHTABLE(obj->std.properties);
@@ -72,8 +68,8 @@ zend_object_value taglibfile_create_handler(zend_class_entry *type TSRMLS_DC)
 #else
     object_properties_init((zend_object *) &(obj->std.properties), type);
 #endif 
-    retval.handle = zend_objects_store_put(obj, NULL, taglibfile_free_storage, NULL TSRMLS_CC);
-    retval.handlers = &taglibfile_object_handlers;
+    retval.handle = zend_objects_store_put(obj, NULL, taglibmpegfile_free_storage, NULL TSRMLS_CC);
+    retval.handlers = &taglibmpegfile_object_handlers;
 
     return retval;
 }
@@ -84,17 +80,9 @@ zend_object_value taglibfile_create_handler(zend_class_entry *type TSRMLS_DC)
 zend_class_entry *taglibmpeg_class_entry;
 
 /**
- * Expose Class Constants from TagLib */
-
-/**
- * babby's first macro :3 */
-#define _defineclassconstant(name, value) \
-zval * _##name##_ ;\
-_##name##_ = (zval*)(pemalloc(sizeof(zval),1));\
-INIT_PZVAL(_##name##_);\
-ZVAL_LONG(_##name##_,value);\
-zend_hash_add(&ce->constants_table,#name,sizeof(#name),(void *)&_##name##_,sizeof(zval*),NULL);
-
+ * Expose Class Constants from TagLib 
+ * _defineclassconstant macro defined in taglib.cpp
+ */
 void taglibmpeg_register_constants(zend_class_entry *ce)
 {
     /**
@@ -149,7 +137,7 @@ PHP_METHOD(TagLibMPEG, __construct)
         RETURN_NULL();
     }
 
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 
     thisobj->frameFactory = TagLib::ID3v2::FrameFactory::instance();
@@ -166,7 +154,7 @@ PHP_METHOD(TagLibMPEG, __construct)
  *  // returns array or false on failure */
 PHP_METHOD(TagLibMPEG, getAudioProperties)
 {
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     TagLib::MPEG::Properties *audioProperties = thisobj->file->audioProperties();
     array_init(return_value);
     add_assoc_long(return_value, "length", audioProperties->length());
@@ -213,23 +201,23 @@ PHP_METHOD(TagLibMPEG, getAudioProperties)
 
 PHP_METHOD(TagLibMPEG, hasID3v1)
 {
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     RETVAL_BOOL(thisobj->file->hasID3v1Tag());
 }
 PHP_METHOD(TagLibMPEG, hasID3v2)
 {
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     RETVAL_BOOL(thisobj->file->hasID3v2Tag());
 }
 PHP_METHOD(TagLibMPEG, hasAPE)
 {
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     RETVAL_BOOL(thisobj->file->hasAPETag());
 }
 
 PHP_METHOD(TagLibMPEG, getAPE)
 {
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     if(!thisobj->file->hasAPETag())
     {
         RETURN_FALSE;
@@ -248,7 +236,7 @@ PHP_METHOD(TagLibMPEG, getAPE)
 
 PHP_METHOD(TagLibMPEG, getID3v1)
 {
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     if(!thisobj->file->hasID3v1Tag())
     {
         RETURN_FALSE;
@@ -279,7 +267,7 @@ PHP_METHOD(TagLibMPEG, setID3v1)
         RETURN_FALSE;
     }
     
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
     // passing true to this will create the id3v1 tag if it doesn't exist already
     TagLib::ID3v1::Tag *id3v1 = thisobj->file->ID3v1Tag(true);
@@ -344,7 +332,7 @@ PHP_METHOD(TagLibMPEG, setID3v1)
 
 PHP_METHOD(TagLibMPEG, getID3v2)
 {
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     if(!thisobj->file->hasID3v2Tag())
     {
         RETURN_FALSE;
@@ -364,7 +352,7 @@ PHP_METHOD(TagLibMPEG, getID3v2)
 
 PHP_METHOD(TagLibMPEG, stripTags)
 {
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     long tags;
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &tags) == FAILURE)
     {
@@ -377,7 +365,7 @@ PHP_METHOD(TagLibMPEG, stripTags)
 PHP_METHOD(TagLibMPEG, setID3v2)
 {
     zval *newFrames;
-    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &newFrames) == FAILURE)
     {
         RETURN_FALSE;
@@ -644,7 +632,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
 
 
 /**
- * Now we assemble the above defined methods into the class or something */
+ * See taglib.cpp for how this all comes together */
 static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, __construct,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(TagLibMPEG, getAudioProperties,  NULL, ZEND_ACC_PUBLIC)
@@ -659,41 +647,3 @@ static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, stripTags,           NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
-PHP_MINIT_FUNCTION(taglibmpeg_minit)
-{
-    zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, "TagLibMPEG", php_taglibmpeg_methods);
-    taglibmpeg_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
-    taglibmpeg_register_constants(taglibmpeg_class_entry);
-
-    taglibmpeg_class_entry->create_object = taglibfile_create_handler;
-    memcpy(&taglibfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    taglibfile_object_handlers.clone_obj = NULL;
-
-
-    return SUCCESS;
-}
-
-zend_module_entry taglib_module_entry = {
-
-#if ZEND_MODULE_API_NO >= 20010901
-    STANDARD_MODULE_HEADER,
-#endif
-
-    PHP_TAGLIB_EXTNAME,
-    NULL, /* Functions */
-    PHP_MINIT(taglibmpeg_minit), /* MINIT */
-    NULL, /* MSHUTDOWN */
-    NULL, /* RINIT */
-    NULL, /* RSHUTDOWN */
-    NULL, /* MINFO */
-
-#if ZEND_MODULE_API_NO >= 20010901
-    PHP_TAGLIB_EXTVER,
-#endif
-    STANDARD_MODULE_PROPERTIES
-};
-
-#ifdef COMPILE_DL_TAGLIB
-ZEND_GET_MODULE(taglib)
-#endif
