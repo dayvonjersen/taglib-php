@@ -227,6 +227,25 @@ PHP_METHOD(TagLibMPEG, hasAPE)
     RETVAL_BOOL(thisobj->file->hasAPETag());
 }
 
+PHP_METHOD(TagLibMPEG, getAPE)
+{
+    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->file->hasAPETag())
+    {
+        RETURN_FALSE;
+    }
+
+    TagLib::APE::Tag *ape = thisobj->file->APETag();
+    array_init(return_value);
+
+    TagLib::PropertyMap propMap = ape->properties();
+
+    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++)
+    {
+        add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
+    }
+}
+
 PHP_METHOD(TagLibMPEG, getID3v1)
 {
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
@@ -632,6 +651,7 @@ static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, hasID3v1,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, hasID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, hasAPE,              NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, getAPE,              NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, getID3v1,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, setID3v1,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, getID3v2,            NULL, ZEND_ACC_PUBLIC)
