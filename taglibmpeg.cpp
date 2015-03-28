@@ -81,11 +81,6 @@ zend_object_value taglibfile_create_handler(zend_class_entry *type TSRMLS_DC)
 /**
  * end memory management
  * begin class definition */
-
-/**
- * // I'm gonna try to annotate this with pseudo-php where applicable
- * <?php
- *   class TagLibMPEG { ... */
 zend_class_entry *taglibmpeg_class_entry;
 
 /**
@@ -103,13 +98,21 @@ zend_hash_add(&ce->constants_table,#name,sizeof(#name),(void *)&_##name##_,sizeo
 void taglibmpeg_register_constants(zend_class_entry *ce)
 {
     /**
-     * see TagLib::AttachedPictureFrame::Type in attachedpictureframe.h */
-/**    zval *_other, *_fileicon, *__colouredfish;
-    _colouredfish = (zval*)( pemalloc(sizeof(zval),1) );
-    INIT_PZVAL(_colouredfish);
-    ZVAL_LONG(_colouredfish, 0x11);
-    zend_hash_add(&ce->constants_table, "APIC_COLOUREDFISH", sizeof("APIC_COLOUREDFISH"), (void *)&_colouredfish, sizeof(zval*), NULL);
-**/
+     * see TagLib::MPEG::File::TagTypes in mpegfile.h 
+     *
+     * For use with TagLibMPEG::stripTags() in this extension 
+     */
+    _defineclassconstant( STRIP_NOTAGS, 0x0000 );
+    _defineclassconstant( STRIP_ID3V1,  0x0001 );
+    _defineclassconstant( STRIP_ID3V2,  0x0002 );
+    _defineclassconstant( STRIP_APE,    0x0004 );
+    _defineclassconstant( STRIP_ALLTAGS,0xffff );
+
+    /**
+     * see TagLib::AttachedPictureFrame::Type in attachedpictureframe.h 
+     *
+     * For use with get/set ID3v2 functions in this extension.
+     */
     _defineclassconstant( APIC_OTHER,              0x00);
     _defineclassconstant( APIC_FILEICON,           0x01);
     _defineclassconstant( APIC_OTHERFILEICON,      0x02);
@@ -135,8 +138,7 @@ void taglibmpeg_register_constants(zend_class_entry *ce)
 }
 
 /**
- *  public function __construct() { ... 
- *  // constructor  */
+ *  public function __construct() { ...*/
 PHP_METHOD(TagLibMPEG, __construct)
 {
     zval *fileName;
@@ -244,6 +246,83 @@ PHP_METHOD(TagLibMPEG, getID3v1)
     }
 }
 
+/**
+ * returns FALSE if something went wrong,
+ * returns array of tags which failed to be set,
+ * returns TRUE if everything went through */
+PHP_METHOD(TagLibMPEG, setID3v1)
+{
+    zval *newProperties;
+    zend_bool overwrite_existing_tags = false;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE)
+    {
+        RETURN_FALSE;
+    }
+    
+    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+    // passing true to this will create the id3v1 tag if it doesn't exist already
+    TagLib::ID3v1::Tag *id3v1 = thisobj->file->ID3v1Tag(true);
+
+    TagLib::PropertyMap propMap = id3v1->properties();
+
+    HashTable *hIndex = Z_ARRVAL_P(newProperties);
+    HashPosition pointer;
+    zval **data;
+    for(zend_hash_internal_pointer_reset_ex(hIndex, &pointer);
+        zend_hash_get_current_data_ex(hIndex, (void**)&data, &pointer) == SUCCESS;
+        zend_hash_move_forward_ex(hIndex, &pointer))
+    {
+        char *key;
+        uint key_length, key_type;
+        ulong index;
+        key_type = zend_hash_get_current_key_ex(hIndex, &key, &key_length, &index, 0, &pointer);
+
+        if(key_type != HASH_KEY_IS_STRING)
+        {
+            php_error(E_WARNING, "TagLibMPEG::setID3v1 expects associative array!");
+            RETURN_FALSE;
+            break;
+        }
+
+        TagLib::String *destKey = new TagLib::String((const char *)key);
+        TagLib::StringList *destValue = new TagLib::StringList(*(new TagLib::String(Z_STRVAL_PP(data))));
+
+        // default PropertyMap::insert() behavior is append
+        if(propMap.contains(*destKey) && overwrite_existing_tags)
+        {
+            propMap.erase(*destKey);
+        }
+
+        if(!propMap.insert(*destKey,*destValue) || taglib_error())
+        {
+            php_error(E_WARNING, "PropertyMap::insert() failed, possibly invalid key provided.");
+            break;
+        }
+    }
+
+    TagLib::PropertyMap failedToSet = id3v1->setProperties(propMap);
+    if(thisobj->file->save())
+    {
+        if(failedToSet.begin() == failedToSet.end())
+        {
+            RETURN_TRUE;
+        } else {
+            array_init(return_value);
+            for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = failedToSet.begin(); 
+                property != failedToSet.end(); 
+                property++)
+            {
+                add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
+            }       
+        } 
+    } else {
+        taglib_error();
+        RETURN_FALSE;   
+    }
+}
+
 PHP_METHOD(TagLibMPEG, getID3v2)
 {
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
@@ -264,10 +343,16 @@ PHP_METHOD(TagLibMPEG, getID3v2)
     }
 }
 
-PHP_METHOD(TagLibMPEG, clearID3v2)
+PHP_METHOD(TagLibMPEG, stripTags)
 {
     taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    RETVAL_BOOL(thisobj->file->strip());
+    long tags;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &tags) == FAILURE)
+    {
+        // default behavior from MPEG::File::strip() with no arguments
+        tags = TagLib::MPEG::File::AllTags;
+    }
+    RETVAL_BOOL(thisobj->file->strip(tags));
 }
 
 PHP_METHOD(TagLibMPEG, setID3v2)
@@ -548,9 +633,10 @@ static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, hasID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, hasAPE,              NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, getID3v1,            NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, setID3v1,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, getID3v2,            NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(TagLibMPEG, clearID3v2,          NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, setID3v2,            NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, stripTags,           NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
 PHP_MINIT_FUNCTION(taglibmpeg_minit)
