@@ -89,4 +89,4 @@ constexpr unsigned int operator"" _CASE ( const char str[], size_t size )
     return _charArrForSwitch(str);
 }
 
-#include "taglibmpeg.cpp"
+#include "taglibogg.cpp"
