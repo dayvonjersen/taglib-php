@@ -1,11 +1,19 @@
 #include "TSRM.h"
 #include <tlist.h>
-
+#include <tpropertymap.h>
+#include <tstringlist.h>
 /**
  * all aboard */
 #include <mpegfile.h>
 #include <mpegheader.h>
 #include <mpegproperties.h>
+#include <apefile.h>
+#include <apefooter.h>
+#include <apeitem.h>
+#include <apeproperties.h>
+#include <apetag.h>
+#include <id3v1tag.h>
+#include <id3v1genres.h>
 #include <id3v2extendedheader.h>
 #include <id3v2footer.h>
 #include <id3v2frame.h>
@@ -199,6 +207,41 @@ PHP_METHOD(TagLibMPEG, getAudioProperties)
     add_assoc_bool(return_value, "protectionEnabled", (zend_bool) audioProperties->protectionEnabled());
     add_assoc_bool(return_value, "isCopyrighted", (zend_bool) audioProperties->isCopyrighted());
     add_assoc_bool(return_value, "isOriginal", (zend_bool) audioProperties->isOriginal());
+}
+
+PHP_METHOD(TagLibMPEG, hasID3v1)
+{
+    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    RETVAL_BOOL(thisobj->file->hasID3v1Tag());
+}
+PHP_METHOD(TagLibMPEG, hasID3v2)
+{
+    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    RETVAL_BOOL(thisobj->file->hasID3v2Tag());
+}
+PHP_METHOD(TagLibMPEG, hasAPE)
+{
+    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    RETVAL_BOOL(thisobj->file->hasAPETag());
+}
+
+PHP_METHOD(TagLibMPEG, getID3v1)
+{
+    taglibfile_object *thisobj = (taglibfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->file->hasID3v1Tag())
+    {
+        RETURN_FALSE;
+    }
+
+    TagLib::ID3v1::Tag *id3v1 = thisobj->file->ID3v1Tag();
+    array_init(return_value);
+
+    TagLib::PropertyMap propMap = id3v1->properties();
+
+    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++)
+    {
+        add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
+    }
 }
 
 PHP_METHOD(TagLibMPEG, getID3v2)
@@ -501,6 +544,10 @@ PHP_METHOD(TagLibMPEG, setID3v2)
 static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, __construct,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(TagLibMPEG, getAudioProperties,  NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, hasID3v1,            NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, hasID3v2,            NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, hasAPE,              NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, getID3v1,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, getID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, clearID3v2,          NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, setID3v2,            NULL, ZEND_ACC_PUBLIC)
