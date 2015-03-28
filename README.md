@@ -5,6 +5,9 @@
  - http://php.net
 
 right now it doesn't do much, but
+##update Fri 27 Mar 2015 10:19:44 PM EDT
+ - we can get, set, and clear ID3v2 tags from MP3s. I am excited.
+
 ###[please submit bugs/feature requests/feedback here](https://meta.bunzilla.ga/report/category/14)
 
 ---
@@ -44,7 +47,7 @@ sample pseudo-php for what this will (hopefully, maybe) turn out like:
             // yes I'm aware I'm commenting in what isn't even real code
         }
 
-        public function getTag() {
+        public function getID3v2() {
             $tag = [
                 'TPE1' => 'This is the artist field in an ID3v1 or v2 tag',
                 'TIT2' => 'This is the title; maybe I'll make a mapping',
@@ -55,8 +58,16 @@ sample pseudo-php for what this will (hopefully, maybe) turn out like:
             return $tag;
         }
 
-        public function setTag( array $fields = ['FRAME_ID' => "New Value"] ) {
-            // writes stuff to the file, or tries to at least    
+        public function setID3v2( array $fields = ['FRAME_ID' => "New Value"] ) {
+            // writes stuff to the file
+            // refer to the id3 spec: http://id3.org/id3v2.3.0
+            // some frames require an array argument 
+            // TODO: better documentation :x
+        }
+
+        public function clearID3v2() {
+            // nuke the whole tag
+            // returns true on success
         }
 
     }
