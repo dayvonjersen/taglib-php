@@ -16,6 +16,11 @@ right now it doesn't do much, but
  - abstracted clear(ID3v1|ID3v2|APE) to stripTags(TagLibMPEG::STRIP_\*)
  - APETag can be read or cleared only
 
+##update Sat 28 Mar 2015 07:41:47 PM EDT
+
+ - OGG Support! (except for speex because [speex is ded](http://www.speex.org/))
+ - Need to write more/better tests and update this documentation 
+
 ###[please submit bugs/feature requests/feedback here](https://meta.bunzilla.ga/report/category/14)
 
 ---
