@@ -345,7 +345,29 @@ PHP_METHOD(TagLibMPEG, getID3v2)
     {
         char *key;
         spprintf(&key, 4, "%s", (*frame)->frameID().data());
-        add_assoc_string(return_value, key, (char *) (*frame)->toString().toCString(), 1);
+        switch(_charArrForSwitch(key))
+        {
+            case "APIC"_CASE:
+            {   
+                TagLib::ID3v2::AttachedPictureFrame *apic = new TagLib::ID3v2::AttachedPictureFrame((*frame)->render());
+
+                int b64Length;
+                unsigned char *b64 = php_base64_encode((unsigned const char*)apic->picture().data(), apic->picture().size(), &b64Length);
+                zval *subarray; 
+                MAKE_STD_ZVAL(subarray);
+                array_init(subarray);
+                add_assoc_string(subarray,   "data", (char*)b64, 1);
+                add_assoc_string(subarray,   "mime", (char*)(apic->mimeType().toCString()),1);
+                add_assoc_long(subarray,     "type", apic->type());
+                add_assoc_string(subarray,   "desc", (char*)(apic->description().toCString()),1);
+                add_assoc_zval(return_value, "APIC", subarray);
+            }   break;
+            default:
+            {
+                add_assoc_string(return_value, key, (char *) (*frame)->toString().toCString(), 1);
+            }
+        }
+        
         efree(key);
     }
 }
@@ -361,6 +383,17 @@ PHP_METHOD(TagLibMPEG, stripTags)
     }
     RETVAL_BOOL(thisobj->file->strip(tags));
 }
+
+class ImageFileTest : public TagLib::File
+{
+public:
+ImageFileTest(const char *file) : TagLib::File(file) { }
+TagLib::ByteVector data() { return readBlock(length()); }
+private:
+virtual TagLib::Tag *tag() const { return 0; }
+virtual TagLib::AudioProperties *audioProperties() const { return 0; }
+virtual bool save() { return false; }
+};
 
 PHP_METHOD(TagLibMPEG, setID3v2)
 {
@@ -420,9 +453,10 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                 zval **data, **mime, **type, **desc;
                 if(zend_hash_find(pictureArray, "data", 5, (void **)&data) == SUCCESS)
                 {
-                    TagLib::ByteVector *dataVector = new TagLib::ByteVector();
-                    dataVector->setData(Z_STRVAL_PP(data), Z_STRLEN_PP(desc));
-                    pictureFrame->setPicture(*dataVector);
+//                    TagLib::ByteVector *dataVector = new TagLib::ByteVector();
+//                    dataVector->setData((*data)->value.str.val,sizeof((*data)->value.str));//, Z_STRLEN_PP(desc));
+                    ImageFileTest *image = new ImageFileTest(Z_STRVAL_PP(data));
+                    pictureFrame->setPicture(image->readBlock(image->length()));
                 } else {
                     php_error(E_WARNING, genericWarning);
                     RETURN_FALSE;
@@ -624,7 +658,9 @@ PHP_METHOD(TagLibMPEG, setID3v2)
     }
 
     if(thisobj->file->save())
+    {
         RETURN_TRUE;
+    }
 
     taglib_error();
     RETURN_FALSE;

@@ -16,6 +16,10 @@
 #include "php_taglib.h"
 
 /**
+ * using extensions within extensions */
+#include <ext/standard/base64.h>
+
+/**
  * taglib reports errors through std::cerr
  * let's expose these messages to PHP 
  * so they can actually be detected and handled */

@@ -1,6 +1,10 @@
 *.swp
 *.swo
 *.mp3
+*.ogg
+*.flac
+*.jpg
+*.png
 .deps
 *.o
 .libs/
