@@ -11,7 +11,8 @@ SHLIB_DL_SUFFIX_NAME = so
 ZEND_EXT_TYPE = zend_extension
 RE2C = exit 0;
 AWK = nawk
-TAGLIB_SHARED_LIBADD = -Wl,-rpath,/usr/local/lib -L/usr/local/lib -ltag -lstdc++
+TAGLIB_SHARED_LIBADD = -Wl,-rpath,/usr/local/lib -L/usr/local/lib -ltag -lstdc++ 
+FUCK_MY_LIFE=-Wl,-R /home/tso/taglib-php/php-5.6.7/ext/standard/base64.o
 shared_objects_taglib = taglib.lo
 PHP_PECL_EXTENSION = taglib
 PHP_MODULES = $(phplibdir)/taglib.la
@@ -30,7 +31,7 @@ CFLAGS_CLEAN = $(CFLAGS)
 CPP = cc -E
 CPPFLAGS = -DHAVE_CONFIG_H
 CXX = g++
-CXXFLAGS = -g -O2 -std=c++11 
+CXXFLAGS = -g -O2 -std=c++11
 CXXFLAGS_CLEAN = $(CXXFLAGS)
 EXTENSION_DIR = /usr/local/lib/php/extensions/no-debug-non-zts-20131226
 PHP_EXECUTABLE = /usr/local/bin/php

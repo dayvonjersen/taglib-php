@@ -351,11 +351,15 @@ PHP_METHOD(TagLibMPEG, getID3v2)
             {   
                 TagLib::ID3v2::AttachedPictureFrame *apic = new TagLib::ID3v2::AttachedPictureFrame((*frame)->render());
 
+                int datalen;
+                int base64len;
+                unsigned char *test = php_base64_encode((const unsigned char *)apic->picture().data(), datalen, &base64len);
                 zval *subarray; 
                 MAKE_STD_ZVAL(subarray);
                 array_init(subarray);
+                add_assoc_string(subarray,   "data", (char*)test, 1);
                 add_assoc_string(subarray,   "mime", (char*)(apic->mimeType().toCString()),1);
-                add_assoc_long(subarray,     "type", apic->type());
+                add_assoc_long(  subarray,   "type", apic->type());
                 add_assoc_string(subarray,   "desc", (char*)(apic->description().toCString()),1);
                 add_assoc_zval(return_value, "APIC", subarray);
             }   break;

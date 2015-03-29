@@ -8,6 +8,7 @@ if [ "$1" != "--quick" ]; then
     phpize
     ./configure --with-php-config=/usr/local/bin/php-config --enable-debug --with-taglib
 fi
+env CXXFLAGS="$CXXFLAGS -std=c+11"
 
 # maybe I *should* modify config.m4
 # or maybe you should shut up
