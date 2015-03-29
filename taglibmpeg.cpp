@@ -351,12 +351,22 @@ PHP_METHOD(TagLibMPEG, getID3v2)
             {   
                 TagLib::ID3v2::AttachedPictureFrame *apic = new TagLib::ID3v2::AttachedPictureFrame((*frame)->render());
 
-                int b64Length;
-                unsigned char *b64 = php_base64_encode((unsigned const char*)apic->picture().data(), apic->picture().size(), &b64Length);
+/**
+ * See explanation in taglib.cpp */
+//                int b64Length;
+//                unsigned char *b64 = php_base64_encode((unsigned const char*)apic->picture().data(), apic->picture().size(), &b64Length);
+                base64_encodestate b64state = {};
+                base64_init_encodestate(&b64state);
+                char *b64string;
+                char *data_in;
+                const char *data_readonly = apic->picture().data();
+                int data_len              = apic->picture().size(); 
+                memcpy(data_in, data_readonly, data_len);
+                int b64length = base64_encode_block((const char *)data_in, data_len, b64string, &b64state);
                 zval *subarray; 
                 MAKE_STD_ZVAL(subarray);
                 array_init(subarray);
-                add_assoc_string(subarray,   "data", (char*)b64, 1);
+                add_assoc_string(subarray,   "data", b64string, 1);
                 add_assoc_string(subarray,   "mime", (char*)(apic->mimeType().toCString()),1);
                 add_assoc_long(subarray,     "type", apic->type());
                 add_assoc_string(subarray,   "desc", (char*)(apic->description().toCString()),1);

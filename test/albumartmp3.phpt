@@ -13,5 +13,5 @@ $u = $t->getID3v2();
 
 var_dump($u);
 
-file_put_contents('/home/tso/output.jpeg', base64_decode($u['APIC']['data']));
+//file_put_contents('/home/tso/output.jpeg', base64_decode($u['APIC']['data']));
 
