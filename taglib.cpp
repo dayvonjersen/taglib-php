@@ -151,10 +151,18 @@ PHP_MINIT_FUNCTION(taglib_minit)
     return SUCCESS;
 }
 
+
+static zend_module_dep php_sample_deps[] = {
+    ZEND_MOD_REQUIRED("standard")
+    {NULL,NULL,NULL}
+};
+
 zend_module_entry taglib_module_entry = {
 
 #if ZEND_MODULE_API_NO >= 20010901
-    STANDARD_MODULE_HEADER,
+    STANDARD_MODULE_HEADER_EX, NULL,
+    php_sample_deps,
+//    STANDARD_MODULE_HEADER,
 #endif
 
     PHP_TAGLIB_EXTNAME,

@@ -1,5 +1,5 @@
 # Since we require an external lib we use --with instead of --enable
-PHP_ARG_WITH(taglib, 
+PHP_ARG_ENABLE(taglib, 
     [   with-taglib     Include taglib support])
 
 if test $PHP_TAGLIB != "no"; then
@@ -30,5 +30,6 @@ if test $PHP_TAGLIB != "no"; then
         # and some magic incantations
         PHP_SUBST(TAGLIB_SHARED_LIBADD)
         PHP_NEW_EXTENSION(taglib, taglib.cpp, $ext_shared)
+	PHP_ADD_EXTENSION_DEP(standard)
 fi
 # m4 is GNU/dumb

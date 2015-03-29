@@ -4,15 +4,14 @@ top_srcdir = /home/tso/q
 top_builddir = /home/tso/q
 EGREP = /bin/grep -E
 SED = /bin/sed
-CONFIGURE_COMMAND = './configure' '--with-php-config=/usr/local/bin/php-config' '--enable-debug' '--with-taglib'
-CONFIGURE_OPTIONS = '--with-php-config=/usr/local/bin/php-config' '--enable-debug' '--with-taglib'
+CONFIGURE_COMMAND = './configure' '--with-taglib'
+CONFIGURE_OPTIONS = '--with-taglib'
 SHLIB_SUFFIX_NAME = so
 SHLIB_DL_SUFFIX_NAME = so
 ZEND_EXT_TYPE = zend_extension
 RE2C = exit 0;
 AWK = nawk
-TAGLIB_SHARED_LIBADD = -Wl,-rpath,/usr/local/lib -L/usr/local/lib -ltag -lstdc++ 
-FUCK_MY_LIFE=-Wl,-R /home/tso/taglib-php/php-5.6.7/ext/standard/base64.o
+TAGLIB_SHARED_LIBADD = -Wl,-rpath,/usr/local/lib -L/usr/local/lib -ltag -lstdc++
 shared_objects_taglib = taglib.lo
 PHP_PECL_EXTENSION = taglib
 PHP_MODULES = $(phplibdir)/taglib.la
