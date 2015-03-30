@@ -541,7 +541,16 @@ inline unsigned char *
 b64_decode (const char *src, size_t len) {
 return b64_decode_ex(src, len, NULL);
 }
-
+inline char *ch2bin(unsigned char a)
+{
+    static char b[9];
+    for(unsigned char i = 128, j = 0; i > 0; i >>= 1, j++)
+    {
+        b[j] = a&i ? '1':'0';
+    }
+    b[8] = '\0';
+    return b;
+}
 PHP_METHOD(TagLibMPEG, setID3v2)
 {
     zval *newFrames;
@@ -600,10 +609,11 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                 zval **data, **mime, **type, **desc;
                 if(zend_hash_find(pictureArray, "data", 5, (void **)&data) == SUCCESS)
                 {
-/**                    TagLib::ByteVector *dataVector = new TagLib::ByteVector();
-                    unsigned char *b64data = b64_decode(Z_STRVAL_PP(data),Z_STRLEN_PP(data));
-                    dataVector->setData((char*)b64data, strlen((const char*)b64data)+1);
-                     pictureFrame->setPicture(*dataVector); **/
+                    size_t decsize;
+                    unsigned char *b64data = b64_decode_ex(Z_STRVAL_PP(data),Z_STRLEN_PP(data),&decsize);
+                    TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,decsize);
+                    pictureFrame->setPicture(dataVector); 
+                } else if(zend_hash_find(pictureArray, "file", 5, (void **)&data) == SUCCESS) {
                     ImageFileTest *image = new ImageFileTest(Z_STRVAL_PP(data));
                     pictureFrame->setPicture(image->readBlock(image->length()));
                 } else {
