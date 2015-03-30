@@ -116,16 +116,28 @@ PHP_METHOD(TagLibOGG, __construct)
         case _OGG_VORBIS_:
             thisobj->type        = _OGG_VORBIS_;
             thisobj->vorbisfile  = new TagLib::Ogg::Vorbis::File(oggFileName);
+            if(taglib_error())
+            {
+                RETURN_FALSE;
+            }
             thisobj->xiphcomment = thisobj->vorbisfile->tag();
             break;
         case _OGG_OPUS_:
             thisobj->type        = _OGG_OPUS_;
             thisobj->opusfile    = new TagLib::Ogg::Opus::File(oggFileName);
+            if(taglib_error())
+            {
+                RETURN_FALSE;
+            }
             thisobj->xiphcomment = thisobj->opusfile->tag();
             break;
         case _OGG_FLAC_:
             thisobj->type        = _OGG_FLAC_;
             thisobj->flacfile    = new TagLib::Ogg::FLAC::File(oggFileName);
+            if(taglib_error())
+            {
+                RETURN_FALSE;
+            }
             thisobj->xiphcomment = thisobj->flacfile->tag();
             break;
         case _OGG_SPEEX_:
@@ -135,9 +147,10 @@ PHP_METHOD(TagLibOGG, __construct)
             RETURN_NULL();
     }
 
+    // extra error handling that might not even be necessary 
     if(taglib_error())
     {
-        RETURN_NULL();
+        RETURN_FALSE;
     }
 }
 /**
