@@ -112,12 +112,13 @@ PHP_METHOD(TagLibOGG, __construct)
     tagliboggfile_object *thisobj = (tagliboggfile_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
     TagLib::FileName oggFileName = (TagLib::FileName) Z_STRVAL_P(fileName);
+
     switch(codec)
     {
         case _OGG_VORBIS_:
             thisobj->type        = _OGG_VORBIS_;
             thisobj->vorbisfile  = new TagLib::Ogg::Vorbis::File(oggFileName);
-            if(taglib_error())
+            if(taglib_error() || !thisobj->vorbisfile->isValid())
             {
                 RETURN_FALSE;
             } else {
@@ -127,7 +128,7 @@ PHP_METHOD(TagLibOGG, __construct)
         case _OGG_OPUS_:
             thisobj->type        = _OGG_OPUS_;
             thisobj->opusfile    = new TagLib::Ogg::Opus::File(oggFileName);
-            if(taglib_error())
+            if(taglib_error() || !thisobj->opusfile->isValid())
             {
                 RETURN_FALSE;
             } else {
@@ -137,7 +138,7 @@ PHP_METHOD(TagLibOGG, __construct)
         case _OGG_FLAC_:
             thisobj->type        = _OGG_FLAC_;
             thisobj->flacfile    = new TagLib::Ogg::FLAC::File(oggFileName);
-            if(taglib_error())
+            if(taglib_error() || !thisobj->flacfile->isValid())
             {
                 RETURN_FALSE;
             } else {
@@ -210,6 +211,8 @@ PHP_METHOD(TagLibOGG, getAudioProperties)
 PHP_METHOD(TagLibOGG, getXiphComment)
 {
     tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->initialized)
+        RETURN_FALSE;
 
     array_init(return_value);
 
@@ -226,6 +229,10 @@ PHP_METHOD(TagLibOGG, getXiphComment)
  * returns TRUE if everything went through */
 PHP_METHOD(TagLibOGG, setXiphComment)
 {
+    tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->initialized)
+        RETURN_FALSE;
+
     zval *newProperties;
     zend_bool overwrite_existing_tags = false;
 
@@ -234,8 +241,6 @@ PHP_METHOD(TagLibOGG, setXiphComment)
         RETURN_FALSE;
     }
     
-    tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
     HashTable *hIndex = Z_ARRVAL_P(newProperties);
     HashPosition pointer;
     zval **data;
