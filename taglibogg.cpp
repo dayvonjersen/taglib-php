@@ -27,6 +27,7 @@
 struct tagliboggfile_object {
     zend_object std;
     unsigned long type;
+    bool initialized;
     TagLib::Ogg::Vorbis::File *vorbisfile;
     TagLib::Ogg::Opus::File   *opusfile;
     TagLib::Ogg::FLAC::File   *flacfile;
@@ -105,7 +106,7 @@ PHP_METHOD(TagLibOGG, __construct)
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l", &fileName, &codec) == FAILURE) 
     {
-        RETURN_NULL();
+        RETURN_FALSE;
     }
 
     tagliboggfile_object *thisobj = (tagliboggfile_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
@@ -119,8 +120,9 @@ PHP_METHOD(TagLibOGG, __construct)
             if(taglib_error())
             {
                 RETURN_FALSE;
+            } else {
+                thisobj->xiphcomment = thisobj->vorbisfile->tag();
             }
-            thisobj->xiphcomment = thisobj->vorbisfile->tag();
             break;
         case _OGG_OPUS_:
             thisobj->type        = _OGG_OPUS_;
@@ -128,8 +130,9 @@ PHP_METHOD(TagLibOGG, __construct)
             if(taglib_error())
             {
                 RETURN_FALSE;
+            } else {
+                thisobj->xiphcomment = thisobj->opusfile->tag();
             }
-            thisobj->xiphcomment = thisobj->opusfile->tag();
             break;
         case _OGG_FLAC_:
             thisobj->type        = _OGG_FLAC_;
@@ -137,28 +140,31 @@ PHP_METHOD(TagLibOGG, __construct)
             if(taglib_error())
             {
                 RETURN_FALSE;
+            } else {
+                thisobj->xiphcomment = thisobj->flacfile->tag();
             }
-            thisobj->xiphcomment = thisobj->flacfile->tag();
             break;
         case _OGG_SPEEX_:
             php_error(E_DEPRECATED, "Speex is deprecated.");
         default:
             php_error(E_WARNING, "Unrecognized or unsupported option for $codec in TagLibOGG::__construct()");
-            RETURN_NULL();
+            RETURN_FALSE;
     }
 
-    // extra error handling that might not even be necessary 
     if(taglib_error())
     {
         RETURN_FALSE;
     }
+
+    thisobj->initialized = true;
 }
 /**
  *  public function getAudioProperties() { */
 PHP_METHOD(TagLibOGG, getAudioProperties)
 {
     tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
+    if(!thisobj->initialized)
+        RETURN_FALSE;
     array_init(return_value);
     switch(thisobj->type)
     {

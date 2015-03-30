@@ -323,7 +323,7 @@ PHP_MINIT_FUNCTION(taglib_minit)
     taglibogg_class_entry = zend_register_internal_class(&ogg_ce TSRMLS_CC);
     taglibogg_register_constants(taglibogg_class_entry);
 
-    taglibmpeg_class_entry->create_object = tagliboggfile_create_handler;
+    taglibogg_class_entry->create_object = tagliboggfile_create_handler;
     memcpy(&tagliboggfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     tagliboggfile_object_handlers.clone_obj = NULL;
 
