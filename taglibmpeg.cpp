@@ -432,7 +432,7 @@ PHP_METHOD(TagLibMPEG, setID3v2)
                  *             "desc" => "photo by Tavis Lochhead"           // optional
                  *            ]
                  * ]; */
-                const char *genericWarning = "AttachedPictureFrame expects a specific array argument, e.g.: ['data' => file_get_contents($newPicture), 'mime' => 'image/jpeg', 'type' => TagLibMPEG_AttachedPictureFrame::FrontCover, 'desc' => 'optional description']";
+                const char *genericWarning = "AttachedPictureFrame expects a specific array argument, e.g.: ['data' => base64_encode(file_get_contents($newPicture)), 'mime' => 'image/jpeg', 'type' => TagLibMPEG_AttachedPictureFrame::FrontCover, 'desc' => 'optional description']";
 
                 TagLib::ID3v2::AttachedPictureFrame *pictureFrame = new TagLib::ID3v2::AttachedPictureFrame(byteVector);
                 HashTable *pictureArray = Z_ARRVAL_P(*data);
@@ -631,12 +631,184 @@ PHP_METHOD(TagLibMPEG, setID3v2)
             } break;
 
             /**
+             * OwnershipFrame */
+            case "OWNE"_CASE:
+            {
+                TagLib::ID3v2::OwnershipFrame *newFrame = new TagLib::ID3v2::OwnershipFrame(byteVector);
+                const char* genericWarning = "OWNE aka OwnershipFrame requires an array argument e.g. ['date' => '19691231', 'paid' => '$0.99', 'seller' => 'someone']";
+
+                HashTable *txxxArray = Z_ARRVAL_PP(data);
+                zval **date, **paid, **seller;
+                if(zend_hash_find(txxxArray, "date", 5, (void **)&date) == SUCCESS)
+                {
+                    TagLib::String *datepurchased = new TagLib::String(Z_STRVAL_PP(date));
+                    newFrame->setDatePurchased(*datepurchased);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                if(zend_hash_find(txxxArray, "paid", 5, (void **)&paid) == SUCCESS)
+                {
+                    TagLib::String *pricepaid = new TagLib::String(Z_STRVAL_PP(paid));
+                    newFrame->setPricePaid(*pricepaid);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                if(zend_hash_find(txxxArray, "seller", 7, (void **)&seller) == SUCCESS)
+                {
+                    TagLib::String *sellout = new TagLib::String(Z_STRVAL_PP(seller));
+                    newFrame->setSeller(*sellout);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                tag->addFrame(newFrame);
+            } break;
+
+            /**
+             * PrivateFrame */
+            case "PRIV"_CASE:
+            {
+                TagLib::ID3v2::PrivateFrame *newFrame = new TagLib::ID3v2::PrivateFrame();
+                const char* genericWarning = "PRIV aka PrivateFrame requires an array argument e.g. ['owner' => 'nobody@example.com', 'data' => base64_encode('some data...')]";
+                
+                HashTable *txxxArray = Z_ARRVAL_PP(data);
+                zval **privowner, **privdata;
+                if(zend_hash_find(txxxArray, "owner", 6, (void **)&privowner) == SUCCESS)
+                {
+                    TagLib::String *owner = new TagLib::String(Z_STRVAL_PP(privowner));
+                    newFrame->setOwner(*owner);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+
+                if(zend_hash_find(txxxArray, "data", 5, (void **)&privdata) == SUCCESS)
+                {
+                    size_t decsize;
+                    unsigned char *b64data = b64_decode_ex(Z_STRVAL_PP(privdata),Z_STRLEN_PP(privdata),&decsize);
+                    TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,decsize);
+                    newFrame->setData(dataVector);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                tag->addFrame(newFrame);
+            } break;
+
+            /**
+             * UniqueFileIdentifierFrame */
+            case "UFID"_CASE:
+            {
+                TagLib::ID3v2::UniqueFileIdentifierFrame *newFrame = new TagLib::ID3v2::UniqueFileIdentifierFrame(byteVector);
+                const char* genericWarning = "UFID aka UniqueFileIdentifierFrame requires an array argument e.g. ['owner' => 'http://somemusicdatabase.example.com/', 'id' => '123456789']";
+
+                HashTable *txxxArray = Z_ARRVAL_PP(data);
+                zval **owner, **id;
+                if(zend_hash_find(txxxArray, "owner", 6, (void **)&owner) == SUCCESS)
+                {
+                    TagLib::String *ufidowner = new TagLib::String(Z_STRVAL_PP(owner));
+                    newFrame->setOwner(*ufidowner);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                if(zend_hash_find(txxxArray, "id", 3, (void **)&id) == SUCCESS)
+                {
+                    TagLib::ByteVector whyIsThisAByteVector = TagLib::ByteVector::fromCString((const char*) Z_STRVAL_PP(id));
+                    newFrame->setIdentifier(whyIsThisAByteVector);
+                } else {
+                    php_error(E_WARNING, genericWarning);
+                    RETURN_FALSE;
+                }
+                tag->addFrame(newFrame);
+            } break;
+
+            /**
+             * UnsynchronizedLyricsFrame */
+            case "USLT"_CASE:
+            {
+                TagLib::ID3v2::UnsynchronizedLyricsFrame *newFrame = new TagLib::ID3v2::UnsynchronizedLyricsFrame(byteVector);
+                /**
+                 * language and description typically get ignored apparently */
+                TagLib::String *lyrics = new TagLib::String(Z_STRVAL_P(*data));
+                newFrame->setText(*lyrics);
+                tag->addFrame(newFrame);
+            } break;
+
+            /**
              * ... */
+            case "AENC"_CASE:
+            case "ENCR"_CASE:
+            {
+                php_error(E_WARNING, "Audio Encryption not supported (take your DRM bullshit elsewhere)");
+            } break;
+
+            case "COMR"_CASE:
+            {
+                php_error(E_WARNING, "Commercial Frame not supported.");
+            } break;
+
+            case "USER"_CASE:
+            {
+                php_error(E_WARNING, "Terms of use Frame not supported.");
+            } break;
+
+            case "IPLS"_CASE:
+            {
+                php_error(E_DEPRECATED, "Please use TIPL in place of IPLS for Involved People List.");
+            } break;
+
+            case "LINK"_CASE:
+            {
+                php_error(E_WARNING, "LINK Frame not supported.");
+            } break;
+
+            case "MCDI"_CASE:
+            {
+                php_error(E_WARNING, "Music CD Identification Frame not supported.");
+            } break;
+
+            case "GRID"_CASE:
+            {
+                php_error(E_WARNING, "Group Identification Registration not supported.");
+            } break;
+
+            case "RBUF"_CASE:
+            {
+                php_error(E_WARNING, "Recommended Buffer Size (streaming) Frame not supported.");
+            } break;
+
+            case "SYLT"_CASE: /* synchronized lyrics text */
+            case "SYTC"_CASE: /* synchronized tempo codes */
+            case "EQUA"_CASE: /* equalisation */
+            case "RVRB"_CASE: /* reverb */
+            case "ETCO"_CASE: /* event timing codes */
+            case "MLLT"_CASE: /* mpeg location lookup table */
+            case "PCNT"_CASE: /* play counter */
+            case "POPM"_CASE: /* popularimeter */
+            case "POSS"_CASE: /* position synchronisation */
+            case "RVAD"_CASE: /* relative volume adjustment (replay gain) */
+            {
+                php_error(E_WARNING, "Frames intended for media playback (synchronized time codes or lyrics for karaoke players for example; popularimeter ratings, etc) and player personalisation (EQ, reverb, replay gain, etc...) are not currently supported.");
+            } break;
+
+            case "GEOB"_CASE:
+            {
+                /**
+                 * Although similar enough to APIC to implement
+                 * and TagLib has a ID3v2::GeneralEncapsulatedObjectFrame,
+                 * embedded objects can cause playback issues in some players
+                 * and serve no practical application for me at this point in time.
+                 */
+                php_error(E_WARNING, "General Encapsulated Object Considered Harmful.");
+            } break;
 
             /**
              * u dun fucked up rtfm n00b xD */
             default:
-                php_error(E_WARNING, "Invalid FRAME_ID or not implemented yet.");
+                php_error(E_WARNING, "Invalid Frame ID.");
         }
 
         if(taglib_error())
