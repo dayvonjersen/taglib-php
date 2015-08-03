@@ -16,16 +16,10 @@
 #include "php_taglib.h"
 
 /**
- * using extensions within extensions 
- * XXX don't know what to link against so no.
- *#include <ext/standard/base64.h>*/
-
-/**
  * taglib reports errors through std::cerr
  * let's expose these messages to PHP 
- * so they can actually be detected and handled */
-
-/**
+ * so they can actually be detected and handled 
+ *
  * This idea came from a post I found on Google Groups
  * posted August 15, 2002 by Chris Uzdavinis
  * https://groups.google.com/d/msg/borland.public.cppbuilder.language/Uua6t3VhELA/vGyq-ituxN8J
@@ -292,6 +286,53 @@ private:
     zend_hash_add(&ce->constants_table,#name,sizeof(#name),(void *)&_##name##_,sizeof(zval*),NULL);
 
 /**
+ * Expose Class Constants from TagLib 
+ */
+void taglibbase_register_constants(zend_class_entry *ce)
+{
+    /**
+     * see TagLib::MPEG::File::TagTypes in mpegfile.h 
+     *
+     * For use with TagLibMPEG::stripTags() in this extension 
+     */
+    _defineclassconstant( STRIP_NOTAGS, 0x0000 );
+    _defineclassconstant( STRIP_ID3V1,  0x0001 );
+    _defineclassconstant( STRIP_ID3V2,  0x0002 );
+    _defineclassconstant( STRIP_APE,    0x0004 );
+    _defineclassconstant( STRIP_ALLTAGS,0xffff );
+
+    /**
+     * see TagLib::ID3v2::AttachedPictureFrame::Type in attachedpictureframe.h 
+     *
+     * For use with get/set ID3v2 functions in this extension.
+     */
+    _defineclassconstant( APIC_OTHER,              0x00);
+    _defineclassconstant( APIC_FILEICON,           0x01);
+    _defineclassconstant( APIC_OTHERFILEICON,      0x02);
+    _defineclassconstant( APIC_FRONTCOVER,         0x03);
+    _defineclassconstant( APIC_BACKCOVER,          0x04);
+    _defineclassconstant( APIC_LEAFLETPAGE,        0x05);
+    _defineclassconstant( APIC_MEDIA,              0x06);
+    _defineclassconstant( APIC_LEADARTIST,         0x07);
+    _defineclassconstant( APIC_ARTIST,             0x08);
+    _defineclassconstant( APIC_CONDUCTOR,          0x09);
+    _defineclassconstant( APIC_BAND,               0x0A);
+    _defineclassconstant( APIC_COMPOSER,           0x0B);
+    _defineclassconstant( APIC_LYRICIST,           0x0C);
+    _defineclassconstant( APIC_RECORDINGLOCATION,  0x0D);
+    _defineclassconstant( APIC_DURINGRECORDING,    0x0E);
+    _defineclassconstant( APIC_DURINGPERFORMANCE,  0x0F);
+    _defineclassconstant( APIC_MOVIESCREENCAPTURE, 0x10);
+    _defineclassconstant( APIC_COLOUREDFISH,       0x11);
+    _defineclassconstant( APIC_ILLUSTRATION,       0x12);
+    _defineclassconstant( APIC_BANDLOGO,           0x13);
+    _defineclassconstant( APIC_PUBLISHERLOGO,      0x14);
+}
+static zend_function_entry php_taglibbase_methods[] = {
+    { NULL, NULL, NULL }
+};
+
+/**
  * more .h files will be included in each of the .cpp files*/
 #include "TSRM.h"
 #include <tlist.h>
@@ -308,12 +349,17 @@ private:
  * which provides all of the classes */
 PHP_MINIT_FUNCTION(taglib_minit)
 {
+    zend_class_entry base_ce;
     zend_class_entry mpeg_ce;
     zend_class_entry ogg_ce;
 
+    INIT_CLASS_ENTRY(base_ce, "TagLib", php_taglibbase_methods);
+    taglibbase_class_entry = zend_register_internal_class(&base_ce TSRMLS_CC);
+    taglibbase_register_constants(taglibbase_class_entry);
+
     INIT_CLASS_ENTRY(mpeg_ce, "TagLibMPEG", php_taglibmpeg_methods);
     taglibmpeg_class_entry = zend_register_internal_class(&mpeg_ce TSRMLS_CC);
-    taglibmpeg_register_constants(taglibmpeg_class_entry);
+//    taglibmpeg_register_constants(taglibmpeg_class_entry);
 
     taglibmpeg_class_entry->create_object = taglibmpegfile_create_handler;
     memcpy(&taglibmpegfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
