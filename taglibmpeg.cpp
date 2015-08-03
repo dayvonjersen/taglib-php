@@ -292,6 +292,10 @@ PHP_METHOD(TagLibMPEG, getID3v2)
         RETURN_FALSE;
     }
 
+    TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
+    const TagLib::StringList unsupported = tag->properties().unsupportedData();
+    tag->removeUnsupportedProperties(unsupported);
+
     array_init(return_value);
 
     TagLib::ID3v2::FrameList frameList = thisobj->file->ID3v2Tag()->frameList();
@@ -800,12 +804,34 @@ PHP_METHOD(TagLibMPEG, setID3v2)
             RETURN_FALSE;
         }
     }
+    const TagLib::StringList unsupported = tag->properties().unsupportedData();
+    tag->removeUnsupportedProperties(unsupported);
 
     if(thisobj->file->save())
     {
         RETURN_TRUE;
     }
 
+    taglib_error();
+    RETURN_FALSE;
+}
+
+PHP_METHOD(TagLibMPEG, removeFrames)
+{
+    char *frameID;
+    int frameID_length;
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &frameID, &frameID_length) == FAILURE)
+    {
+        RETURN_FALSE;
+    }
+    TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
+    const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
+    tag->removeFrames(byteVector);
+    if(thisobj->file->save())
+    {
+        RETURN_TRUE;
+    }
     taglib_error();
     RETURN_FALSE;
 }
@@ -825,5 +851,6 @@ static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, getID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, setID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, stripTags,           NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibMPEG, removeFrames,        NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
