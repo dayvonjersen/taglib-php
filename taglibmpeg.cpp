@@ -139,7 +139,6 @@ PHP_METHOD(TagLibMPEG, __construct)
 
         taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-
         thisobj->frameFactory = TagLib::ID3v2::FrameFactory::instance();
         thisobj->file = new TagLib::MPEG::File((TagLib::FileName) Z_STRVAL_P(fileName), thisobj->frameFactory, (bool) readProperties);
 
@@ -346,26 +345,27 @@ PHP_METHOD(TagLibMPEG, getID3v2)
     {
         char *key;
         spprintf(&key, 4, "%s", (*frame)->frameID().data());
+        zval *subarray;
+        MAKE_STD_ZVAL(subarray);
+        array_init(subarray);
+        add_assoc_string(subarray,"frameID",key,1);
         switch(_charArrForSwitch(key))
         {
             case "APIC"_CASE:
             {   
                 TagLib::ID3v2::AttachedPictureFrame *apic = new TagLib::ID3v2::AttachedPictureFrame((*frame)->render());
                 char *picdat = b64_encode((unsigned char *)apic->picture().data(), apic->picture().size()); 
-                zval *subarray; 
-                MAKE_STD_ZVAL(subarray);
-                array_init(subarray);
                 add_assoc_string(subarray,   "data", picdat, 1);
                 add_assoc_string(subarray,   "mime", (char*)(apic->mimeType().toCString()),1);
                 add_assoc_long(  subarray,   "type", apic->type());
                 add_assoc_string(subarray,   "desc", (char*)(apic->description().toCString()),1);
-                add_assoc_zval(return_value, "APIC", subarray);
             }   break;
             default:
             {
-                add_assoc_string(return_value, key, (char *) (*frame)->toString().toCString(), 1);
+                add_assoc_string(subarray, "data", (char *) (*frame)->toString().toCString(), 1);
             }
         }
+        add_next_index_zval(return_value, subarray);
     }
 }
 
@@ -378,7 +378,18 @@ PHP_METHOD(TagLibMPEG, stripTags)
         // default behavior from MPEG::File::strip() with no arguments
         tags = TagLib::MPEG::File::AllTags;
     }
-    RETVAL_BOOL(thisobj->file->strip(tags));
+    bool stripSuccess = thisobj->file->strip(tags);
+    if(stripSuccess) {
+        bool saveSuccess = thisobj->file->save();
+        if(saveSuccess) {
+            RETURN_TRUE;
+        } else {
+            php_error(E_WARNING, "Failed to save changes to file!");
+        }
+    } else {
+        php_error(E_WARNING, "Failed to strip tags from file!");
+    }
+    RETURN_FALSE;
 }
 
 PHP_METHOD(TagLibMPEG, setID3v2)
