@@ -3,7 +3,7 @@ $t = new TagLibMPEG('/home/tso/personal_jesus.mp3');
 
 $t->setID3v2(['APIC' => ['data' => base64_encode(file_get_contents('/home/tso/test.jpg')),
 'mime' => 'text/jpeg',
-'type' => TagLibMPEG::APIC_COLOUREDFISH,
+'type' => TagLib::APIC_COLOUREDFISH,
 'desc' => 'testerino']]);
 
 echo 'set picture';

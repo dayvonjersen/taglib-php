@@ -7,6 +7,11 @@ if [ "$1" != "--quick" ]; then
 # .
     phpize
     ./configure --with-php-config=/usr/local/bin/php-config --enable-debug --with-taglib
+    sed -i.bak 's/\(^CXXFLAGS =\)/\1 -std=c++11/' Makefile
+    if [[ $? = 1 ]]; then 
+        sed -i .bak 's/\(^CXXFLAGS =\)/\1 -std=c++11/' Makefile
+    fi;
+    rm Makefile.bak
 fi
 
 # maybe I *should* modify config.m4

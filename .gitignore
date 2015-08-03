@@ -32,4 +32,5 @@ mkinstalldirs
 run-tests.php
 taglib.la
 taglib.lo
-.taglibmpeg.cpp.swn
+*.swn
+Makefile

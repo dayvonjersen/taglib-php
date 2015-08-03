@@ -2,11 +2,6 @@
 2. get php source (apt-get source php5)
 3. go to ext/ dir
 4. git clone taglib-php
-5. phpize
-6. ./configure
-7. Edit Makefile: CXXFLAGS= -std=c++11
-8. ./build.sh --quick --no-tests
-9. sudo cp modules/taglib.so /path/to/extension_dir (see extension_dir in your php.ini)
-10. add extension=taglib.so to your php.ini
-
-
+5. ./build.sh
+6. sudo cp modules/taglib.so /path/to/extension_dir (see extension_dir in your php.ini)
+7. add extension=taglib.so to your php.ini
