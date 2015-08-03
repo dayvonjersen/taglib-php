@@ -378,9 +378,11 @@ PHP_METHOD(TagLibMPEG, stripTags)
         // default behavior from MPEG::File::strip() with no arguments
         tags = TagLib::MPEG::File::AllTags;
     }
-    bool stripSuccess = thisobj->file->strip(tags);
+    //int stripParam = tags;
+    //int saveParam  = TagLib::MPEG::File::AllTags & (~tags);
+    bool stripSuccess = thisobj->file->strip(0x0002);
     if(stripSuccess) {
-        bool saveSuccess = thisobj->file->save();
+        bool saveSuccess = thisobj->file->save(0x0000, true, 3);
         if(saveSuccess) {
             RETURN_TRUE;
         } else {
