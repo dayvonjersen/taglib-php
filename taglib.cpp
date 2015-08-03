@@ -344,6 +344,7 @@ static zend_function_entry php_taglibbase_methods[] = {
 #include "taglibmpeg.cpp"
 #include "taglibogg.cpp"
 
+zend_class_entry *taglibbase_class_entry;
 /**
  * And let's try to unify them into one extension 
  * which provides all of the classes */
