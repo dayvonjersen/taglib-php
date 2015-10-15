@@ -311,7 +311,7 @@ PHP_METHOD(TagLibMPEG, getID3v2)
         {
             case "APIC"_CASE:
             {   
-                TagLib::ID3v2::AttachedPictureFrame *apic = new TagLib::ID3v2::AttachedPictureFrame((*frame)->render());
+                TagLib::ID3v2::AttachedPictureFrame *apic = (TagLib::ID3v2::AttachedPictureFrame*)(*frame);
                 char *picdat = b64_encode((unsigned char *)apic->picture().data(), apic->picture().size()); 
                 add_assoc_string(subarray,   "data", picdat, 1);
                 add_assoc_string(subarray,   "mime", (char*)(apic->mimeType().toCString()),1);

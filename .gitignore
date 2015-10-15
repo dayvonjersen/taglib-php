@@ -1,5 +1,4 @@
-*.swp
-*.swo
+*.sw*
 *.mp3
 *.ogg
 *.flac
@@ -32,5 +31,6 @@ mkinstalldirs
 run-tests.php
 taglib.la
 taglib.lo
-*.swn
 Makefile
+modules/*
+!modules/.keep
