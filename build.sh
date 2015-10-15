@@ -5,8 +5,8 @@ export CPLUS_INCLUDE_PATH="/usr/local/include/taglib"
 
 if [ "$1" != "--quick" ]; then
 # .
-    phpize
-    ./configure --with-php-config=/usr/local/bin/php-config --enable-debug --with-taglib
+    phpize --with-php-config=/etc/php5/fpm/php.ini   
+    ./configure --with-php-config=/usr/php5/fpm/php.ini --enable-debug --with-taglib
     sed -i.bak 's/\(^CXXFLAGS =\)/\1 -std=c++11/' Makefile
     if [[ $? = 1 ]]; then 
         sed -i .bak 's/\(^CXXFLAGS =\)/\1 -std=c++11/' Makefile
