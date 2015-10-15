@@ -293,8 +293,8 @@ PHP_METHOD(TagLibMPEG, getID3v2)
     }
 
     TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
-    const TagLib::StringList unsupported = tag->properties().unsupportedData();
-    tag->removeUnsupportedProperties(unsupported);
+    //const TagLib::StringList unsupported = tag->properties().unsupportedData();
+    //tag->removeUnsupportedProperties(unsupported);
 
     array_init(return_value);
 
