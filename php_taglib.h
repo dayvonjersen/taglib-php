@@ -13,7 +13,8 @@
 #include "config.h" 
 #endif /* Include PHP standard Header */
 
-#include "php.h" 
+#include "php.h"
+#include "ext/standard/base64.h"
 /*
  * define the entry point symbol
  * Zend will use when loading this module */ 

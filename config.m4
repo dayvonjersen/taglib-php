@@ -21,6 +21,7 @@ if test $PHP_TAGLIB != "no"; then
         ], [
             -L/usr/local/lib -ldl -ltag
         ])
+        -L/usr/local/lib -ldl -lphp5
         # this line twice because I don't know what I'm doing
         -L/usr/local/lib -ldl -ltag
 
@@ -30,6 +31,7 @@ if test $PHP_TAGLIB != "no"; then
         # and some magic incantations
         PHP_SUBST(TAGLIB_SHARED_LIBADD)
         PHP_NEW_EXTENSION(taglib, taglib.cpp, $ext_shared)
-	PHP_ADD_EXTENSION_DEP(standard)
+	    PHP_ADD_EXTENSION_DEP(standard)
+    	PHP_ADD_EXTENSION_DEP(base64)
 fi
 # m4 is GNU/dumb

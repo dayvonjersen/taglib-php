@@ -312,8 +312,9 @@ PHP_METHOD(TagLibMPEG, getID3v2)
             case "APIC"_CASE:
             {   
                 TagLib::ID3v2::AttachedPictureFrame *apic = (TagLib::ID3v2::AttachedPictureFrame*)(*frame);
-                char *picdat = b64_encode((unsigned char *)apic->picture().data(), apic->picture().size()); 
-                add_assoc_string(subarray,   "data", picdat, 1);
+                int retLen;
+                unsigned char *picdat = php_base64_encode((const unsigned char *)apic->picture().data(), apic->picture().size(), &retLen); 
+                add_assoc_string(subarray,   "data", (char*)picdat, 1);
                 add_assoc_string(subarray,   "mime", (char*)(apic->mimeType().toCString()),1);
                 add_assoc_long(  subarray,   "type", apic->type());
                 add_assoc_string(subarray,   "desc", (char*)(apic->description().toCString()),1);
@@ -385,9 +386,9 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
             zval **data, **mime, **type, **desc;
             if(zend_hash_find(pictureArray, "data", 5, (void **)&data) == SUCCESS)
             {
-                size_t decsize;
-                unsigned char *b64data = b64_decode_ex(Z_STRVAL_PP(data),Z_STRLEN_PP(data),&decsize);
-                TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,decsize);
+                int decsize;
+                unsigned char *b64data = php_base64_decode((const unsigned char *)Z_STRVAL_PP(data),Z_STRLEN_PP(data),&decsize);
+                TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,(size_t)decsize);
                 pictureFrame->setPicture(dataVector); 
             } else if(zend_hash_find(pictureArray, "file", 5, (void **)&data) == SUCCESS) {
                 ImageFileTest *image = new ImageFileTest(Z_STRVAL_PP(data));
@@ -632,9 +633,9 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
 
             if(zend_hash_find(txxxArray, "data", 5, (void **)&privdata) == SUCCESS)
             {
-                size_t decsize;
-                unsigned char *b64data = b64_decode_ex(Z_STRVAL_PP(privdata),Z_STRLEN_PP(privdata),&decsize);
-                TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,decsize);
+                int decsize;
+                unsigned char *b64data = php_base64_decode((const unsigned char*)Z_STRVAL_PP(privdata),Z_STRLEN_PP(privdata),&decsize);
+                TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,(size_t) decsize);
                 newFrame->setData(dataVector);
             } else {
                 php_error(E_WARNING, genericWarning);

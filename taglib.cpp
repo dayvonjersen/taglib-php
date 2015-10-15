@@ -94,9 +94,9 @@ constexpr unsigned int operator"" _CASE ( const char str[], size_t size )
  * 
  * When getting you don't have to specify a file to write just to
  * get the embedded image data. 
- * 
- * XXX #include "ext/standard/base64.h"
- * XXX I couldn't figure out what/how to link with to get php functions,
+ * */
+#include "ext/standard/base64.h"
+/* XXX I couldn't figure out what/how to link with to get php functions,
  * XXX so there's this implementation of base64 en/decoding taken from: 
  */
 
@@ -114,7 +114,7 @@ static const char b64_table[] = {
     '4', '5', '6', '7', '8', '9', '+', '/'
 };
 
-static char *b64_encode (const unsigned char *src, size_t len) {
+inline char *b64_encode (const unsigned char *src, size_t len) {
     int i = 0;
     int j = 0;
     char *enc = NULL;
@@ -122,7 +122,7 @@ static char *b64_encode (const unsigned char *src, size_t len) {
     unsigned char buf[4];
     unsigned char tmp[3];
     // alloc
-    enc = (char *) malloc(0);
+    enc = (char *) emalloc(0);
     if (NULL == enc) { return NULL; }
     // parse until end of source
     while (len--) {
@@ -138,7 +138,7 @@ static char *b64_encode (const unsigned char *src, size_t len) {
             // then translate each encoded buffer
             // part by index from the base 64 index table
             // into `enc' unsigned char array
-            enc = (char *) realloc(enc, size + 4);
+            enc = (char *) erealloc(enc, size + 4);
             for (i = 0; i < 4; ++i) {
                 enc[size++] = b64_table[buf[i]];
             }
@@ -159,22 +159,22 @@ static char *b64_encode (const unsigned char *src, size_t len) {
         buf[3] = tmp[2] & 0x3f;
         // perform same write to `enc` with new allocation
         for (j = 0; (j < i + 1); ++j) {
-            enc = (char *) realloc(enc, size);
+            enc = (char *) erealloc(enc, size);
             enc[size++] = b64_table[buf[j]];
         }
         // while there is still a remainder
         // append `=' to `enc'
         while ((i++ < 3)) {
-            enc = (char *) realloc(enc, size);
+            enc = (char *) erealloc(enc, size);
             enc[size++] = '=';
         }
     }
     // Make sure we have enough space to add '\0' character at end.
-    enc = (char *) realloc(enc, size + 1);
+    enc = (char *) erealloc(enc, size + 1);
     enc[size] = '\0';
     return enc;
 }
-static unsigned char *b64_decode_ex (const char *src, size_t len, size_t *decsize) {
+inline unsigned char *b64_decode_ex (const char *src, size_t len, size_t *decsize) {
     int i = 0;
     int j = 0;
     int l = 0;
@@ -183,7 +183,7 @@ static unsigned char *b64_decode_ex (const char *src, size_t len, size_t *decsiz
     unsigned char buf[3];
     unsigned char tmp[4];
     // alloc
-    dec = (unsigned char *) malloc(0);
+    dec = (unsigned char *) emalloc(0);
     if (NULL == dec) { return NULL; }
     // parse until end of source
     while (len--) {
@@ -209,7 +209,7 @@ static unsigned char *b64_decode_ex (const char *src, size_t len, size_t *decsiz
             buf[1] = ((tmp[1] & 0xf) << 4) + ((tmp[2] & 0x3c) >> 2);
             buf[2] = ((tmp[2] & 0x3) << 6) + tmp[3];
             // write decoded buffer to `dec'
-            dec = (unsigned char *) realloc(dec, size + 3);
+            dec = (unsigned char *) erealloc(dec, size + 3);
             for (i = 0; i < 3; ++i) {
                 dec[size++] = buf[i];
             }
@@ -238,19 +238,19 @@ static unsigned char *b64_decode_ex (const char *src, size_t len, size_t *decsiz
         buf[1] = ((tmp[1] & 0xf) << 4) + ((tmp[2] & 0x3c) >> 2);
         buf[2] = ((tmp[2] & 0x3) << 6) + tmp[3];
         // write remainer decoded buffer to `dec'
-        dec = (unsigned char *) realloc(dec, size + (i - 1));
+        dec = (unsigned char *) erealloc(dec, size + (i - 1));
         for (j = 0; (j < i - 1); ++j) {
             dec[size++] = buf[j];
         }
     }
     // Make sure we have enough space to add '\0' character at end.
-    dec = (unsigned char *) realloc(dec, size + 1);
+    dec = (unsigned char *) erealloc(dec, size + 1);
     dec[size] = '\0';
     // Return back the size of decoded string if demanded.
     if (decsize != NULL) *decsize = size;
     return dec;
 }
-static unsigned char *b64_decode (const char *src, size_t len) {
+inline unsigned char *b64_decode (const char *src, size_t len) {
     return b64_decode_ex(src, len, NULL);
 }
 /**
