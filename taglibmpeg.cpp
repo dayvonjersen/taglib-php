@@ -492,6 +492,7 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "TSOP"_CASE:
         case "TSOT"_CASE:
         case "TSOA"_CASE:
+        case "TDRC"_CASE:
         {   TagLib::ID3v2::TextIdentificationFrame *newFrame = new TagLib::ID3v2::TextIdentificationFrame(byteVector);
             TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
 
