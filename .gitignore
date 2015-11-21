@@ -1,9 +1,4 @@
 *.sw*
-*.mp3
-*.ogg
-*.flac
-*.jpg
-*.png
 .deps
 *.o
 .libs/
@@ -34,3 +29,5 @@ taglib.lo
 Makefile
 modules/*
 !modules/.keep
+tmp/*
+!tmp/.keep

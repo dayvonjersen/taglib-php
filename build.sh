@@ -24,19 +24,13 @@ if [ "$CATFILE" == "" ]; then
     echo "Build succeeded, copying new module..."
     sudo cp -R modules/* /usr/local/lib/php/modules 
     if [ "$2" != "--no-tests" ]; then
-        for test in $(ls test); do 
-            php -f test/$test > /tmp/q;
-            if [ "$?" -eq 0 ]; then
-                echo -ne "\033[1;32m $test succeeded!\033[0m\n"
-                if [ "$2" == "--yes-tests" ]; then
-                    cat /tmp/q
-                fi
-            else
-                echo -ne "\033[0;31m :: $test FAILED :: \033[0m\n"
-                cat /tmp/q | less
-                break
-            fi
-        done
+        cd test
+        php -f taglib-php-tests.php
+        if [ "$?" -eq 0 ]; then
+            echo -ne "\033[1;32m tests succeeded!\033[0m\n"
+        else
+            echo -ne "\033[0;31m :: $test FAILED :: \033[0m\n"
+        fi
     fi
 else
     cat /tmp/q | less

@@ -1,0 +1,271 @@
+{
+    "TagLibMPEG": {
+        "__construct": [
+            {
+                "params": ["testfiles/empty.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
+                "result": null
+            }            
+        ],
+        "getAudioProperties": [
+            {
+                "params": ["testfiles/empty.mp3"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 327,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "version": "MPEG Version 1",
+                    "channelMode": "Mono",
+                    "layer": 3,
+                    "protectionEnabled": false,
+                    "isCopyrighted": false,
+                    "isOriginal": true
+                }
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 327,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "version": "MPEG Version 1",
+                    "channelMode": "Mono",
+                    "layer": 3,
+                    "protectionEnabled": false,
+                    "isCopyrighted": false,
+                    "isOriginal": true
+                }
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 327,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "version": "MPEG Version 1",
+                    "channelMode": "Mono",
+                    "layer": 3,
+                    "protectionEnabled": false,
+                    "isCopyrighted": false,
+                    "isOriginal": true
+                }
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 327,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "version": "MPEG Version 1",
+                    "channelMode": "Mono",
+                    "layer": 3,
+                    "protectionEnabled": false,
+                    "isCopyrighted": false,
+                    "isOriginal": true
+                }
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 327,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "version": "MPEG Version 1",
+                    "channelMode": "Mono",
+                    "layer": 3,
+                    "protectionEnabled": false,
+                    "isCopyrighted": false,
+                    "isOriginal": true
+                }
+            }
+        ],
+        "hasID3v1": [
+            {
+                "params": ["testfiles/empty.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": true
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": true
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
+                "result": true
+            }
+        ],
+        "hasID3v2": [
+            {
+                "params": ["testfiles/empty.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": true
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": true
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
+                "result": true
+            }
+        ],
+        "hasAPE": [
+            {
+                "params": ["testfiles/empty.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
+                "result": false
+            }
+        ],
+        "getAPE": [
+            {
+                "params": [],
+                "result": null
+            }
+        ],
+        "getID3v1": [
+            {
+                "params": ["testfiles/empty.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": {
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENT": "comment",
+                    "DATE": "2000",
+                    "GENRE": "New Age",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": {
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENT": "comment",
+                    "DATE": "2000",
+                    "GENRE": "New Age",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
+                "result": {
+                    "COMMENT": ""
+                }
+            }
+        ],
+        "setID3v1": [
+            {
+                "params": [],
+                "result": null
+            }
+        ],
+        "getID3v2": [
+            {
+                "params": [],
+                "result": null
+            }
+        ],
+        "setID3v2": [
+            {
+                "params": [],
+                "result": null
+            }
+        ],
+        "stripTags": [
+            {
+                "params": [],
+                "result": null
+            }
+        ],
+        "removeFrames": [
+            {
+                "params": [],
+                "result": null
+            }
+        ]
+    },
+    "TagLibOGG": {
+        "__construct": [
+            {
+                "params": [],
+                "result": null
+            }
+        ],
+        "getAudioProperties": [
+            {
+                "params": [],
+                "result": null
+            }
+        ],
+        "getXiphComment": [
+            {
+                "params": [],
+                "result": null
+            }
+        ],
+        "setXiphComment": [
+            {
+                "params": [],
+                "result": null
+            }
+        ]
+    }
+}
