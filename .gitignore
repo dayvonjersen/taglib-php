@@ -29,6 +29,6 @@ taglib.lo
 Makefile
 modules/*
 !modules/.keep
-tmp/*
-!tmp/.keep
+test/tmp/*
+!test/tmp/.keep
 test/oggflacblock.pl
