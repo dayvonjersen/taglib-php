@@ -166,10 +166,6 @@
             }
         ],
         "getAPE": [
-            {
-                "params": [],
-                "result": null
-            }
         ],
         "getID3v1": [
             {
@@ -213,31 +209,131 @@
         ],
         "setID3v1": [
             {
-                "params": [],
+                "params": ["testfiles/empty.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
                 "result": null
             }
         ],
         "getID3v2": [
             {
-                "params": [],
-                "result": null
+                "params": ["testfiles/empty.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": {
+                    "COMM": "comment",
+                    "TALB": "album",
+                    "TCON": "10",
+                    "TIT2": "title",
+                    "TPE1": "artist",
+                    "TRCK": "99",
+                    "TDRC": "2000",
+                    "WXXX": "[] http://www.example.com"
+                }
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": {
+                    "COMM": "comment",
+                    "TALB": "album",
+                    "TCON": "10",
+                    "TIT2": "title",
+                    "TPE1": "artist",
+                    "TRCK": "99",
+                    "TDRC": "2000",
+                    "WXXX": "[] http://www.example.com"
+                }
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
+                "result": {
+                    "APIC": "..."
+                }
             }
         ],
         "setID3v2": [
             {
-                "params": [],
+                "params": ["testfiles/empty.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
                 "result": null
             }
         ],
         "stripTags": [
             {
-                "params": [],
+                "params": ["testfiles/empty.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
                 "result": null
             }
         ],
         "removeFrames": [
             {
-                "params": [],
+                "params": ["testfiles/empty.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/empty+picture.mp3"],
                 "result": null
             }
         ]
@@ -245,25 +341,101 @@
     "TagLibOGG": {
         "__construct": [
             {
-                "params": [],
+                "params": ["testfiles/empty.ogg"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment.ogg"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.ogg"],
                 "result": null
             }
         ],
         "getAudioProperties": [
             {
-                "params": [],
-                "result": null
+                "params": ["testfiles/empty.ogg"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 120,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "vorbisVersion": 0,
+                    "bitrateMaximum": 0,
+                    "bitrateNominal": 120000,
+                    "bitrateMinimum": 0
+                }
+            },
+            {
+                "params": ["testfiles/xiphcomment.ogg"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 120,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "vorbisVersion": 0,
+                    "bitrateMaximum": 0,
+                    "bitrateNominal": 120000,
+                    "bitrateMinimum": 0
+                }
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.ogg"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 120,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "vorbisVersion": 0,
+                    "bitrateMaximum": 0,
+                    "bitrateNominal": 120000,
+                    "bitrateMinimum": 0
+                }
             }
         ],
         "getXiphComment": [
             {
-                "params": [],
-                "result": null
+                "params": ["testfiles/empty.ogg"],
+                "result": []
+            },
+            {
+                "params": ["testfiles/xiphcomment.ogg"],
+                "result": {
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENTS": "comment",
+                    "DATE": "2000",
+                    "GENRE": "music",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.ogg"],
+                "result": {
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENTS": "comment",
+                    "DATE": "2000",
+                    "GENRE": "music",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99",
+                    "METADATA_BLOCK_PICTURE": "..."
+                }
             }
         ],
         "setXiphComment": [
             {
-                "params": [],
+                "params": ["testfiles/empty.ogg"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment.ogg"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.ogg"],
                 "result": null
             }
         ]

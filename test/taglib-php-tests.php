@@ -44,7 +44,7 @@ foreach($JSON as $class => $methods) {
         if(!function_exists($testFn)) {
             echo "\033[33mWarning: no test coverage for $class::$method!\033[0m\n";
         } else {
-            echo "Running tests for $class::$method\n";
+            echo "Running tests for $class::$method";
             foreach($tests as $test) {
                 $args = $test['params'];
                 $args[] = $test['result'];

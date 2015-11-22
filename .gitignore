@@ -31,3 +31,4 @@ modules/*
 !modules/.keep
 tmp/*
 !tmp/.keep
+test/oggflacblock.pl
