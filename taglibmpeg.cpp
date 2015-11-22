@@ -40,8 +40,7 @@ struct taglibmpegfile_object {
     TagLib::ID3v2::FrameFactory *frameFactory;
 };
 
-void taglibmpegfile_free_storage(void *object TSRMLS_DC)
-{
+void taglibmpegfile_free_storage(void *object TSRMLS_DC) {
     taglibmpegfile_object *obj = (taglibmpegfile_object *)object;
     delete obj->file;
 
@@ -51,8 +50,7 @@ void taglibmpegfile_free_storage(void *object TSRMLS_DC)
     efree(obj);
 }
 
-zend_object_value taglibmpegfile_create_handler(zend_class_entry *type TSRMLS_DC)
-{
+zend_object_value taglibmpegfile_create_handler(zend_class_entry *type TSRMLS_DC) {
     zval *tmp;
     zend_object_value retval;
 
@@ -76,38 +74,43 @@ zend_object_value taglibmpegfile_create_handler(zend_class_entry *type TSRMLS_DC
 
 /**
  * end memory management
- * begin class definition */
+ * begin class definition 
+ */
 zend_class_entry *taglibmpeg_class_entry;
 
 /**
- *  public function __construct() { ...*/
-PHP_METHOD(TagLibMPEG, __construct)
-{
+ *  public function __construct() {
+ */
+PHP_METHOD(TagLibMPEG, __construct) {
     zval *fileName;
     zend_bool readProperties = true;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &fileName, &readProperties) == FAILURE) 
-    {
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &fileName, &readProperties) == FAILURE) {
         RETURN_FALSE;
-    } else {
+    } 
+    if(Z_TYPE_P(fileName) != IS_STRING) {
+        RETURN_FALSE;
+    }
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-        taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
-        thisobj->frameFactory = TagLib::ID3v2::FrameFactory::instance();
+    thisobj->frameFactory = TagLib::ID3v2::FrameFactory::instance();
+    try {
         thisobj->file = new TagLib::MPEG::File((TagLib::FileName) Z_STRVAL_P(fileName), thisobj->frameFactory, (bool) readProperties);
+    } catch(std::exception& e) {
+        php_error(E_WARNING, "%s", e.what());
+    }
 
-        if(taglib_error())
-        {
-            delete thisobj->file;
+    if(taglib_error()) {
+       delete thisobj->file;
             RETURN_FALSE;
-        }
     }
 }
 /**
- *  public function getAudioProperties() { ... 
- *  // returns array or false on failure */
-PHP_METHOD(TagLibMPEG, getAudioProperties)
-{
+ *  public function getAudioProperties()
+ *
+ *  returns array or false on failure
+ */
+PHP_METHOD(TagLibMPEG, getAudioProperties) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     TagLib::MPEG::Properties *audioProperties = thisobj->file->audioProperties();
     array_init(return_value);
@@ -117,63 +120,70 @@ PHP_METHOD(TagLibMPEG, getAudioProperties)
     add_assoc_long(return_value, "channels", audioProperties->channels());
 
     const char *ver = "Unknown";
-    switch(audioProperties->version())
-    {
-        case TagLib::MPEG::Header::Version1:
-            ver = "MPEG Version 1";
-            break;
-        case TagLib::MPEG::Header::Version2:
-            ver = "MPEG Version 2";
-            break;
-        case TagLib::MPEG::Header::Version2_5:
-            ver = "MPEG Version 2.5";
-            break;
+    switch(audioProperties->version()) {
+    case TagLib::MPEG::Header::Version1:
+        ver = "MPEG Version 1";
+        break;
+    case TagLib::MPEG::Header::Version2:
+        ver = "MPEG Version 2";
+        break;
+    case TagLib::MPEG::Header::Version2_5:
+        ver = "MPEG Version 2.5";
+        break;
     }
     add_assoc_string(return_value, "version", (char *)ver, 1);
 
     const char *mode = "Unknown";
-    switch(audioProperties->channelMode())
-    {
-        case TagLib::MPEG::Header::Stereo:
-        case TagLib::MPEG::Header::JointStereo:
-            mode = "Stereo";
-            break;
-        case TagLib::MPEG::Header::DualChannel:
-            mode = "Dual Mono";
-            break;
-        case TagLib::MPEG::Header::SingleChannel:
-            mode = "Mono";
-            break;
+    switch(audioProperties->channelMode()) {
+    case TagLib::MPEG::Header::Stereo:
+    case TagLib::MPEG::Header::JointStereo:
+        mode = "Stereo";
+        break;
+    case TagLib::MPEG::Header::DualChannel:
+        mode = "Dual Mono";
+        break;
+    case TagLib::MPEG::Header::SingleChannel:
+        mode = "Mono";
+        break;
     }
     add_assoc_string(return_value, "channelMode", (char *)mode, 1);
 
-    add_assoc_long(return_value, "layer", audioProperties->layer());
+    add_assoc_long(return_value, "layer",             audioProperties->layer());
     add_assoc_bool(return_value, "protectionEnabled", (zend_bool) audioProperties->protectionEnabled());
-    add_assoc_bool(return_value, "isCopyrighted", (zend_bool) audioProperties->isCopyrighted());
-    add_assoc_bool(return_value, "isOriginal", (zend_bool) audioProperties->isOriginal());
+    add_assoc_bool(return_value, "isCopyrighted",     (zend_bool) audioProperties->isCopyrighted());
+    add_assoc_bool(return_value, "isOriginal",        (zend_bool) audioProperties->isOriginal());
 }
 
-PHP_METHOD(TagLibMPEG, hasID3v1)
-{
+/**
+ * public function hasID3v1() 
+ */
+PHP_METHOD(TagLibMPEG, hasID3v1) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     RETVAL_BOOL(thisobj->file->hasID3v1Tag());
 }
-PHP_METHOD(TagLibMPEG, hasID3v2)
-{
+
+/**
+ * public function hasID3v2()
+ */
+PHP_METHOD(TagLibMPEG, hasID3v2) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     RETVAL_BOOL(thisobj->file->hasID3v2Tag());
 }
-PHP_METHOD(TagLibMPEG, hasAPE)
-{
+
+/**
+ * public function hasAPE()
+ */
+PHP_METHOD(TagLibMPEG, hasAPE) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     RETVAL_BOOL(thisobj->file->hasAPETag());
 }
 
-PHP_METHOD(TagLibMPEG, getAPE)
-{
+/**
+ * public function getAPE()
+ */
+PHP_METHOD(TagLibMPEG, getAPE) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(!thisobj->file->hasAPETag())
-    {
+    if(!thisobj->file->hasAPETag()) {
         RETURN_FALSE;
     }
 
@@ -182,17 +192,17 @@ PHP_METHOD(TagLibMPEG, getAPE)
 
     TagLib::PropertyMap propMap = ape->properties();
 
-    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++)
-    {
+    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++) {
         add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
     }
 }
 
-PHP_METHOD(TagLibMPEG, getID3v1)
-{
+/**
+ * public function getID3v1()
+ */
+PHP_METHOD(TagLibMPEG, getID3v1) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(!thisobj->file->hasID3v1Tag())
-    {
+    if(!thisobj->file->hasID3v1Tag()) {
         RETURN_FALSE;
     }
 
@@ -201,23 +211,26 @@ PHP_METHOD(TagLibMPEG, getID3v1)
 
     TagLib::PropertyMap propMap = id3v1->properties();
 
-    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++)
-    {
+    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++) {
         add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
     }
 }
 
 /**
- * returns FALSE if something went wrong,
- * returns array of tags which failed to be set,
- * returns TRUE if everything went through */
-PHP_METHOD(TagLibMPEG, setID3v1)
-{
+ * public function setID3v1()
+ *
+ * returns TRUE if everything went through
+ * returns FALSE if something went wrong
+ * returns array of tags which failed to be set
+ */
+PHP_METHOD(TagLibMPEG, setID3v1) {
     zval *newProperties;
     zend_bool overwrite_existing_tags = false;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE)
-    {
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE) {
+        RETURN_FALSE;
+    }
+    if(Z_TYPE_P(newProperties) != IS_STRING) {
         RETURN_FALSE;
     }
     
@@ -240,41 +253,40 @@ PHP_METHOD(TagLibMPEG, setID3v1)
         ulong index;
         key_type = zend_hash_get_current_key_ex(hIndex, &key, &key_length, &index, 0, &pointer);
 
-        if(key_type != HASH_KEY_IS_STRING)
-        {
-            php_error(E_WARNING, "TagLibMPEG::setID3v1 expects associative array!");
+        if(key_type != HASH_KEY_IS_STRING) {
+            php_error(E_WARNING, "TagLibMPEG::setID3v1 expects associative array of string values!");
             RETURN_FALSE;
             break;
         }
 
+        if(Z_TYPE_PP(data) != IS_STRING) {
+            php_error(E_WARNING, "TagLibMPEG::setID3v1 expects associative array of string values!");
+            RETURN_FALSE;
+            break;
+        }
         TagLib::String *destKey = new TagLib::String((const char *)key);
         TagLib::StringList *destValue = new TagLib::StringList(*(new TagLib::String(Z_STRVAL_PP(data))));
 
         // default PropertyMap::insert() behavior is append
-        if(propMap.contains(*destKey) && overwrite_existing_tags)
-        {
+        if(propMap.contains(*destKey) && overwrite_existing_tags) {
             propMap.erase(*destKey);
         }
 
-        if(!propMap.insert(*destKey,*destValue) || taglib_error())
-        {
+        if(!propMap.insert(*destKey,*destValue) || taglib_error()) {
             php_error(E_WARNING, "PropertyMap::insert() failed, possibly invalid key provided.");
             break;
         }
     }
 
     TagLib::PropertyMap failedToSet = id3v1->setProperties(propMap);
-    if(thisobj->file->save())
-    {
-        if(failedToSet.begin() == failedToSet.end())
-        {
+    if(thisobj->file->save()) {
+        if(failedToSet.begin() == failedToSet.end()) {
             RETURN_TRUE;
         } else {
             array_init(return_value);
             for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = failedToSet.begin(); 
                 property != failedToSet.end(); 
-                property++)
-            {
+                property++) {
                 add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
             }       
         } 
@@ -284,11 +296,12 @@ PHP_METHOD(TagLibMPEG, setID3v1)
     }
 }
 
-PHP_METHOD(TagLibMPEG, getID3v2)
-{
+/**
+ * public function getID3v2()
+ */
+PHP_METHOD(TagLibMPEG, getID3v2) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(!thisobj->file->hasID3v2Tag())
-    {
+    if(!thisobj->file->hasID3v2Tag()) {
         RETURN_FALSE;
     }
 
@@ -328,17 +341,22 @@ PHP_METHOD(TagLibMPEG, getID3v2)
     }
 }
 
-PHP_METHOD(TagLibMPEG, stripTags)
-{
+/**
+ * public fucntion stripTags()
+ */
+PHP_METHOD(TagLibMPEG, stripTags) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    /**
+     * XXX: calling MPEG::File::strip() with other arguments failed to remove any tags from file
+     *
     long tags;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &tags) == FAILURE)
-    {
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &tags) == FAILURE) {
         // default behavior from MPEG::File::strip() with no arguments
         tags = TagLib::MPEG::File::AllTags;
     }
     //int stripParam = tags;
     //int saveParam  = TagLib::MPEG::File::AllTags & (~tags);
+    */
     bool stripSuccess = thisobj->file->strip(0x0002);
     if(stripSuccess) {
         bool saveSuccess = thisobj->file->save(0x0000, true, 3);
@@ -356,8 +374,7 @@ PHP_METHOD(TagLibMPEG, stripTags)
 /**
  * pulling this out into a separate function for reuse with Taglib::FLAC
  */
-static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVector byteVector, char *frameID)
-{
+static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVector byteVector, char *frameID) {
    /**
      * this abstraction would make things much, much nicer:
      * TagLib::ID3v2::Frame *newFrame = thisobj->frameFactory->createFrame(byteVector);
