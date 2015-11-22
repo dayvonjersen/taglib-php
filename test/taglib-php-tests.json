@@ -314,28 +314,6 @@
                 "params": ["testfiles/empty+picture.mp3"],
                 "result": null
             }
-        ],
-        "removeFrames": [
-            {
-                "params": ["testfiles/empty.mp3"],
-                "result": null
-            },
-            {
-                "params": ["testfiles/id3v1.mp3"],
-                "result": null
-            },
-            {
-                "params": ["testfiles/id3v2.mp3"],
-                "result": null
-            },
-            {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
-                "result": null
-            },
-            {
-                "params": ["testfiles/empty+picture.mp3"],
-                "result": null
-            }
         ]
     },
     "TagLibOGG": {

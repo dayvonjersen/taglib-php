@@ -26,11 +26,6 @@ if [ "$CATFILE" == "" ]; then
     if [ "$2" != "--no-tests" ]; then
         cd test
         php -f taglib-php-tests.php | less -r
-        if [ "$?" -eq 0 ]; then
-            echo -ne "\033[1;32m tests succeeded!\033[0m\n"
-        else
-            echo -ne "\033[0;31m :: $test FAILED :: \033[0m\n"
-        fi
     fi
 else
     cat /tmp/q | less

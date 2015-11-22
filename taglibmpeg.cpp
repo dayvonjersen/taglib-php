@@ -879,15 +879,20 @@ embedded objects can cause playback issues in some players and serve no practica
     return true;
 }
 
-PHP_METHOD(TagLibMPEG, setID3v2)
-{
+/**
+ * public function setID3v2()
+ */
+PHP_METHOD(TagLibMPEG, setID3v2) {
     zval *newFrames;
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &newFrames) == FAILURE)
-    {
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &newFrames) == FAILURE) {
         RETURN_FALSE;
     }
 
+    if(Z_TYPE_P(newFrames) != IS_ARRAY) {
+        php_error(E_WARNING, "TagLibMPEG::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames");
+        RETURN_FALSE;
+    }
     TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
     TagLib::ID3v2::Header *header = tag->header();
     HashTable *hIndex = Z_ARRVAL_P(newFrames);
@@ -911,48 +916,25 @@ PHP_METHOD(TagLibMPEG, setID3v2)
         }
         const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
  
-        if(id3v2_set_frame(tag, data, byteVector, frameID) == false)
-        {
+        if(id3v2_set_frame(tag, data, byteVector, frameID) == false) {
             RETURN_FALSE;
         }
 
-        if(taglib_error())
-        {
+        if(taglib_error()) {
             RETURN_FALSE;
         }
     }
+
     const TagLib::StringList unsupported = tag->properties().unsupportedData();
     tag->removeUnsupportedProperties(unsupported);
 
-    if(thisobj->file->save())
-    {
+    if(thisobj->file->save()) {
         RETURN_TRUE;
     }
 
     taglib_error();
     RETURN_FALSE;
 }
-
-PHP_METHOD(TagLibMPEG, removeFrames)
-{
-    char *frameID;
-    int frameID_length;
-    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &frameID, &frameID_length) == FAILURE)
-    {
-        RETURN_FALSE;
-    }
-    TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
-    const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
-    tag->removeFrames(byteVector);
-    if(thisobj->file->save())
-    {
-        RETURN_TRUE;
-    }
-    taglib_error();
-    RETURN_FALSE;
-}
-
 
 /**
  * See taglib.cpp for how this all comes together */
@@ -968,6 +950,5 @@ static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, getID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, setID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibMPEG, stripTags,           NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(TagLibMPEG, removeFrames,        NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };

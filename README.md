@@ -22,7 +22,6 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 	- [hasAPE()](#taglibmpeg-hasape)
 	- [hasID3v1()](#taglibmpeg-hasid3v1)
 	- [hasID3v2()](#taglibmpeg-hasid3v2)
-	- [removeFrames()](#taglibmpeg-removeframes)
 	- [setID3v1()](#taglibmpeg-setid3v1)
 	- [setID3v2()](#taglibmpeg-setid3v2)
 	- [stripTags()](#taglibmpeg-striptags)
@@ -128,7 +127,6 @@ Nothing to see here (yet)
         public bool hasAPE( void )
         public bool hasID3v1( void )
         public bool hasID3v2( void )
-        public bool removeFrames( string $frameID )
         public bool|array setID3v1( array $frames )
         public bool setID3v2( array $frames )
         public bool stripTags([ int $tags = TagLib::STRIP_ALLTAGS ])
@@ -168,10 +166,6 @@ public bool hasID3v1( void )
 ### <a id="taglibmpeg-hasid3v2">TagLibMPEG::hasID3v2()</a>
 ```php
 public bool hasID3v2( void )
-```
-### <a id="taglibmpeg-removeframes">TagLibMPEG::removeFrames()</a>
-```php
-public bool removeFrames( string $frameID )
 ```
 ### <a id="taglibmpeg-setid3v1">TagLibMPEG::setID3v1()</a>
 ```php
