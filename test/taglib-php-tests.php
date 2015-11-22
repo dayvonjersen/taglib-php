@@ -12,15 +12,20 @@ foreach($argv as $flag) {
     }
 }
 
-$pass_counter = $fail_counter = 0;
+$exit_code = $pass_counter = $fail_counter = 0;
 assert_options(ASSERT_ACTIVE, 1);
 assert_options(ASSERT_WARNING, 0);
 assert_options(ASSERT_BAIL, $bail);
 assert_options(ASSERT_QUIET_EVAL, 1);
 assert_options(ASSERT_CALLBACK, function($file,$line,$code,$desc="") {
-    global $fail_counter;
+    global $bail, $exit_code, $fail_counter;
     $fail_counter++;
     echo "\n---\n\033[31mFAIL:\033[0m",basename($file), ":$line\n$code\n$desc\n---\n";
+    if($bail) {
+        exit(1);
+    } else {
+        $exit_code = 1;
+    }
 });
 
 assert(extension_loaded('taglib'), 'TagLib extension not loaded!');
@@ -95,4 +100,5 @@ foreach($JSON as $class => $methods) {
     }
 }
 echo "\n";
+exit($exit_code);
 //echo "\n\n$num_tests tests\n$pass_counter PASS\n\n$fail_counter FAIL(ed assertions)\n";
