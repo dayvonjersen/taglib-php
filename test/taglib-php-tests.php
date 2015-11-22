@@ -1,8 +1,21 @@
 <?php
+$bail    = false;
+$cleanup = true;
+foreach($argv as $flag) {
+    switch($flag) {
+    case '--assert-bail':
+        $bail = true;
+        break;
+    case '--no-cleanup':
+        $cleanup = false;
+        break;
+    }
+}
+
 $pass_counter = $fail_counter = 0;
 assert_options(ASSERT_ACTIVE, 1);
 assert_options(ASSERT_WARNING, 0);
-assert_options(ASSERT_BAIL, 0);
+assert_options(ASSERT_BAIL, $bail);
 assert_options(ASSERT_QUIET_EVAL, 1);
 assert_options(ASSERT_CALLBACK, function($file,$line,$code,$desc="") {
     global $fail_counter;
@@ -22,9 +35,20 @@ function var_dump_string($var) {
 
 $d = dir('./testcases');
 while(($f = $d->read())!==false) {
-    if(!is_dir($f) && preg_match('/.phpt$/', $f)) {
+    if(!is_dir('./testcases/'.$f) && preg_match('/.phpt$/', $f)) {
         require_once './testcases/'.basename($f);
     }
+}
+
+if($cleanup) {
+    register_shutdown_function(function(){
+        $d = dir('./tmp');
+        while(($f = $d->read())!==false) {
+            if(!is_dir('./tmp/'.$f) && $f !== ".keep") {
+                unlink('./tmp/'.$f);
+            }
+        }
+    });
 }
 
 // use generate-taglib-php-tests.json.php to generate this file,
@@ -70,4 +94,5 @@ foreach($JSON as $class => $methods) {
         }
     }
 }
-echo "\n\n$num_tests tests\n$pass_counter PASS\n\n$fail_counter FAIL(ed assertions)\n";
+echo "\n";
+//echo "\n\n$num_tests tests\n$pass_counter PASS\n\n$fail_counter FAIL(ed assertions)\n";
