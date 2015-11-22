@@ -25,7 +25,7 @@ if [ "$CATFILE" == "" ]; then
     sudo cp -R modules/* /usr/local/lib/php/modules 
     if [ "$2" != "--no-tests" ]; then
         cd test
-        php -f taglib-php-tests.php
+        php -f taglib-php-tests.php | less -r
         if [ "$?" -eq 0 ]; then
             echo -ne "\033[1;32m tests succeeded!\033[0m\n"
         else

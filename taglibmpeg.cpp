@@ -382,91 +382,98 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
      * however it seems to cause a segfault if we try to manipulate the frame
      * so let's get stupid 
      */
-    switch(_charArrForSwitch(frameID))
-    {
+    switch(_charArrForSwitch(frameID)) {
+
         /**
-         * AttachedPictureFrame FUN */
+         * AttachedPictureFrame
+         */
         case "APIC"_CASE:
         {
             /**
              * example argument supplied from php userland:
-             * ["APIC" => ["data" => file_get_contents('album_art.jpg'), // required
+             * [
+             *  "APIC" => [
+             *             "data" => file_get_contents('album_art.jpg'), // required
              *             "mime" => "image/jpeg",                       // required
              *             "type" => TagLib::APIC_FRONTCOVER             // required
              *             "desc" => "photo by Tavis Lochhead"           // optional
              *            ]
              * ]; */
-            const char *genericWarning = "AttachedPictureFrame expects a specific array argument, e.g.: ['data' => base64_encode(file_get_contents($newPicture)), 'mime' => 'image/jpeg', 'type' => TagLib::APIC_FRONTCOVER, 'desc' => 'optional description']";
-
+            const char *genericWarning = "AttachedPictureFrame expects a specific array argument, e.g.: \
+    [\
+     'data' => base64_encode(file_get_contents($newPicture)),\
+     'mime' => 'image/jpeg',\
+     'type' => TagLib::APIC_FRONTCOVER,\
+     'desc' => 'optional description'\
+    ]";
             TagLib::ID3v2::AttachedPictureFrame *pictureFrame = new TagLib::ID3v2::AttachedPictureFrame(byteVector);
+            if(Z_TYPE_PP(data) != IS_ARRAY) {
+                php_error(E_WARNING, genericWarning);
+                return false;
+            }
             HashTable *pictureArray = Z_ARRVAL_P(*data);
-            zval **data, **mime, **type, **desc;
-            if(zend_hash_find(pictureArray, "data", 5, (void **)&data) == SUCCESS)
-            {
+            zval **apic_data, **apic_file, **apic_mime, **apic_type, **apic_desc;
+            if(zend_hash_find(pictureArray, "data", 5, (void **)&apic_data) == SUCCESS) {
+                if(Z_TYPE_PP(apic_data) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 int decsize;
-                unsigned char *b64data = php_base64_decode((const unsigned char *)Z_STRVAL_PP(data),Z_STRLEN_PP(data),&decsize);
+                unsigned char *b64data = php_base64_decode((const unsigned char *)Z_STRVAL_PP(apic_data),Z_STRLEN_PP(apic_data),&decsize);
                 TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,(size_t)decsize);
                 pictureFrame->setPicture(dataVector); 
-            } else if(zend_hash_find(pictureArray, "file", 5, (void **)&data) == SUCCESS) {
-                ImageFileTest *image = new ImageFileTest(Z_STRVAL_PP(data));
+            } else if(zend_hash_find(pictureArray, "file", 5, (void **)&apic_file) == SUCCESS) {
+                if(Z_TYPE_PP(apic_file) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
+                ImageFileTest *image = new ImageFileTest(Z_STRVAL_PP(apic_file));
                 pictureFrame->setPicture(image->readBlock(image->length()));
             } else {
                 php_error(E_WARNING, genericWarning);
                 return false;
             }
-            if(zend_hash_find(pictureArray, "mime", 5, (void **)&mime) == SUCCESS)
-            {
-                TagLib::String *mimeType = new TagLib::String(Z_STRVAL_PP(mime));
+            if(zend_hash_find(pictureArray, "mime", 5, (void **)&apic_mime) == SUCCESS) {
+                if(Z_TYPE_PP(apic_mime) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
+                TagLib::String *mimeType = new TagLib::String(Z_STRVAL_PP(apic_mime));
                 pictureFrame->setMimeType(*mimeType);
             } else {
                 php_error(E_WARNING, genericWarning);
                 return false;
             }
-            if(zend_hash_find(pictureArray, "type", 5, (void **)&type) == SUCCESS)
-            {
-                using namespace TagLib::ID3v2;
-                AttachedPictureFrame::Type pictureType;
-                switch(Z_LVAL_PP(type))
-                {
-                    case AttachedPictureFrame::Other: pictureType = AttachedPictureFrame::Other; break;
-                    case AttachedPictureFrame::FileIcon: pictureType = AttachedPictureFrame::FileIcon; break;
-                    case AttachedPictureFrame::OtherFileIcon: pictureType = AttachedPictureFrame::OtherFileIcon; break;
-                    case AttachedPictureFrame::FrontCover: pictureType = AttachedPictureFrame::FrontCover; break;
-                    case AttachedPictureFrame::BackCover: pictureType = AttachedPictureFrame::BackCover; break;
-                    case AttachedPictureFrame::LeafletPage: pictureType = AttachedPictureFrame::LeafletPage; break;
-                    case AttachedPictureFrame::Media: pictureType = AttachedPictureFrame::Media; break;
-                    case AttachedPictureFrame::LeadArtist: pictureType = AttachedPictureFrame::LeadArtist; break;
-                    case AttachedPictureFrame::Artist: pictureType = AttachedPictureFrame::Artist; break;
-                    case AttachedPictureFrame::Conductor: pictureType = AttachedPictureFrame::Conductor; break;
-                    case AttachedPictureFrame::Band: pictureType = AttachedPictureFrame::Band; break;
-                    case AttachedPictureFrame::Composer: pictureType = AttachedPictureFrame::Composer; break;
-                    case AttachedPictureFrame::Lyricist: pictureType = AttachedPictureFrame::Lyricist; break;
-                    case AttachedPictureFrame::RecordingLocation: pictureType = AttachedPictureFrame::RecordingLocation; break;
-                    case AttachedPictureFrame::DuringRecording: pictureType = AttachedPictureFrame::DuringRecording; break;
-                    case AttachedPictureFrame::DuringPerformance: pictureType = AttachedPictureFrame::DuringPerformance; break;
-                    case AttachedPictureFrame::MovieScreenCapture: pictureType = AttachedPictureFrame::MovieScreenCapture; break;
-                    case AttachedPictureFrame::ColouredFish: pictureType = AttachedPictureFrame::ColouredFish; break;
-                    case AttachedPictureFrame::Illustration: pictureType = AttachedPictureFrame::Illustration; break;
-                    case AttachedPictureFrame::BandLogo: pictureType = AttachedPictureFrame::BandLogo; break;
-                    case AttachedPictureFrame::PublisherLogo: pictureType = AttachedPictureFrame::PublisherLogo; break;
-                    default:
-                        php_error(E_WARNING, "Invalid value for AttachedPictureFrame::Type. Try using TagLib::APIC_* constants");
-                        return false;
+            if(zend_hash_find(pictureArray, "type", 5, (void **)&apic_type) == SUCCESS) {
+                if(Z_TYPE_PP(apic_type) != IS_LONG) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
                 }
-                pictureFrame->setType(pictureType);
+                int type = Z_LVAL_PP(apic_type);
+                if(type >= 0x0 && type <= 0x14) {
+                    pictureFrame->setType((TagLib::ID3v2::AttachedPictureFrame::Type)type);
+                } else {
+                    php_error(E_WARNING, "Invalid value for AttachedPictureFrame::Type. Try using TagLib::APIC_* constants");
+                    return false;
+                }
             } else {
                 php_error(E_WARNING, genericWarning);
                 return false;
             }
-            if(zend_hash_find(pictureArray, "desc", 5, (void **)&desc) == SUCCESS)
-            {  
-                TagLib::String *description = new TagLib::String(Z_STRVAL_PP(desc));
+            if(zend_hash_find(pictureArray, "desc", 5, (void **)&apic_desc) == SUCCESS) {
+                if(Z_TYPE_PP(apic_desc) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
+                TagLib::String *description = new TagLib::String(Z_STRVAL_PP(apic_desc));
                 pictureFrame->setDescription(*description);
             }
             tag->addFrame(pictureFrame);
         }   break;
+
         /**
-         * TextIdentificationFrame FUN */
+         * TextIdentificationFrame
+         */
         case "TALB"_CASE:
         case "TBPM"_CASE:
         case "TCOM"_CASE:
@@ -510,7 +517,13 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "TSOT"_CASE:
         case "TSOA"_CASE:
         case "TDRC"_CASE:
-        {   TagLib::ID3v2::TextIdentificationFrame *newFrame = new TagLib::ID3v2::TextIdentificationFrame(byteVector);
+        {
+            if(Z_TYPE_PP(data) != IS_STRING) {
+                php_error(E_WARNING, "Expected string value in setting %s", frameID);
+                return false;
+            }
+
+            TagLib::ID3v2::TextIdentificationFrame *newFrame = new TagLib::ID3v2::TextIdentificationFrame(byteVector);
             TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
 
             newFrame->setText(*frametext);
@@ -518,24 +531,40 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         }   break;
 
         /**
-         * UserTextIdentificationFrame FUN */
+         * UserTextIdentificationFrame
+         */
         case "TXXX"_CASE:
-        {   TagLib::ID3v2::UserTextIdentificationFrame *newFrame = new TagLib::ID3v2::UserTextIdentificationFrame(byteVector);
+        {   
+            TagLib::ID3v2::UserTextIdentificationFrame *newFrame = new TagLib::ID3v2::UserTextIdentificationFrame(byteVector);
 
-            const char* genericWarning = "TXXX aka UserTextIdentificationFrame requires an array argument e.g. ['desc' => 'Description of Frame', 'text' => 'Some text']";
+            const char* genericWarning = "TXXX aka UserTextIdentificationFrame requires an array argument e.g.\
+    [\
+    'desc' => 'Description of Frame',\
+    'text' => 'Some text'\
+    ]";
 
+            if(Z_TYPE_PP(data) != IS_ARRAY) {
+                php_error(E_WARNING, genericWarning);
+                return false;
+            }
             HashTable *txxxArray = Z_ARRVAL_PP(data);
             zval **desc, **text;
-            if(zend_hash_find(txxxArray, "desc", 5, (void **)&desc) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "desc", 5, (void **)&desc) == SUCCESS) {
+                if(Z_TYPE_PP(desc) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *framedesc = new TagLib::String(Z_STRVAL_PP(desc));
                 newFrame->setDescription(*framedesc);
             } else {
                 php_error(E_WARNING, genericWarning);
                 return false;
             }   
-            if(zend_hash_find(txxxArray, "text", 5, (void **)&text) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "text", 5, (void **)&text) == SUCCESS) {
+                if(Z_TYPE_PP(text) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *frametext = new TagLib::String(Z_STRVAL_PP(text));
                 newFrame->setText(*frametext);
             } else {
@@ -546,9 +575,15 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         }   break;
 
         /**
-         * CommentsFrame FUN */
+         * CommentsFrame
+         */
         case "COMM"_CASE:
-        {   TagLib::ID3v2::CommentsFrame *newFrame = new TagLib::ID3v2::CommentsFrame(byteVector);
+        {
+            if(Z_TYPE_PP(data) != IS_STRING) {
+                php_error(E_WARNING, "Expected string for %s", frameID);
+                return false;
+            }
+            TagLib::ID3v2::CommentsFrame *newFrame = new TagLib::ID3v2::CommentsFrame(byteVector);
             TagLib::String *frametext = new TagLib::String(Z_STRVAL_P(*data));
 
             newFrame->setText(*frametext);
@@ -556,7 +591,8 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         }   break;
 
         /**
-         * UrlLinkFrame FUN */
+         * UrlLinkFrame
+         */
         case "WCOM"_CASE:
         case "WCOP"_CASE:
         case "WOAF"_CASE:
@@ -565,31 +601,48 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "WORS"_CASE:
         case "WPAY"_CASE:
         case "WPUB"_CASE:
-        {   TagLib::ID3v2::UrlLinkFrame *newFrame = new TagLib::ID3v2::UrlLinkFrame(byteVector);
+        {
+            if(Z_TYPE_PP(data) != IS_STRING) {
+                php_error(E_WARNING, "Expected string for %s", frameID);
+                return false;
+            }
+            
+            TagLib::ID3v2::UrlLinkFrame *newFrame = new TagLib::ID3v2::UrlLinkFrame(byteVector);
             TagLib::String *frameURL = new TagLib::String(Z_STRVAL_P(*data));
             newFrame->setUrl(*frameURL);
             tag->addFrame(newFrame);
         } break;
 
         /**
-         * UserUrlLinkFrame FUN */
+         * UserUrlLinkFrame
+         */
         case "WXXX"_CASE:
         {   
             TagLib::ID3v2::UserUrlLinkFrame *newFrame = new TagLib::ID3v2::UserUrlLinkFrame(byteVector);
             const char* genericWarning = "WXXX aka UserUrlLinkFrame requires an array argument e.g. ['desc' => 'Description of URL', 'text' => 'http://www.example.com/']";
 
+            if(Z_TYPE_PP(data) != IS_ARRAY) {
+                php_error(E_WARNING, genericWarning);
+                return false;
+            }
             HashTable *txxxArray = Z_ARRVAL_PP(data);
             zval **desc, **text;
-            if(zend_hash_find(txxxArray, "desc", 5, (void **)&desc) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "desc", 5, (void **)&desc) == SUCCESS) {
+                if(Z_TYPE_PP(desc) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *framedesc = new TagLib::String(Z_STRVAL_PP(desc));
                 newFrame->setDescription(*framedesc);
             } else {
                 php_error(E_WARNING, genericWarning);
                 return false;
             }   
-            if(zend_hash_find(txxxArray, "text", 5, (void **)&text) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "text", 5, (void **)&text) == SUCCESS) {
+                if(Z_TYPE_PP(text) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *frametext = new TagLib::String(Z_STRVAL_PP(text));
                 newFrame->setUrl(*frametext);
             } else {
@@ -600,32 +653,46 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         } break;
 
         /**
-         * OwnershipFrame */
+         * OwnershipFrame 
+         */
         case "OWNE"_CASE:
         {
             TagLib::ID3v2::OwnershipFrame *newFrame = new TagLib::ID3v2::OwnershipFrame(byteVector);
             const char* genericWarning = "OWNE aka OwnershipFrame requires an array argument e.g. ['date' => '19691231', 'paid' => '$0.99', 'seller' => 'someone']";
 
+            if(Z_TYPE_PP(data) != IS_ARRAY) {
+                php_error(E_WARNING, genericWarning);
+                return false;
+            }
             HashTable *txxxArray = Z_ARRVAL_PP(data);
             zval **date, **paid, **seller;
-            if(zend_hash_find(txxxArray, "date", 5, (void **)&date) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "date", 5, (void **)&date) == SUCCESS) {
+                if(Z_TYPE_PP(date) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *datepurchased = new TagLib::String(Z_STRVAL_PP(date));
                 newFrame->setDatePurchased(*datepurchased);
             } else {
                 php_error(E_WARNING, genericWarning);
                 return false;
             }
-            if(zend_hash_find(txxxArray, "paid", 5, (void **)&paid) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "paid", 5, (void **)&paid) == SUCCESS) {
+                if(Z_TYPE_PP(paid) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *pricepaid = new TagLib::String(Z_STRVAL_PP(paid));
                 newFrame->setPricePaid(*pricepaid);
             } else {
                 php_error(E_WARNING, genericWarning);
                 return false;
             }
-            if(zend_hash_find(txxxArray, "seller", 7, (void **)&seller) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "seller", 7, (void **)&seller) == SUCCESS) {
+                if(Z_TYPE_PP(seller) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *sellout = new TagLib::String(Z_STRVAL_PP(seller));
                 newFrame->setSeller(*sellout);
             } else {
@@ -636,16 +703,24 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         } break;
 
         /**
-         * PrivateFrame */
+         * PrivateFrame 
+         */
         case "PRIV"_CASE:
         {
             TagLib::ID3v2::PrivateFrame *newFrame = new TagLib::ID3v2::PrivateFrame();
             const char* genericWarning = "PRIV aka PrivateFrame requires an array argument e.g. ['owner' => 'nobody@example.com', 'data' => base64_encode('some data...')]";
             
+            if(Z_TYPE_PP(data) != IS_ARRAY) {
+                php_error(E_WARNING, genericWarning);
+                return false;
+            }
             HashTable *txxxArray = Z_ARRVAL_PP(data);
             zval **privowner, **privdata;
-            if(zend_hash_find(txxxArray, "owner", 6, (void **)&privowner) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "owner", 6, (void **)&privowner) == SUCCESS) {
+                if(Z_TYPE_PP(privowner) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *owner = new TagLib::String(Z_STRVAL_PP(privowner));
                 newFrame->setOwner(*owner);
             } else {
@@ -653,8 +728,11 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
                 return false;
             }
 
-            if(zend_hash_find(txxxArray, "data", 5, (void **)&privdata) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "data", 5, (void **)&privdata) == SUCCESS) {
+                if(Z_TYPE_PP(privdata) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 int decsize;
                 unsigned char *b64data = php_base64_decode((const unsigned char*)Z_STRVAL_PP(privdata),Z_STRLEN_PP(privdata),&decsize);
                 TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,(size_t) decsize);
@@ -667,24 +745,35 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         } break;
 
         /**
-         * UniqueFileIdentifierFrame */
+         * UniqueFileIdentifierFrame 
+         */
         case "UFID"_CASE:
         {
             TagLib::ID3v2::UniqueFileIdentifierFrame *newFrame = new TagLib::ID3v2::UniqueFileIdentifierFrame(byteVector);
             const char* genericWarning = "UFID aka UniqueFileIdentifierFrame requires an array argument e.g. ['owner' => 'http://somemusicdatabase.example.com/', 'id' => '123456789']";
 
+            if(Z_TYPE_PP(data) != IS_ARRAY) {
+                php_error(E_WARNING, genericWarning);
+                return false;
+            }
             HashTable *txxxArray = Z_ARRVAL_PP(data);
             zval **owner, **id;
-            if(zend_hash_find(txxxArray, "owner", 6, (void **)&owner) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "owner", 6, (void **)&owner) == SUCCESS) {
+                if(Z_TYPE_PP(owner) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::String *ufidowner = new TagLib::String(Z_STRVAL_PP(owner));
                 newFrame->setOwner(*ufidowner);
             } else {
                 php_error(E_WARNING, genericWarning);
                 return false;
             }
-            if(zend_hash_find(txxxArray, "id", 3, (void **)&id) == SUCCESS)
-            {
+            if(zend_hash_find(txxxArray, "id", 3, (void **)&id) == SUCCESS) {
+                if(Z_TYPE_PP(id) != IS_STRING) {
+                    php_error(E_WARNING, genericWarning);
+                    return false;
+                }
                 TagLib::ByteVector whyIsThisAByteVector = TagLib::ByteVector::fromCString((const char*) Z_STRVAL_PP(id));
                 newFrame->setIdentifier(whyIsThisAByteVector);
             } else {
@@ -698,9 +787,15 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
          * UnsynchronizedLyricsFrame */
         case "USLT"_CASE:
         {
+            if(Z_TYPE_PP(data) != IS_STRING) {
+                php_error(E_WARNING, "Expected string for %s", frameID);
+                return false;
+            }
+            
             TagLib::ID3v2::UnsynchronizedLyricsFrame *newFrame = new TagLib::ID3v2::UnsynchronizedLyricsFrame(byteVector);
             /**
-             * language and description typically get ignored apparently */
+             * language and description typically get ignored apparently 
+             */
             TagLib::String *lyrics = new TagLib::String(Z_STRVAL_P(*data));
             newFrame->setText(*lyrics);
             tag->addFrame(newFrame);
@@ -760,22 +855,21 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "POSS"_CASE: /* position synchronisation */
         case "RVAD"_CASE: /* relative volume adjustment (replay gain) */
         {
-            php_error(E_WARNING, "Frames intended for media playback (synchronized time codes or lyrics for karaoke players for example; popularimeter ratings, etc) and player personalisation (EQ, reverb, replay gain, etc...) are not currently supported.");
+            php_error(E_WARNING, "Frames intended for media playback (synchronized time codes or lyrics for karaoke players; popularimeter ratings, etc)\
+and player personalisation (EQ, reverb, replay gain, etc...)\
+are not currently supported.");
         } break;
 
         case "GEOB"_CASE:
         {
-            /**
-             * Although similar enough to APIC to implement
-             * and TagLib has a ID3v2::GeneralEncapsulatedObjectFrame,
-             * embedded objects can cause playback issues in some players
-             * and serve no practical application for me at this point in time.
-             */
-            php_error(E_WARNING, "General Encapsulated Object Considered Harmful.");
+            php_error(E_WARNING, "General Encapsulated Object Considered Harmful.\
+Although similar enough to APIC to implement and TagLib has a ID3v2::GeneralEncapsulatedObjectFrame,\
+embedded objects can cause playback issues in some players and serve no practical application for me at this point in time.");
         } break;
 
         /**
-         * u dun fucked up rtfm n00b xD */
+         * u dun fucked up rtfm n00b xD 
+         */
         default:
         {
             php_error(E_WARNING, "Invalid Frame ID.");
