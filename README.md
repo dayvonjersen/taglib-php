@@ -28,6 +28,7 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 7. [TagLibOGG](#taglibogg-class)
 	- [__construct()](#taglibogg-__construct)
 	- [getAudioProperties()](#taglibogg-getaudioproperties)
+	- [hasXiphComment()](#taglibogg-hasxiphcomment)
 	- [getXiphComment()](#taglibogg-getxiphcomment)
 	- [setXiphComment()](#taglibogg-setxiphcomment)
 
@@ -85,27 +86,27 @@ For use with TagLibMPEG::stripTags() in this extension:
 
 For use with get/set ID3v2 functions in this extension:
 
-    TagLib::APIC_OTHER              = 0x00);
-    TagLib::APIC_FILEICON           = 0x01);
-    TagLib::APIC_OTHERFILEICON      = 0x02);
-    TagLib::APIC_FRONTCOVER         = 0x03);
-    TagLib::APIC_BACKCOVER          = 0x04);
-    TagLib::APIC_LEAFLETPAGE        = 0x05);
-    TagLib::APIC_MEDIA              = 0x06);
-    TagLib::APIC_LEADARTIST         = 0x07);
-    TagLib::APIC_ARTIST             = 0x08);
-    TagLib::APIC_CONDUCTOR          = 0x09);
-    TagLib::APIC_BAND               = 0x0A);
-    TagLib::APIC_COMPOSER           = 0x0B);
-    TagLib::APIC_LYRICIST           = 0x0C);
-    TagLib::APIC_RECORDINGLOCATION  = 0x0D);
-    TagLib::APIC_DURINGRECORDING    = 0x0E);
-    TagLib::APIC_DURINGPERFORMANCE  = 0x0F);
-    TagLib::APIC_MOVIESCREENCAPTURE = 0x10);
-    TagLib::APIC_COLOUREDFISH       = 0x11);
-    TagLib::APIC_ILLUSTRATION       = 0x12);
-    TagLib::APIC_BANDLOGO           = 0x13);
-    TagLib::APIC_PUBLISHERLOGO      = 0x14);
+    TagLib::APIC_OTHER              = 0x00
+    TagLib::APIC_FILEICON           = 0x01
+    TagLib::APIC_OTHERFILEICON      = 0x02
+    TagLib::APIC_FRONTCOVER         = 0x03
+    TagLib::APIC_BACKCOVER          = 0x04
+    TagLib::APIC_LEAFLETPAGE        = 0x05
+    TagLib::APIC_MEDIA              = 0x06
+    TagLib::APIC_LEADARTIST         = 0x07
+    TagLib::APIC_ARTIST             = 0x08
+    TagLib::APIC_CONDUCTOR          = 0x09
+    TagLib::APIC_BAND               = 0x0A
+    TagLib::APIC_COMPOSER           = 0x0B
+    TagLib::APIC_LYRICIST           = 0x0C
+    TagLib::APIC_RECORDINGLOCATION  = 0x0D
+    TagLib::APIC_DURINGRECORDING    = 0x0E
+    TagLib::APIC_DURINGPERFORMANCE  = 0x0F
+    TagLib::APIC_MOVIESCREENCAPTURE = 0x10
+    TagLib::APIC_COLOUREDFISH       = 0x11
+    TagLib::APIC_ILLUSTRATION       = 0x12
+    TagLib::APIC_BANDLOGO           = 0x13
+    TagLib::APIC_PUBLISHERLOGO      = 0x14
 
 *see also TagLib::ID3v2::AttachedPictureFrame::Type in attachedpictureframe.h *
 ## TagLib Class
@@ -197,6 +198,10 @@ public __construct( string $filename[, int $type = TagLibOGG::VORBIS ])
 ```php
 public array getAudioProperties( void )
 ````
+### <a id="taglibogg-hasxiphcomment">TagLibOGG::hasXiphComment()</a>
+```php
+public array hasXiphComment( void )
+```
 ### <a id="taglibogg-getxiphcomment">TagLibOGG::getXiphComment()</a>
 ```php
 public array getXiphComment( void )

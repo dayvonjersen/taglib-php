@@ -1,5 +1,6 @@
 /**
- * the ride never ends */
+ * the ride never ends 
+ */
 #include <oggfile.h>
 #include <oggflacfile.h>
 #include <oggpage.h>
@@ -35,16 +36,21 @@ struct tagliboggfile_object {
 };
 
 /**
- * Memory Management */
+ * Memory Management
+ */
 zend_object_handlers tagliboggfile_object_handlers;
-void tagliboggfile_free_storage(void *object TSRMLS_DC)
-{
+void tagliboggfile_free_storage(void *object TSRMLS_DC) {
     tagliboggfile_object *obj = (tagliboggfile_object *)object;
-    switch(obj->type)
-    {
-        case _OGG_VORBIS_: delete obj->vorbisfile; break;
-        case _OGG_OPUS_:   delete obj->opusfile;   break;
-        case _OGG_FLAC_:   delete obj->flacfile;   break;
+    switch(obj->type) {
+    case _OGG_VORBIS_:
+        delete obj->vorbisfile;
+        break;
+    case _OGG_OPUS_:
+        delete obj->opusfile;
+        break;
+    case _OGG_FLAC_:
+        delete obj->flacfile;
+        break;
     }
 
     zend_hash_destroy(obj->std.properties);
@@ -53,8 +59,7 @@ void tagliboggfile_free_storage(void *object TSRMLS_DC)
     efree(obj);
 }
 
-zend_object_value tagliboggfile_create_handler(zend_class_entry *type TSRMLS_DC)
-{
+zend_object_value tagliboggfile_create_handler(zend_class_entry *type TSRMLS_DC) {
     zval *tmp;
     zend_object_value retval;
 
@@ -77,20 +82,19 @@ zend_object_value tagliboggfile_create_handler(zend_class_entry *type TSRMLS_DC)
 }
 
 /**
- * End Memory Management */
-
+ * End Memory Management
+ */
 
 /*
- * class entry */
+ * class entry
+ */
 zend_class_entry *taglibogg_class_entry;
-
 
 /**
  * Class Constants
  * _defineclassconstant macro defined in taglib.cpp
  */
-void taglibogg_register_constants(zend_class_entry *ce)
-{
+void taglibogg_register_constants(zend_class_entry *ce) {
     _defineclassconstant( VORBIS, _OGG_VORBIS_ );
     _defineclassconstant( OPUS,   _OGG_OPUS_   );
     _defineclassconstant( FLAC,   _OGG_FLAC_   );
@@ -98,14 +102,17 @@ void taglibogg_register_constants(zend_class_entry *ce)
 }
 
 /**
- *  public function __construct( $fileName, $type = TagLibOGG::VORBIS ) { ...*/
-PHP_METHOD(TagLibOGG, __construct)
-{
+ *  public function __construct( $fileName, $type = TagLibOGG::VORBIS ) 
+ */
+PHP_METHOD(TagLibOGG, __construct) {
     zval *fileName;
     long codec = _OGG_VORBIS_;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l", &fileName, &codec) == FAILURE) 
-    {
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l", &fileName, &codec) == FAILURE) {
+        RETURN_FALSE;
+    }
+
+    if(Z_TYPE_P(fileName) != IS_STRING) {
         RETURN_FALSE;
     }
 
@@ -113,113 +120,130 @@ PHP_METHOD(TagLibOGG, __construct)
 
     TagLib::FileName oggFileName = (TagLib::FileName) Z_STRVAL_P(fileName);
 
-    switch(codec)
+    switch(codec) {
+    case _OGG_VORBIS_:
     {
-        case _OGG_VORBIS_:
-            thisobj->type        = _OGG_VORBIS_;
-            thisobj->vorbisfile  = new TagLib::Ogg::Vorbis::File(oggFileName);
-            if(taglib_error() || !thisobj->vorbisfile->isValid())
-            {
-                RETURN_FALSE;
-            } else {
-                thisobj->xiphcomment = thisobj->vorbisfile->tag();
-            }
-            break;
-        case _OGG_OPUS_:
-            thisobj->type        = _OGG_OPUS_;
-            thisobj->opusfile    = new TagLib::Ogg::Opus::File(oggFileName);
-            if(taglib_error() || !thisobj->opusfile->isValid())
-            {
-                RETURN_FALSE;
-            } else {
-                thisobj->xiphcomment = thisobj->opusfile->tag();
-            }
-            break;
-        case _OGG_FLAC_:
-            thisobj->type        = _OGG_FLAC_;
-            thisobj->flacfile    = new TagLib::Ogg::FLAC::File(oggFileName);
-            if(taglib_error() || !thisobj->flacfile->isValid())
-            {
-                RETURN_FALSE;
-            } else {
-                thisobj->xiphcomment = thisobj->flacfile->tag();
-            }
-            break;
-        case _OGG_SPEEX_:
-            php_error(E_DEPRECATED, "Speex is deprecated.");
-        default:
-            php_error(E_WARNING, "Unrecognized or unsupported option for $codec in TagLibOGG::__construct()");
+        thisobj->type        = _OGG_VORBIS_;
+        thisobj->vorbisfile  = new TagLib::Ogg::Vorbis::File(oggFileName);
+        if(taglib_error() || !thisobj->vorbisfile->isValid()) {
             RETURN_FALSE;
+        } else {
+            thisobj->xiphcomment = thisobj->vorbisfile->tag();
+        }
+    }   break;
+    case _OGG_OPUS_:
+    {
+        thisobj->type        = _OGG_OPUS_;
+        thisobj->opusfile    = new TagLib::Ogg::Opus::File(oggFileName);
+        if(taglib_error() || !thisobj->opusfile->isValid()) {
+            RETURN_FALSE;
+        } else {
+            thisobj->xiphcomment = thisobj->opusfile->tag();
+        }
+    }   break;
+    case _OGG_FLAC_:
+    {
+        thisobj->type        = _OGG_FLAC_;
+        thisobj->flacfile    = new TagLib::Ogg::FLAC::File(oggFileName);
+        if(taglib_error() || !thisobj->flacfile->isValid()) {
+            RETURN_FALSE;
+        } else {
+            thisobj->xiphcomment = thisobj->flacfile->tag();
+        }
+    }   break;
+    case _OGG_SPEEX_:
+        php_error(E_DEPRECATED, "Speex is deprecated.");
+        /* fallthrough */
+    default:
+        php_error(E_WARNING, "Unrecognized or unsupported option for $codec in TagLibOGG::__construct()");
+        RETURN_FALSE;
     }
 
-    if(taglib_error())
-    {
+    if(taglib_error()) {
         RETURN_FALSE;
     }
 
     thisobj->initialized = true;
 }
+
 /**
- *  public function getAudioProperties() { */
-PHP_METHOD(TagLibOGG, getAudioProperties)
-{
+ *  public function getAudioProperties()
+ */
+PHP_METHOD(TagLibOGG, getAudioProperties) {
     tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(!thisobj->initialized)
+    if(!thisobj->initialized) {
         RETURN_FALSE;
+    }
     array_init(return_value);
-    switch(thisobj->type)
+    switch(thisobj->type) {
+    case _OGG_VORBIS_:
     {
-        case _OGG_VORBIS_:
-        {
-            TagLib::Vorbis::Properties *audioProperties = thisobj->vorbisfile->audioProperties();
+        TagLib::Vorbis::Properties *audioProperties = thisobj->vorbisfile->audioProperties();
 
-            add_assoc_long(return_value, "length", audioProperties->length());
-            add_assoc_long(return_value, "bitrate", audioProperties->bitrate());
-            add_assoc_long(return_value, "sampleRate", audioProperties->sampleRate());
-            add_assoc_long(return_value, "channels", audioProperties->channels());
-            add_assoc_long(return_value, "vorbisVersion", audioProperties->vorbisVersion());
-            add_assoc_long(return_value, "bitrateMaximum", audioProperties->bitrateMaximum());
-            add_assoc_long(return_value, "bitrateNominal", audioProperties->bitrateNominal());
-            add_assoc_long(return_value, "bitrateMinimum", audioProperties->bitrateMinimum());
-        } break;
-        case _OGG_OPUS_:
-        {
-            TagLib::Ogg::Opus::Properties *audioProperties = thisobj->opusfile->audioProperties();
+        add_assoc_long(return_value, "length", audioProperties->length());
+        add_assoc_long(return_value, "bitrate", audioProperties->bitrate());
+        add_assoc_long(return_value, "sampleRate", audioProperties->sampleRate());
+        add_assoc_long(return_value, "channels", audioProperties->channels());
+        add_assoc_long(return_value, "vorbisVersion", audioProperties->vorbisVersion());
+        add_assoc_long(return_value, "bitrateMaximum", audioProperties->bitrateMaximum());
+        add_assoc_long(return_value, "bitrateNominal", audioProperties->bitrateNominal());
+        add_assoc_long(return_value, "bitrateMinimum", audioProperties->bitrateMinimum());
+    } break;
+    case _OGG_OPUS_:
+    {
+        TagLib::Ogg::Opus::Properties *audioProperties = thisobj->opusfile->audioProperties();
 
-            add_assoc_long(return_value, "length", audioProperties->length());
-            add_assoc_long(return_value, "bitrate", audioProperties->bitrate());
-            add_assoc_long(return_value, "sampleRate", audioProperties->sampleRate());
-            add_assoc_long(return_value, "channels", audioProperties->channels());
-            add_assoc_long(return_value, "opusVersion", audioProperties->opusVersion());
-            add_assoc_long(return_value, "inputSampleRate", audioProperties->inputSampleRate());
-        } break;
-        case _OGG_FLAC_:
-        {
-            TagLib::Ogg::FLAC::Properties *audioProperties = thisobj->flacfile->audioProperties();
+        add_assoc_long(return_value, "length", audioProperties->length());
+        add_assoc_long(return_value, "bitrate", audioProperties->bitrate());
+        add_assoc_long(return_value, "sampleRate", audioProperties->sampleRate());
+        add_assoc_long(return_value, "channels", audioProperties->channels());
+        add_assoc_long(return_value, "opusVersion", audioProperties->opusVersion());
+        add_assoc_long(return_value, "inputSampleRate", audioProperties->inputSampleRate());
+    } break;
+    case _OGG_FLAC_:
+    {
+        TagLib::Ogg::FLAC::Properties *audioProperties = thisobj->flacfile->audioProperties();
 
-            add_assoc_long(return_value, "length", audioProperties->length());
-            add_assoc_long(return_value, "bitrate", audioProperties->bitrate());
-            add_assoc_long(return_value, "sampleRate", audioProperties->sampleRate());
-            add_assoc_long(return_value, "channels", audioProperties->channels());
-            add_assoc_long(return_value, "sampleWidth", audioProperties->sampleWidth());
-            add_assoc_long(return_value, "sampleFrames", audioProperties->sampleFrames());
-            add_assoc_string(return_value, "signature", audioProperties->signature().data(), 1);
-        } break;
+        add_assoc_long(return_value, "length", audioProperties->length());
+        add_assoc_long(return_value, "bitrate", audioProperties->bitrate());
+        add_assoc_long(return_value, "sampleRate", audioProperties->sampleRate());
+        add_assoc_long(return_value, "channels", audioProperties->channels());
+        add_assoc_long(return_value, "sampleWidth", audioProperties->sampleWidth());
+        add_assoc_long(return_value, "sampleFrames", audioProperties->sampleFrames());
+        add_assoc_string(return_value, "signature", audioProperties->signature().data(), 1);
+    } break;
     }
 }
 
-PHP_METHOD(TagLibOGG, getXiphComment)
-{
+/**
+ * public function hasXiphComment()
+ */
+PHP_METHOD(TagLibOGG, hasXiphComment) {
     tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(!thisobj->initialized)
+    if(!thisobj->initialized) {
         RETURN_FALSE;
+    }
+    if(thisobj->xiphcomment->fieldCount() > 0) {
+        RETURN_TRUE;
+    } else {
+        RETURN_FALSE;
+    }
+}
+
+/**
+ * public function getXiphComment()
+ */
+PHP_METHOD(TagLibOGG, getXiphComment) {
+    tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->initialized) {
+        RETURN_FALSE;
+    }
 
     array_init(return_value);
 
     TagLib::PropertyMap propMap = thisobj->xiphcomment->properties();
 
-    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++)
-    {
+    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++) {
         add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
     }
 }
@@ -227,17 +251,21 @@ PHP_METHOD(TagLibOGG, getXiphComment)
 /**
  * returns FALSE if something went wrong,
  * returns TRUE if everything went through */
-PHP_METHOD(TagLibOGG, setXiphComment)
-{
+PHP_METHOD(TagLibOGG, setXiphComment) {
     tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(!thisobj->initialized)
+    if(!thisobj->initialized) {
         RETURN_FALSE;
+    }
 
     zval *newProperties;
     zend_bool overwrite_existing_tags = false;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE)
-    {
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE) {
+        RETURN_FALSE;
+    }
+
+    if(Z_TYPE_P(newProperties) != IS_ARRAY) {
+        php_error(E_WARNING, "TagLibOGG::setXiphComment expects associative array of strings!");
         RETURN_FALSE;
     }
     
@@ -253,48 +281,60 @@ PHP_METHOD(TagLibOGG, setXiphComment)
         ulong index;
         key_type = zend_hash_get_current_key_ex(hIndex, &key, &key_length, &index, 0, &pointer);
 
-        if(key_type != HASH_KEY_IS_STRING)
-        {
-            php_error(E_WARNING, "TagLibOGG::setXiphComment expects associative array!");
+        if(key_type != HASH_KEY_IS_STRING) {
+            php_error(E_WARNING, "TagLibOGG::setXiphComment expects associative array of strings!");
             RETURN_FALSE;
-            break;
+            return;
+        }
+
+        if(Z_TYPE_PP(data) != IS_STRING) {
+            php_error(E_WARNING, "TagLibOGG::setXiphComment expects associative array of strings!");
+            RETURN_FALSE;
+            return;
         }
 
         TagLib::String *destKey   = new TagLib::String((const char *)key);
         TagLib::String *destValue = new TagLib::String(Z_STRVAL_PP(data));
 
         thisobj->xiphcomment->addField(*destKey,*destValue,(bool)overwrite_existing_tags);
-        if(taglib_error())
-        {
+        if(taglib_error()) {
             php_error(E_WARNING, "XiphComment::addField() failed.");
-            break;
+            return;
         }
     }
 
-    switch(thisobj->type)
-    {
-        case _OGG_VORBIS_:
-            if(thisobj->vorbisfile->save())
-                RETURN_TRUE;
-            break;
-        case _OGG_OPUS_:
-            if(thisobj->opusfile->save())
-                RETURN_TRUE;
-            break;
-        case _OGG_FLAC_:
-            if(thisobj->flacfile->save())
-                RETURN_TRUE;
-            break;
+    switch(thisobj->type) {
+    case _OGG_VORBIS_:
+        if(thisobj->vorbisfile->save()) {
+            RETURN_TRUE;
+            return;
+        }
+        break;
+    case _OGG_OPUS_:
+        if(thisobj->opusfile->save()) {
+            RETURN_TRUE;
+            return;
+        }
+        break;
+    case _OGG_FLAC_:
+        if(thisobj->flacfile->save()) {
+            RETURN_TRUE;
+            return;
+        }
+        break;
     }
+
     taglib_error();
     RETURN_FALSE;
 }
 
 /**
- * Now we assemble the above defined methods into the class or something */
+ * Now we assemble the above defined methods into the class or something
+ */
 static zend_function_entry php_taglibogg_methods[] = {
     PHP_ME(TagLibOGG, __construct,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(TagLibOGG, getAudioProperties,  NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibOGG, hasXiphComment,      NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibOGG, getXiphComment,      NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibOGG, setXiphComment,      NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }

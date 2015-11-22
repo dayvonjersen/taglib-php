@@ -22,6 +22,10 @@ function Test__TagLibOGG__setXiphComment($file) {
     // testing: overwrite original tags = false
     $t = new TagLibOGG($tmpfile);
     $original_tags = $t->getXiphComment();
+    if($original_tags === false) {
+        $original_tags = [];
+    }
+    $original_tags['TITLE'] = 'testing';
     $t->setXiphComment(['TITLE'=>'testing'], false);
     $new_tags = $t->getXiphComment();
     if($original_tags === false) {

@@ -937,7 +937,8 @@ PHP_METHOD(TagLibMPEG, setID3v2) {
 }
 
 /**
- * See taglib.cpp for how this all comes together */
+ * See taglib.cpp for how this all comes together 
+ */
 static zend_function_entry php_taglibmpeg_methods[] = {
     PHP_ME(TagLibMPEG, __construct,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(TagLibMPEG, getAudioProperties,  NULL, ZEND_ACC_PUBLIC)

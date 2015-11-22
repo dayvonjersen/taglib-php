@@ -372,6 +372,20 @@
                 }
             }
         ],
+        "hasXiphComment": [
+            {
+                "params": ["testfiles/empty.ogg"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/xiphcomment.ogg"],
+                "result": true
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.ogg"],
+                "result": true 
+            }
+        ],
         "getXiphComment": [
             {
                 "params": ["testfiles/empty.ogg"],
