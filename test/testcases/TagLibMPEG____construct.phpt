@@ -10,11 +10,11 @@ function Test__TagLibMPEG____construct($file) {
 	[0 => ['TPE1' => "value"]],
 	""
     ];
-    ____construct_test1($file);
-    ____construct_test2($file,$badvalues);
+    MPEG__construct_test1($file);
+    MPEG__construct_test2($file,$badvalues);
 }
 
-function ____construct_test1($file) {
+function MPEG__construct_test1($file) {
     try {
         $t = @new TagLibMPEG($file);
         assert($t instanceof TagLibMPEG);
@@ -24,7 +24,7 @@ function ____construct_test1($file) {
 }
 
 
-function ____construct_test2($file,$badvalues) {
+function MPEG__construct_test2($file,$badvalues) {
     foreach($badvalues as $badvalue) {
 	try {
 	    $t = new TagLibMPEG($badvalue);

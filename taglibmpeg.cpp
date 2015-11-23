@@ -91,25 +91,25 @@ PHP_METHOD(TagLibMPEG, __construct) {
     zend_bool readProperties = true;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &fileName, &readProperties) == FAILURE) {
-    php_exception("Expected filename in constructor");
+        php_exception("Expected filename in constructor");
         RETURN_FALSE;
     } 
 
     if(Z_TYPE_P(fileName) != IS_STRING) {
-    php_exception("Expected filename in constructor to be a string.");
+        php_exception("Expected filename in constructor to be a string.");
         RETURN_FALSE;
     }
 
     const char* filestr = Z_STRVAL_P(fileName);
 
-    if(!TagLib::MPEG::File::isReadable(filestr)) {
+    if(!TagLib::File::isReadable(filestr)) {
         char msg[sizeof(filestr)+25];
         php_sprintf(msg, "%s cannot be open or read", filestr);
         php_exception((const char*)msg);
         RETURN_FALSE;
     }
 
-    if(!TagLib::MPEG::File::isWritable(filestr)) {
+    if(!TagLib::File::isWritable(filestr)) {
         char msg[sizeof(filestr)+22];
         php_sprintf(msg, "%s cannot be written to", filestr);
         php_exception((const char*)msg);

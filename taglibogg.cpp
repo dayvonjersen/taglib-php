@@ -109,10 +109,12 @@ PHP_METHOD(TagLibOGG, __construct) {
     long codec = _OGG_VORBIS_;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l", &fileName, &codec) == FAILURE) {
+        php_exception("Expected filename in constructor");
         RETURN_FALSE;
     }
 
     if(Z_TYPE_P(fileName) != IS_STRING) {
+        php_exception("Expected filename in constructor to be a string.");
         RETURN_FALSE;
     }
 
@@ -120,12 +122,29 @@ PHP_METHOD(TagLibOGG, __construct) {
 
     TagLib::FileName oggFileName = (TagLib::FileName) Z_STRVAL_P(fileName);
 
+    if(!TagLib::File::isReadable(oggFileName)) {
+        char msg[sizeof(oggFileName)+25];
+        php_sprintf(msg, "%s cannot be open or read", oggFileName);
+        php_exception((const char*)msg);
+        RETURN_FALSE;
+    }
+
+    if(!TagLib::File::isWritable(oggFileName)) {
+        char msg[sizeof(oggFileName)+22];
+        php_sprintf(msg, "%s cannot be written to", oggFileName);
+        php_exception((const char*)msg);
+        RETURN_FALSE;
+    }
+
     switch(codec) {
     case _OGG_VORBIS_:
     {
         thisobj->type        = _OGG_VORBIS_;
         thisobj->vorbisfile  = new TagLib::Ogg::Vorbis::File(oggFileName);
         if(taglib_error() || !thisobj->vorbisfile->isValid()) {
+            char msg[sizeof(oggFileName)+24];
+            php_sprintf(msg, "%s cannot be open or read", oggFileName);
+            php_exception((const char*)msg);
             RETURN_FALSE;
         } else {
             thisobj->xiphcomment = thisobj->vorbisfile->tag();
@@ -136,6 +155,9 @@ PHP_METHOD(TagLibOGG, __construct) {
         thisobj->type        = _OGG_OPUS_;
         thisobj->opusfile    = new TagLib::Ogg::Opus::File(oggFileName);
         if(taglib_error() || !thisobj->opusfile->isValid()) {
+            char msg[sizeof(oggFileName)+24];
+            php_sprintf(msg, "%s cannot be open or read", oggFileName);
+            php_exception((const char*)msg);
             RETURN_FALSE;
         } else {
             thisobj->xiphcomment = thisobj->opusfile->tag();
@@ -146,6 +168,9 @@ PHP_METHOD(TagLibOGG, __construct) {
         thisobj->type        = _OGG_FLAC_;
         thisobj->flacfile    = new TagLib::Ogg::FLAC::File(oggFileName);
         if(taglib_error() || !thisobj->flacfile->isValid()) {
+            char msg[sizeof(oggFileName)+24];
+            php_sprintf(msg, "%s cannot be open or read", oggFileName);
+            php_exception((const char*)msg);
             RETURN_FALSE;
         } else {
             thisobj->xiphcomment = thisobj->flacfile->tag();
@@ -155,11 +180,12 @@ PHP_METHOD(TagLibOGG, __construct) {
         php_error(E_DEPRECATED, "Speex is deprecated.");
         /* fallthrough */
     default:
-        php_error(E_WARNING, "Unrecognized or unsupported option for $codec in TagLibOGG::__construct()");
+        php_exception("Unrecognized or unsupported option for $codec in TagLibOGG::__construct()");
         RETURN_FALSE;
     }
 
     if(taglib_error()) {
+        php_exception("taglib returned error");
         RETURN_FALSE;
     }
 
