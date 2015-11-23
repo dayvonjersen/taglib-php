@@ -1,5 +1,5 @@
 <?php
-function Test__TagLibOGGOGG__construct($file) {
+function Test__TagLibOGG____construct($file) {
     $badvalues = [
 	['TBPM' => 120],
 	"string",
