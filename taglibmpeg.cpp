@@ -96,14 +96,14 @@ PHP_METHOD(TagLibMPEG, __construct) {
     const char* filestr = Z_STRVAL_P(fileName);
 
     if(!TagLib::MPEG::File::isReadable(filestr)) {
-	char msg[100];
+	char msg[sizeof(filestr)+25];
 	php_sprintf(msg, "%s cannot be open or read", filestr);
 	php_exception((const char*)msg);
 	RETURN_FALSE;
     }
 
     if(!TagLib::MPEG::File::isWritable(filestr)) {
-	char msg[100];
+	char msg[sizeof(filestr)+22];
 	php_sprintf(msg, "%s cannot be written to", filestr);
 	php_exception((const char*)msg);
 	RETURN_FALSE;
@@ -121,7 +121,7 @@ PHP_METHOD(TagLibMPEG, __construct) {
     }
 
     if(!thisobj->file->isValid()) {
-	char msg[100];
+	char msg[sizeof(filestr)+24];
 	php_sprintf(msg, "%s cannot be open or read", filestr);
 	php_exception((const char*)msg);
 	RETURN_FALSE;
