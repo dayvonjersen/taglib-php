@@ -9,5 +9,4 @@ function Test__TagLibMPEG__stripTags($file) {
     $t = new TagLibMPEG($tmpfile);
     assert($t->hasID3v1() === false, "$tmpfile has ID3v1 after calling stripTags!");
     assert($t->hasID3v2() === false, "$tmpfile has ID3v2 after calling stripTags!");
-    assert($t->hasAPE() === false, "$tmpfile has APE after calling stripTags!");
 }

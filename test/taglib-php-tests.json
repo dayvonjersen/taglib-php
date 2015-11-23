@@ -143,30 +143,6 @@
                 "result": true
             }
         ],
-        "hasAPE": [
-            {
-                "params": ["testfiles/empty.mp3"],
-                "result": false
-            },
-            {
-                "params": ["testfiles/id3v1.mp3"],
-                "result": false
-            },
-            {
-                "params": ["testfiles/id3v2.mp3"],
-                "result": false
-            },
-            {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
-                "result": false
-            },
-            {
-                "params": ["testfiles/empty+picture.mp3"],
-                "result": false
-            }
-        ],
-        "getAPE": [
-        ],
         "getID3v1": [
             {
                 "params": ["testfiles/empty.mp3"],
