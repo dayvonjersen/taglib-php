@@ -1,5 +1,6 @@
 /**
- * all aboard */
+ * all aboard 
+ */
 #include <mpegfile.h>
 #include <mpegheader.h>
 #include <mpegproperties.h>
@@ -31,7 +32,8 @@
 #include <urllinkframe.h>
 
 /**
- * Memory management, ho!" */
+ * Memory management, ho!" 
+ */
 zend_object_handlers taglibmpegfile_object_handlers;
 
 struct taglibmpegfile_object {
@@ -80,33 +82,38 @@ zend_class_entry *taglibmpeg_class_entry;
 
 /**
  *  public function __construct() {
+ *
+ *  throws Exception on failure because that's the only way to ensure a new
+ *  object doesn't get created in that case.
  */
 PHP_METHOD(TagLibMPEG, __construct) {
     zval *fileName;
     zend_bool readProperties = true;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &fileName, &readProperties) == FAILURE) {
-	php_exception("Expected filename in constructor");
+    php_exception("Expected filename in constructor");
         RETURN_FALSE;
     } 
+
     if(Z_TYPE_P(fileName) != IS_STRING) {
-	php_exception("Expected filename in constructor to be a string.");
+    php_exception("Expected filename in constructor to be a string.");
         RETURN_FALSE;
     }
+
     const char* filestr = Z_STRVAL_P(fileName);
 
     if(!TagLib::MPEG::File::isReadable(filestr)) {
-	char msg[sizeof(filestr)+25];
-	php_sprintf(msg, "%s cannot be open or read", filestr);
-	php_exception((const char*)msg);
-	RETURN_FALSE;
+        char msg[sizeof(filestr)+25];
+        php_sprintf(msg, "%s cannot be open or read", filestr);
+        php_exception((const char*)msg);
+        RETURN_FALSE;
     }
 
     if(!TagLib::MPEG::File::isWritable(filestr)) {
-	char msg[sizeof(filestr)+22];
-	php_sprintf(msg, "%s cannot be written to", filestr);
-	php_exception((const char*)msg);
-	RETURN_FALSE;
+        char msg[sizeof(filestr)+22];
+        php_sprintf(msg, "%s cannot be written to", filestr);
+        php_exception((const char*)msg);
+        RETURN_FALSE;
     }
 
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
@@ -116,23 +123,24 @@ PHP_METHOD(TagLibMPEG, __construct) {
         thisobj->file = new TagLib::MPEG::File((TagLib::FileName) filestr, thisobj->frameFactory, (bool) readProperties);
     } catch(std::exception& e) {
         php_error(E_WARNING, "%s", e.what());
-	php_exception(e.what());
-	RETURN_FALSE;
+        php_exception(e.what());
+        RETURN_FALSE;
     }
 
     if(!thisobj->file->isValid()) {
-	char msg[sizeof(filestr)+24];
-	php_sprintf(msg, "%s cannot be open or read", filestr);
-	php_exception((const char*)msg);
-	RETURN_FALSE;
+        char msg[sizeof(filestr)+24];
+        php_sprintf(msg, "%s cannot be open or read", filestr);
+        php_exception((const char*)msg);
+        RETURN_FALSE;
     }
 
     if(taglib_error()) {
         delete thisobj->file;
-    	php_exception("taglib returned error");
+        php_exception("taglib returned error");
         RETURN_FALSE;
     }
 }
+
 /**
  *  public function getAudioProperties()
  *
@@ -267,14 +275,14 @@ PHP_METHOD(TagLibMPEG, setID3v1) {
     TagLib::ID3v1::Tag *id3v1;
 
     if(!thisobj->file->hasID3v1Tag()) {
-	id3v1 = thisobj->file->ID3v1Tag(true);
-	overwrite_existing_tags = true;
+    id3v1 = thisobj->file->ID3v1Tag(true);
+    overwrite_existing_tags = true;
 
         TagLib::PropertyMap propMap = id3v1->properties();
-	propMap.removeEmpty();
-	propMap.erase(propMap);
+    propMap.removeEmpty();
+    propMap.erase(propMap);
     } else {
-	id3v1 = thisobj->file->ID3v1Tag();
+    id3v1 = thisobj->file->ID3v1Tag();
     }
 
     TagLib::PropertyMap propMap = id3v1->properties();
@@ -317,16 +325,7 @@ PHP_METHOD(TagLibMPEG, setID3v1) {
     }
 
     TagLib::PropertyMap failedToSet = id3v1->setProperties(propMap);
-
-    int tags = TagLib::MPEG::File::TagTypes::ID3v1;
-/*    if(thisobj->file->hasID3v2Tag()) {
-	tags |= TagLib::MPEG::File::TagTypes::ID3v2;
-    }
-    if(thisobj->file->hasAPETag()) {
-	tags |= TagLib::MPEG::File::TagTypes::APE;
-    }*/
-
-    if(thisobj->file->save(tags)) {
+    if(thisobj->file->save(TagLib::MPEG::File::TagTypes::ID3v1)) {
         if(failedToSet.begin() == failedToSet.end()) {
             RETURN_TRUE;
         } else {
@@ -353,61 +352,52 @@ PHP_METHOD(TagLibMPEG, getID3v2) {
     }
 
     TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
-    //const TagLib::StringList unsupported = tag->properties().unsupportedData();
-    //tag->removeUnsupportedProperties(unsupported);
 
     array_init(return_value);
 
     TagLib::ID3v2::FrameList frameList = thisobj->file->ID3v2Tag()->frameList();
-    for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator frame = frameList.begin(); frame != frameList.end(); frame++)
-    {
+    for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator frame = frameList.begin(); frame != frameList.end(); frame++) {
         char *key;
         spprintf(&key, 4, "%s", (*frame)->frameID().data());
+
         zval *subarray;
         MAKE_STD_ZVAL(subarray);
         array_init(subarray);
+
         add_assoc_string(subarray,"frameID",key,1);
-        switch(_charArrForSwitch(key))
-        {
-            case "APIC"_CASE:
-            {   
-                TagLib::ID3v2::AttachedPictureFrame *apic = (TagLib::ID3v2::AttachedPictureFrame*)(*frame);
-                int retLen;
-                unsigned char *picdat = php_base64_encode((const unsigned char *)apic->picture().data(), apic->picture().size(), &retLen); 
-                add_assoc_string(subarray,   "data", (char*)picdat, 1);
-                add_assoc_string(subarray,   "mime", (char*)(apic->mimeType().toCString()),1);
-                add_assoc_long(  subarray,   "type", apic->type());
-                add_assoc_string(subarray,   "desc", (char*)(apic->description().toCString()),1);
-            }   break;
-            default:
-            {
-                add_assoc_string(subarray, "data", (char *) (*frame)->toString().toCString(), 1);
-            }
+
+        switch(_charArrForSwitch(key)) {
+        case "APIC"_CASE:
+        {   
+            TagLib::ID3v2::AttachedPictureFrame *apic = (TagLib::ID3v2::AttachedPictureFrame*)(*frame);
+            int retLen;
+            unsigned char *picdat = php_base64_encode((const unsigned char *)apic->picture().data(), apic->picture().size(), &retLen); 
+
+            add_assoc_string(subarray, "data", (char*)picdat, 1);
+            add_assoc_string(subarray, "mime", (char*)(apic->mimeType().toCString()),1);
+            add_assoc_long(  subarray, "type", apic->type());
+            add_assoc_string(subarray, "desc", (char*)(apic->description().toCString()),1);
+        }   break;
+        default:
+            add_assoc_string(subarray, "data", (char *) (*frame)->toString().toCString(), 1);
         }
+
         add_next_index_zval(return_value, subarray);
     }
 }
 
 /**
- * public fucntion stripTags()
+ * public function stripTags()
+ *
+ * returns TRUE on success, FALSE + E_WARNING on failure
  */
 PHP_METHOD(TagLibMPEG, stripTags) {
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     /**
-     * XXX: calling MPEG::File::strip() with other arguments failed to remove any tags from file
-     *
-    long tags;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &tags) == FAILURE) {
-        // default behavior from MPEG::File::strip() with no arguments
-        tags = TagLib::MPEG::File::AllTags;
-    }
-    //int stripParam = tags;
-    //int saveParam  = TagLib::MPEG::File::AllTags & (~tags);
-    */
-    bool stripSuccess = thisobj->file->strip(0x0002);
-    if(stripSuccess) {
-        bool saveSuccess = thisobj->file->save(0x0000, true, 3);
-        if(saveSuccess) {
+     * NOTE: calling MPEG::File::strip() with other arguments failed to remove any tags from file
+     */
+    if(thisobj->file->strip(0x0002)) {
+        if(thisobj->file->save(0x0000, true, 3)) {
             RETURN_TRUE;
         } else {
             php_error(E_WARNING, "Failed to save changes to file!");
@@ -436,16 +426,6 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
          */
         case "APIC"_CASE:
         {
-            /**
-             * example argument supplied from php userland:
-             * [
-             *  "APIC" => [
-             *             "data" => file_get_contents('album_art.jpg'), // required
-             *             "mime" => "image/jpeg",                       // required
-             *             "type" => TagLib::APIC_FRONTCOVER             // required
-             *             "desc" => "photo by Tavis Lochhead"           // optional
-             *            ]
-             * ]; */
             const char *genericWarning = "AttachedPictureFrame expects a specific array argument, e.g.: \
     [\
      'data' => base64_encode(file_get_contents($newPicture)),\
@@ -587,7 +567,7 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
             const char* genericWarning = "TXXX aka UserTextIdentificationFrame requires an array argument e.g.\
     [\
     'desc' => 'Description of Frame',\
-    'text' => 'Some text'\
+    'text' => ''\
     ]";
 
             if(Z_TYPE_PP(data) != IS_ARRAY) {
@@ -666,7 +646,11 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "WXXX"_CASE:
         {   
             TagLib::ID3v2::UserUrlLinkFrame *newFrame = new TagLib::ID3v2::UserUrlLinkFrame(byteVector);
-            const char* genericWarning = "WXXX aka UserUrlLinkFrame requires an array argument e.g. ['desc' => 'Description of URL', 'text' => 'http://www.example.com/']";
+            const char* genericWarning = "WXXX aka UserUrlLinkFrame requires an array argument e.g. \
+    [\
+        'desc' => 'Description of URL',\
+        'text' => 'http://www.example.com/'\
+    ]";
 
             if(Z_TYPE_PP(data) != IS_ARRAY) {
                 php_error(E_WARNING, genericWarning);
@@ -705,7 +689,12 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "OWNE"_CASE:
         {
             TagLib::ID3v2::OwnershipFrame *newFrame = new TagLib::ID3v2::OwnershipFrame(byteVector);
-            const char* genericWarning = "OWNE aka OwnershipFrame requires an array argument e.g. ['date' => '19691231', 'paid' => '$0.99', 'seller' => 'someone']";
+            const char* genericWarning = "OWNE aka OwnershipFrame requires an array argument e.g. \
+    [\
+        'date' => '19691231',\
+        'paid' => '$0.99',\
+        'seller' => 'someone'\
+    ]";
 
             if(Z_TYPE_PP(data) != IS_ARRAY) {
                 php_error(E_WARNING, genericWarning);
@@ -755,7 +744,11 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "PRIV"_CASE:
         {
             TagLib::ID3v2::PrivateFrame *newFrame = new TagLib::ID3v2::PrivateFrame();
-            const char* genericWarning = "PRIV aka PrivateFrame requires an array argument e.g. ['owner' => 'nobody@example.com', 'data' => base64_encode('some data...')]";
+            const char* genericWarning = "PRIV aka PrivateFrame requires an array argument e.g. \
+    [\
+        'owner' => 'nobody@example.com',\
+        'data' => base64_encode('some data...')\
+    ]";
             
             if(Z_TYPE_PP(data) != IS_ARRAY) {
                 php_error(E_WARNING, genericWarning);
@@ -797,7 +790,11 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "UFID"_CASE:
         {
             TagLib::ID3v2::UniqueFileIdentifierFrame *newFrame = new TagLib::ID3v2::UniqueFileIdentifierFrame(byteVector);
-            const char* genericWarning = "UFID aka UniqueFileIdentifierFrame requires an array argument e.g. ['owner' => 'http://somemusicdatabase.example.com/', 'id' => '123456789']";
+            const char* genericWarning = "UFID aka UniqueFileIdentifierFrame requires an array argument e.g. \
+    [\
+        'owner' => 'http://somemusicdatabase.example.com/',\
+        'id' => '123456789'\
+    ]";
 
             if(Z_TYPE_PP(data) != IS_ARRAY) {
                 php_error(E_WARNING, genericWarning);
@@ -854,41 +851,49 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "ENCR"_CASE:
         {
             php_error(E_WARNING, "Audio Encryption not supported (take your DRM bullshit elsewhere)");
+            return false;
         } break;
 
         case "COMR"_CASE:
         {
             php_error(E_WARNING, "Commercial Frame not supported.");
+            return false;
         } break;
 
         case "USER"_CASE:
         {
             php_error(E_WARNING, "Terms of use Frame not supported.");
+            return false;
         } break;
 
         case "IPLS"_CASE:
         {
             php_error(E_DEPRECATED, "Please use TIPL in place of IPLS for Involved People List.");
+            return false;
         } break;
 
         case "LINK"_CASE:
         {
             php_error(E_WARNING, "LINK Frame not supported.");
+            return false;
         } break;
 
         case "MCDI"_CASE:
         {
             php_error(E_WARNING, "Music CD Identification Frame not supported.");
+            return false;
         } break;
 
         case "GRID"_CASE:
         {
             php_error(E_WARNING, "Group Identification Registration not supported.");
+            return false;
         } break;
 
         case "RBUF"_CASE:
         {
             php_error(E_WARNING, "Recommended Buffer Size (streaming) Frame not supported.");
+            return false;
         } break;
 
         case "SYLT"_CASE: /* synchronized lyrics text */
@@ -905,6 +910,7 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
             php_error(E_WARNING, "Frames intended for media playback (synchronized time codes or lyrics for karaoke players; popularimeter ratings, etc)\
 and player personalisation (EQ, reverb, replay gain, etc...)\
 are not currently supported.");
+            return false;
         } break;
 
         case "GEOB"_CASE:
@@ -912,6 +918,7 @@ are not currently supported.");
             php_error(E_WARNING, "General Encapsulated Object Considered Harmful.\
 Although similar enough to APIC to implement and TagLib has a ID3v2::GeneralEncapsulatedObjectFrame,\
 embedded objects can cause playback issues in some players and serve no practical application for me at this point in time.");
+            return false;
         } break;
 
         /**
@@ -965,14 +972,14 @@ PHP_METHOD(TagLibMPEG, setID3v2) {
         }
         const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
  
-	if(overwrite_existing_tags) {
-	    TagLib::ID3v2::FrameList l = tag->frameListMap()[frameID];
+    if(overwrite_existing_tags) {
+        TagLib::ID3v2::FrameList l = tag->frameListMap()[frameID];
             if(!l.isEmpty()) {
-	        for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator it = l.begin(); it != l.end(); it++) {
-		    tag->removeFrame((*it),true);
-		}
-	    }
-	}
+            for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator it = l.begin(); it != l.end(); it++) {
+            tag->removeFrame((*it),true);
+        }
+        }
+    }
 
         if(id3v2_set_frame(tag, data, byteVector, frameID) == false) {
             RETURN_FALSE;

@@ -2,17 +2,23 @@
  * TagLib implementation and php extension
  * Mostly for manipulating Tags
  * But also reading audioProperties
- * Supports MPEG (MP3) and OGG, soon(tm): FLAC */
+ * Supports MPEG (MP3) and OGG, soon(tm): FLAC
+ *
+ * taglib.github.io
+ * github.com/generaltso/taglib-php
+ */
 
 /**
- * standard libs */
+ * standard libs 
+ */
 #include <iostream>
 #include <iomanip>
 #include <stdio.h>
 #include <sstream>
 
 /**
- * .h required for php extensions */
+ * .h required for php extensions 
+ */
 #include "php_taglib.h"
 
 /**
@@ -27,12 +33,10 @@
 static std::stringstream taglib_cerr;
 class Stream_Swapper {
 public:
-    Stream_Swapper(std::ostream &orig, std::ostream &replacement) : buf_(orig.rdbuf()), str_(orig)
-    {
+    Stream_Swapper(std::ostream &orig, std::ostream &replacement) : buf_(orig.rdbuf()), str_(orig) {
         orig.rdbuf(replacement.rdbuf());
     }
-    ~Stream_Swapper()
-    {
+    ~Stream_Swapper() {
         str_.rdbuf(buf_);
     }
 private:
@@ -57,9 +61,9 @@ static bool taglib_error() {
      * all TagLib errors happen to be prefixed with either
      * "TagLib: " - debug() - tdebug.cpp
      * "*** " - debugData() - tdebug.cpp
-     * and std::cerr sometimes contains more than just '\0' */
-    if(taglib_cerr.peek() == 'T' || taglib_cerr.peek() == '*')
-    {
+     * and std::cerr sometimes contains more than just '\0' 
+     */
+    if(taglib_cerr.peek() == 'T' || taglib_cerr.peek() == '*') {
         char errorMessage[255];
         taglib_cerr.getline(errorMessage,255);
         php_error(E_WARNING, "%s", errorMessage);
@@ -80,13 +84,11 @@ static bool taglib_error() {
  * NOTE: This requires C++11. 
  * NOTE: I've manually editted the Makefile to add the -std=c++11 flag
  */
-constexpr unsigned int _charArrForSwitch(const char* str, int index = 0)
-{
+constexpr unsigned int _charArrForSwitch(const char* str, int index = 0) {
     return !str[index] ? 0x1505 : (_charArrForSwitch(str, index + 1) * 0x21) ^ str[index];
 }
 
-constexpr unsigned int operator"" _CASE ( const char str[], size_t size )
-{
+constexpr unsigned int operator"" _CASE ( const char str[], size_t size ) {
     return _charArrForSwitch(str);
 }
 
@@ -97,8 +99,7 @@ constexpr unsigned int operator"" _CASE ( const char str[], size_t size )
  * http://stackoverflow.com/a/8467869
  */
 #include <tfile.h>
-class ImageFileTest : public TagLib::File
-{
+class ImageFileTest : public TagLib::File {
 public:
     ImageFileTest(const char *file) : TagLib::File(file) { }
     TagLib::ByteVector data() { return readBlock(length()); }
@@ -120,19 +121,7 @@ private:
 /**
  * Expose Class Constants from TagLib 
  */
-void taglibbase_register_constants(zend_class_entry *ce)
-{
-    /**
-     * see TagLib::MPEG::File::TagTypes in mpegfile.h 
-     *
-     * For use with TagLibMPEG::stripTags() in this extension 
-     */
-    _defineclassconstant( STRIP_NOTAGS, 0x0000 );
-    _defineclassconstant( STRIP_ID3V1,  0x0001 );
-    _defineclassconstant( STRIP_ID3V2,  0x0002 );
-    _defineclassconstant( STRIP_APE,    0x0004 );
-    _defineclassconstant( STRIP_ALLTAGS,0xffff );
-
+void taglibbase_register_constants(zend_class_entry *ce) {
     /**
      * see TagLib::ID3v2::AttachedPictureFrame::Type in attachedpictureframe.h 
      *
@@ -165,23 +154,25 @@ static zend_function_entry php_taglibbase_methods[] = {
 };
 
 /**
- * more .h files will be included in each of the .cpp files*/
+ * more .h files will be included in each of the .cpp files
+ */
 #include "TSRM.h"
 #include <tlist.h>
 #include <tpropertymap.h>
 #include <tstringlist.h>
 
 /**
- * just trying to separate out some of this code */
+ * just trying to separate out some of this code 
+ */
 #include "taglibmpeg.cpp"
 #include "taglibogg.cpp"
 
 zend_class_entry *taglibbase_class_entry;
 /**
  * And let's try to unify them into one extension 
- * which provides all of the classes */
-PHP_MINIT_FUNCTION(taglib_minit)
-{
+ * which provides all of the classes
+ */
+PHP_MINIT_FUNCTION(taglib_minit) {
     zend_class_entry base_ce;
     zend_class_entry mpeg_ce;
     zend_class_entry ogg_ce;
