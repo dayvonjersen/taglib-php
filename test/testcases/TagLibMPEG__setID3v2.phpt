@@ -1,5 +1,10 @@
 <?php
 function Test__TagLibMPEG__setID3v2($file) {
+    __setID3v2_test1($file);
+    __setID3v2_test2($file);
+}
+
+function __setID3v2_test1($file) {
     $tmpfile = "./tmp/".basename($file);
     assert(copy($file, $tmpfile), "Couldn't copy $file to $tmpfile!");
 
@@ -43,5 +48,22 @@ function Test__TagLibMPEG__setID3v2($file) {
             assert(false, "Unexpected frameID: $frameID\nBefore:\n".var_dump_string($original_tags)."\nNew Frames to Add:\n".var_dump_string($new_tags)."\nAfter:\n".var_dump_string($tags)."\nIn file: $tmpfile");
             break;
         }
+    }
+}
+
+function __setID3v2_test2($file) {
+    $t = new TagLibMPEG($file);
+    $badvalues = [
+	['TBPM' => 120],
+	"string",
+	null,
+	bool,
+	12,
+	(new stdClass),
+	[0 => ['TPE1' => "value"]]
+    ];
+    foreach($badvalues as $badvalue) {
+	$retval = @$t->setID3v2($badvalue);
+        assert($retval === false, "sent non-typesafe value:\n".var_dump_string($badvalue)."\ngot back: \n".var_dump_string($retval)."\nin file: $tmpfile");
     }
 }

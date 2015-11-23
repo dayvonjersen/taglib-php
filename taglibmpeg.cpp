@@ -86,23 +86,51 @@ PHP_METHOD(TagLibMPEG, __construct) {
     zend_bool readProperties = true;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &fileName, &readProperties) == FAILURE) {
+	php_exception("Expected filename in constructor");
         RETURN_FALSE;
     } 
     if(Z_TYPE_P(fileName) != IS_STRING) {
+	php_exception("Expected filename in constructor to be a string.");
         RETURN_FALSE;
     }
+    const char* filestr = Z_STRVAL_P(fileName);
+
+    if(!TagLib::MPEG::File::isReadable(filestr)) {
+	char msg[100];
+	php_sprintf(msg, "%s cannot be open or read", filestr);
+	php_exception((const char*)msg);
+	RETURN_FALSE;
+    }
+
+    if(!TagLib::MPEG::File::isWritable(filestr)) {
+	char msg[100];
+	php_sprintf(msg, "%s cannot be written to", filestr);
+	php_exception((const char*)msg);
+	RETURN_FALSE;
+    }
+
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
     thisobj->frameFactory = TagLib::ID3v2::FrameFactory::instance();
     try {
-        thisobj->file = new TagLib::MPEG::File((TagLib::FileName) Z_STRVAL_P(fileName), thisobj->frameFactory, (bool) readProperties);
+        thisobj->file = new TagLib::MPEG::File((TagLib::FileName) filestr, thisobj->frameFactory, (bool) readProperties);
     } catch(std::exception& e) {
         php_error(E_WARNING, "%s", e.what());
+	php_exception(e.what());
+	RETURN_FALSE;
+    }
+
+    if(!thisobj->file->isValid()) {
+	char msg[100];
+	php_sprintf(msg, "%s cannot be open or read", filestr);
+	php_exception((const char*)msg);
+	RETURN_FALSE;
     }
 
     if(taglib_error()) {
-       delete thisobj->file;
-            RETURN_FALSE;
+        delete thisobj->file;
+    	php_exception("taglib returned error");
+        RETURN_FALSE;
     }
 }
 /**

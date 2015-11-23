@@ -41,12 +41,17 @@ private:
 } swapper(std::cerr, taglib_cerr);
 
 /**
- * exceptions yay */
+ * exceptions yay
+ */
 #include "zend_exceptions.h"
 #include "ext/spl/spl_exceptions.h"
 
-static bool taglib_error()
-{
+static void php_exception(const char* msg) {
+    zend_class_entry *exception_ce = zend_exception_get_default();
+    zend_throw_exception(exception_ce, msg, 0);
+}
+
+static bool taglib_error() {
     bool retval = false;
     /**
      * all TagLib errors happen to be prefixed with either

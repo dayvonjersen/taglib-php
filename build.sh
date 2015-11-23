@@ -29,10 +29,10 @@ if [ "$build_output" == "" ]; then
         echo "Running tests..."
         cd test
         php -f taglib-php-tests.php | less -r
-        if [[ ${PIPESTATUS[0]} = 1 ]]; then
-            echo -ne "\033[31mBUILD: FAILING IT\033[0m\n"
-        else
+        if [[ ${PIPESTATUS[0]} = 0 ]]; then
             echo -ne "\033[32mbuild: passing\033[0m (go write more tests)\n"
+        else
+            echo -ne "\033[31mBUILD: FAILING IT\033[0m\n"
         fi
     fi
     echo "You can run the tests manually with:"
