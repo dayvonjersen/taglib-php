@@ -230,14 +230,24 @@ PHP_METHOD(TagLibMPEG, setID3v1) {
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE) {
         RETURN_FALSE;
     }
-    if(Z_TYPE_P(newProperties) != IS_STRING) {
+    if(Z_TYPE_P(newProperties) != IS_ARRAY) {
         RETURN_FALSE;
     }
     
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
-    // passing true to this will create the id3v1 tag if it doesn't exist already
-    TagLib::ID3v1::Tag *id3v1 = thisobj->file->ID3v1Tag(true);
+    TagLib::ID3v1::Tag *id3v1;
+
+    if(!thisobj->file->hasID3v1Tag()) {
+	id3v1 = thisobj->file->ID3v1Tag(true);
+	overwrite_existing_tags = true;
+
+        TagLib::PropertyMap propMap = id3v1->properties();
+	propMap.removeEmpty();
+	propMap.erase(propMap);
+    } else {
+	id3v1 = thisobj->file->ID3v1Tag();
+    }
 
     TagLib::PropertyMap propMap = id3v1->properties();
 
@@ -279,7 +289,16 @@ PHP_METHOD(TagLibMPEG, setID3v1) {
     }
 
     TagLib::PropertyMap failedToSet = id3v1->setProperties(propMap);
-    if(thisobj->file->save()) {
+
+    int tags = TagLib::MPEG::File::TagTypes::ID3v1;
+/*    if(thisobj->file->hasID3v2Tag()) {
+	tags |= TagLib::MPEG::File::TagTypes::ID3v2;
+    }
+    if(thisobj->file->hasAPETag()) {
+	tags |= TagLib::MPEG::File::TagTypes::APE;
+    }*/
+
+    if(thisobj->file->save(tags)) {
         if(failedToSet.begin() == failedToSet.end()) {
             RETURN_TRUE;
         } else {
@@ -885,7 +904,9 @@ embedded objects can cause playback issues in some players and serve no practica
 PHP_METHOD(TagLibMPEG, setID3v2) {
     zval *newFrames;
     taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &newFrames) == FAILURE) {
+
+    zend_bool overwrite_existing_tags = true;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l", &newFrames, &overwrite_existing_tags) == FAILURE) {
         RETURN_FALSE;
     }
 
@@ -916,6 +937,15 @@ PHP_METHOD(TagLibMPEG, setID3v2) {
         }
         const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
  
+	if(overwrite_existing_tags) {
+	    TagLib::ID3v2::FrameList l = tag->frameListMap()[frameID];
+            if(!l.isEmpty()) {
+	        for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator it = l.begin(); it != l.end(); it++) {
+		    tag->removeFrame((*it),true);
+		}
+	    }
+	}
+
         if(id3v2_set_frame(tag, data, byteVector, frameID) == false) {
             RETURN_FALSE;
         }
@@ -928,7 +958,7 @@ PHP_METHOD(TagLibMPEG, setID3v2) {
     const TagLib::StringList unsupported = tag->properties().unsupportedData();
     tag->removeUnsupportedProperties(unsupported);
 
-    if(thisobj->file->save()) {
+    if(thisobj->file->save(TagLib::MPEG::File::TagTypes::ID3v2)) {
         RETURN_TRUE;
     }
 

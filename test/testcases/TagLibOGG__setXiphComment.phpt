@@ -25,15 +25,17 @@ function Test__TagLibOGG__setXiphComment($file) {
     if($original_tags === false) {
         $original_tags = [];
     }
-    $original_tags['TITLE'] = 'testing';
+    if(isset($original_tags['TITLE'])) {
+	$original_tags['TITLE'] .= ' testing';
+    } else {
+	$original_tags['TITLE'] = 'testing';
+    }
     $t->setXiphComment(['TITLE'=>'testing'], false);
     $new_tags = $t->getXiphComment();
-    if($original_tags === false) {
-        assert($new_tags === false, "Tags were found in file $tmpfile after setXiphComment w/ overwrite original tags = FALSE!");
-    }
     if(is_array($new_tags)) {
         foreach($new_tags as $frameID => $value) {
-            assert($original_tags[$frameID] === $value, "overwrite original tags = FALSE\n$frameID was:\n".var_dump_string($original_tags[$frameID])."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile");
+            assert($original_tags[$frameID] === $value, "overwrite original tags = FALSE\n$frameID was:\n".var_dump_string($original_tags[$frameID])."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile\n".var_dump_string($original_tags));
         }
     }
+    assert($new_tags !== false, "failed to set any tags\nin file: $tmpfile");
 }

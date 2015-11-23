@@ -22,6 +22,7 @@ function Test__TagLibMPEG__setID3v2($file) {
     $t = new TagLibMPEG($tmpfile);
     $tags = $t->getID3v2();
     assert(is_array($tags), "getID3v2 returned FALSE");
+//var_dump($tags);
     foreach($tags as $tag) {
         assert(isset($tag['frameID'],$tag['data']));
         $frameID = $tag['frameID'];
