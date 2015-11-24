@@ -372,7 +372,7 @@
                 "result": {
                     "ALBUM": "album",
                     "ARTIST": "artist",
-                    "COMMENTS": "comment",
+                    "COMMENT": "comment",
                     "DATE": "2000",
                     "GENRE": "music",
                     "TITLE": "title",
@@ -384,7 +384,7 @@
                 "result": {
                     "ALBUM": "album",
                     "ARTIST": "artist",
-                    "COMMENTS": "comment",
+                    "COMMENT": "comment",
                     "DATE": "2000",
                     "GENRE": "music",
                     "TITLE": "title",
@@ -482,7 +482,7 @@
                 "result": {
                     "ALBUM": "album",
                     "ARTIST": "artist",
-                    "COMMENTS": "comment",
+                    "COMMENT": "comment",
                     "DATE": "2000",
                     "GENRE": "music",
                     "TITLE": "title",
@@ -494,7 +494,7 @@
                 "result": {
                     "ALBUM": "album",
                     "ARTIST": "artist",
-                    "COMMENTS": "comment",
+                    "COMMENT": "comment",
                     "DATE": "2000",
                     "GENRE": "music",
                     "TITLE": "title",
