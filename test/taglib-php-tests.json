@@ -407,5 +407,122 @@
                 "result": null
             }
         ]
+    },
+    "TagLibFLAC": {
+        "__construct": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment.flac"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": null
+            }
+        ],
+        "getAudioProperties": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 120,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "vorbisVersion": 0,
+                    "bitrateMaximum": 0,
+                    "bitrateNominal": 120000,
+                    "bitrateMinimum": 0
+                }
+            },
+            {
+                "params": ["testfiles/xiphcomment.flac"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 120,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "vorbisVersion": 0,
+                    "bitrateMaximum": 0,
+                    "bitrateNominal": 120000,
+                    "bitrateMinimum": 0
+                }
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 120,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "vorbisVersion": 0,
+                    "bitrateMaximum": 0,
+                    "bitrateNominal": 120000,
+                    "bitrateMinimum": 0
+                }
+            }
+        ],
+        "hasXiphComment": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/xiphcomment.flac"],
+                "result": true
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": true 
+            }
+        ],
+        "getXiphComment": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": []
+            },
+            {
+                "params": ["testfiles/xiphcomment.flac"],
+                "result": {
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENTS": "comment",
+                    "DATE": "2000",
+                    "GENRE": "music",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": {
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENTS": "comment",
+                    "DATE": "2000",
+                    "GENRE": "music",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99",
+                    "METADATA_BLOCK_PICTURE": "..."
+                }
+            }
+        ],
+        "setXiphComment": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment.flac"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": null
+            }
+        ]
     }
 }
+

@@ -166,6 +166,7 @@ static zend_function_entry php_taglibbase_methods[] = {
  */
 #include "taglibmpeg.cpp"
 #include "taglibogg.cpp"
+#include "taglibflac.cpp"
 
 zend_class_entry *taglibbase_class_entry;
 /**
@@ -176,6 +177,7 @@ PHP_MINIT_FUNCTION(taglib_minit) {
     zend_class_entry base_ce;
     zend_class_entry mpeg_ce;
     zend_class_entry ogg_ce;
+    zend_class_entry flac_ce;
 
     INIT_CLASS_ENTRY(base_ce, "TagLib", php_taglibbase_methods);
     taglibbase_class_entry = zend_register_internal_class(&base_ce TSRMLS_CC);
@@ -183,7 +185,7 @@ PHP_MINIT_FUNCTION(taglib_minit) {
 
     INIT_CLASS_ENTRY(mpeg_ce, "TagLibMPEG", php_taglibmpeg_methods);
     taglibmpeg_class_entry = zend_register_internal_class(&mpeg_ce TSRMLS_CC);
-//    taglibmpeg_register_constants(taglibmpeg_class_entry);
+    //taglibmpeg_register_constants(taglibmpeg_class_entry);
 
     taglibmpeg_class_entry->create_object = taglibmpegfile_create_handler;
     memcpy(&taglibmpegfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
@@ -196,6 +198,14 @@ PHP_MINIT_FUNCTION(taglib_minit) {
     taglibogg_class_entry->create_object = tagliboggfile_create_handler;
     memcpy(&tagliboggfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     tagliboggfile_object_handlers.clone_obj = NULL;
+
+    INIT_CLASS_ENTRY(flac_ce, "TagLibFLAC", php_taglibflac_methods);
+    taglibflac_class_entry = zend_register_internal_class(&flac_ce TSRMLS_CC);
+    //taglibflac_register_constants(taglibflac_class_entry);
+
+    taglibflac_class_entry->create_object = taglibflacfile_create_handler;
+    memcpy(&taglibflacfile_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    taglibflacfile_object_handlers.clone_obj = NULL;
 
     return SUCCESS;
 }

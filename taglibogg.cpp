@@ -142,6 +142,7 @@ PHP_METHOD(TagLibOGG, __construct) {
         thisobj->type        = _OGG_VORBIS_;
         thisobj->vorbisfile  = new TagLib::Ogg::Vorbis::File(oggFileName);
         if(taglib_error() || !thisobj->vorbisfile->isValid()) {
+            delete thisobj->vorbisfile;
             char msg[sizeof(oggFileName)+24];
             php_sprintf(msg, "%s cannot be open or read", oggFileName);
             php_exception((const char*)msg);
@@ -155,6 +156,7 @@ PHP_METHOD(TagLibOGG, __construct) {
         thisobj->type        = _OGG_OPUS_;
         thisobj->opusfile    = new TagLib::Ogg::Opus::File(oggFileName);
         if(taglib_error() || !thisobj->opusfile->isValid()) {
+            delete thisobj->opusfile;
             char msg[sizeof(oggFileName)+24];
             php_sprintf(msg, "%s cannot be open or read", oggFileName);
             php_exception((const char*)msg);
@@ -168,6 +170,7 @@ PHP_METHOD(TagLibOGG, __construct) {
         thisobj->type        = _OGG_FLAC_;
         thisobj->flacfile    = new TagLib::Ogg::FLAC::File(oggFileName);
         if(taglib_error() || !thisobj->flacfile->isValid()) {
+            delete thisobj->flacfile;
             char msg[sizeof(oggFileName)+24];
             php_sprintf(msg, "%s cannot be open or read", oggFileName);
             php_exception((const char*)msg);
@@ -185,6 +188,17 @@ PHP_METHOD(TagLibOGG, __construct) {
     }
 
     if(taglib_error()) {
+        switch(codec) {
+        case _OGG_VORBIS_:
+            delete thisobj->vorbisfile;
+            break;
+        case _OGG_OPUS_:
+            delete thisobj->opusfile;
+            break;
+        case _OGG_FLAC_:
+            delete thisobj->flacfile;
+            break;
+        }
         php_exception("taglib returned error");
         RETURN_FALSE;
     }
