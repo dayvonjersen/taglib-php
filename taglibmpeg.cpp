@@ -88,9 +88,8 @@ zend_class_entry *taglibmpeg_class_entry;
  */
 PHP_METHOD(TagLibMPEG, __construct) {
     zval *fileName;
-    zend_bool readProperties = true;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &fileName, &readProperties) == FAILURE) {
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &fileName) == FAILURE) {
         php_exception("Expected filename in constructor");
         RETURN_FALSE;
     } 
@@ -120,7 +119,7 @@ PHP_METHOD(TagLibMPEG, __construct) {
 
     thisobj->frameFactory = TagLib::ID3v2::FrameFactory::instance();
     try {
-        thisobj->file = new TagLib::MPEG::File((TagLib::FileName) filestr, thisobj->frameFactory, (bool) readProperties);
+        thisobj->file = new TagLib::MPEG::File((TagLib::FileName) filestr, thisobj->frameFactory, true);
     } catch(std::exception& e) {
         php_error(E_WARNING, "%s", e.what());
         php_exception(e.what());
