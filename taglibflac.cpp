@@ -120,7 +120,7 @@ PHP_METHOD(TagLibFLAC, __construct) {
         RETURN_FALSE;
     }
 
-    thisobj->xiphcomment = thisobj->file->xiphComment();
+    thisobj->xiphcomment = thisobj->file->xiphComment(true);
 
     if(taglib_error()) {
         delete thisobj->file;

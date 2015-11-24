@@ -445,9 +445,38 @@
                     "sampleWidth": 16,
                     "sampleFrames": 44100
                 }
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": {
+                    "length": 1,
+                    "bitrate": 108,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "sampleWidth": 16,
+                    "sampleFrames": 44100
+                }
+            }
+        ],
+        "hasXiphComment": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/xiphcomment.flac"],
+                "result": true
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": true 
             }
         ],
         "getXiphComment": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": []
+            },
             {
                 "params": ["testfiles/xiphcomment.flac"],
                 "result": {
