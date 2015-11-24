@@ -149,7 +149,11 @@ PHP_METHOD(TagLibFLAC, getAudioProperties) {
     add_assoc_long(return_value, "channels", audioProperties->channels());
     add_assoc_long(return_value, "sampleWidth", audioProperties->sampleWidth());
     add_assoc_long(return_value, "sampleFrames", audioProperties->sampleFrames());
-    add_assoc_string(return_value, "signature", audioProperties->signature().data(), 1);
+
+    // XXX: broken, can't figure out how to read this data or what it means, or why I should care about it
+    // using md5sum or sha1sum on the file itself to verify data integrity or whatever is preferable in any case
+    // and totally outside the scope of tagging imho tbh fam
+    //add_assoc_string(return_value, "signature", audioProperties->signature().toHex().data(), 1);
 }
 
 /**
