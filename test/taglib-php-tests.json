@@ -516,6 +516,34 @@
                 "params": ["testfiles/xiphcomment+picture.flac"],
                 "result": null
             }
+        ],
+        "hasID3v1": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/xiphcomment.flac"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": false
+            }
+        ],
+        "hasID3v2": [
+            {
+                "params": ["testfiles/empty.flac"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/xiphcomment.flac"],
+                "result": false
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.flac"],
+                "result": false
+            }
         ]
     }
 }

@@ -254,6 +254,41 @@ PHP_METHOD(TagLibFLAC, setXiphComment) {
 }
 
 /**
+ * public function hasID3v1() 
+ */
+PHP_METHOD(TagLibFLAC, hasID3v1) {
+    taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    RETVAL_BOOL(thisobj->file->hasID3v1Tag());
+}
+
+/**
+ * public function hasID3v2()
+ */
+PHP_METHOD(TagLibFLAC, hasID3v2) {
+    taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    RETVAL_BOOL(thisobj->file->hasID3v2Tag());
+}
+
+/**
+ * public function getID3v1()
+ */
+PHP_METHOD(TagLibFLAC, getID3v1) {
+    taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->file->hasID3v1Tag()) {
+        RETURN_FALSE;
+    }
+
+    TagLib::ID3v1::Tag *id3v1 = thisobj->file->ID3v1Tag();
+    array_init(return_value);
+
+    TagLib::PropertyMap propMap = id3v1->properties();
+
+    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++) {
+        add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
+    }
+}
+
+/**
  * Now we assemble the above defined methods into the class or something
  */
 static zend_function_entry php_taglibflac_methods[] = {
@@ -262,5 +297,9 @@ static zend_function_entry php_taglibflac_methods[] = {
     PHP_ME(TagLibFLAC, hasXiphComment,      NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, getXiphComment,      NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, setXiphComment,      NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibFLAC, hasID3v1,            NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibFLAC, hasID3v2,            NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibFLAC, getID3v1,            NULL, ZEND_ACC_PUBLIC)
+//    PHP_ME(TagLibFLAC, getID3v2,            NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };

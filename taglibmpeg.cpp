@@ -4,11 +4,6 @@
 #include <mpegfile.h>
 #include <mpegheader.h>
 #include <mpegproperties.h>
-#include <apefile.h>
-#include <apefooter.h>
-#include <apeitem.h>
-#include <apeproperties.h>
-#include <apetag.h>
 #include <id3v1tag.h>
 #include <id3v1genres.h>
 #include <id3v2extendedheader.h>
