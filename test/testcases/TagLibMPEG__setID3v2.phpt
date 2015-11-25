@@ -4,6 +4,7 @@ function Test__TagLibMPEG__setID3v2($file) {
     __setID3v2_test1($file);
     __setID3v2_test2($file);
     __setID3v2_test3($file, $ranonce);
+    __setID3v2_test4($file, $ranonce);
     $ranonce = true;
 }
 
@@ -91,9 +92,9 @@ function __setID3v2_test3($file, $ranonce) {
 
         'COMM' => 0,
         'OWNE' => [
-            'date' => sprintf('Ymd', time()),
+            'date' => @date('Ymd'), // php issues a stupid timezone warning literally no one cares php shut the fuck up
             'paid' => '$0.99',
-            'seller' => 'nobody'
+            'seller' => 'WhyIsThisNotWorking:<'
         ],
         'PRIV' => [
             'owner' => 'nobody@example.com',
@@ -170,7 +171,7 @@ function __setID3v2_test3($file, $ranonce) {
             $good_future[$frame] = $value;
         }
         $retval = $t->setID3v2([$frame => $value]);
-        assert($retval, "FAILED TO setID3v2(\n".var_dump_string([$frame => $value])."\n)\nin file: $tmpfile");
+        assert($retval === true, "FAILED TO setID3v2(\n");//.var_dump_string([$frame => $value])."\n)\nin file: $tmpfile");
         if(!$retval) {
             // no point continuing if not in ASSERT_BAIL mode
             // will just throw a tonne of excess errors to output
@@ -195,13 +196,14 @@ function __setID3v2_test3($file, $ranonce) {
         } else {
             switch($frameID) {
             case 'APIC':
-                foreach($frame as $k => $v) {
-                    if($k === 'frameID') continue;
-                    assert(isset($expected[$v]), "Missing field $k in APIC:\n"
-                    .var_dump_string($actual)."\nin file: $tmpfile");
-                    assert($v === $expected[$v], "APIC $k:\n"
-                    .var_dump_string($actual)."differs from expected:\n"
-                    .var_dump_string($expected[$v])."\nin file: $tmpfile");
+                foreach($expected as $k => $v) {
+                    assert(isset($frame[$k]), "Missing field $k in APIC:\n"
+                    //.var_dump_string($actual)
+                    ."\nin file: $tmpfile");
+                    assert($v === $frame[$k], "APIC $k:\n"
+                    //.var_dump_string($actual)."differs from expected:\n"
+                    //.var_dump_string($expected[$v])
+                    ."\nin file: $tmpfile");
                 }
                 break;
             case 'WXXX':
@@ -214,11 +216,26 @@ function __setID3v2_test3($file, $ranonce) {
                 assert($actual === $urlvalue, "Expected $frameID to have:\n".var_dump_string($urlvalue)
                 ."\nactual: ".var_dump_string($actual)."\nin file: $tmpfile");
                 break;
+            case 'OWNE':
+                $ownervalue = sprintf("pricePaid=%s datePurchased=%s seller=%s", $expected['paid'], $expected['date'], $expected['seller']);
+                assert($actual === $ownervalue, "Expected $frameID to have:\n".var_dump_string($ownervalue)
+                ."\nactual: ".var_dump_string($actual)."\nin file: $tmpfile");
+                break;
+            case 'PRIV':
+                $privvalue = $expected['owner'];
+                assert($actual === $privvalue, "Expected $frameID to have:\n".var_dump_string($privvalue)
+                ."\nactual: ".var_dump_string($actual)."\nin file: $tmpfile");
+                break;
+            case 'UFID':
+                assert($actual === '', "Expected $frameID to have\n".var_dump_string('')
+                ."\nactual: ".var_dump_string($actual)."\nin file: $tmpfile");
+                break;
             default:
-            // xxx: temp:
-            echo $frameID,"\n";
-            var_dump($actual);
-            var_dump($expected);
+                // xxx: temp:
+                assert(false, "add test coverage for $frameID plx");
+                echo $frameID,"\n";
+                var_dump($actual);
+                var_dump($expected);
             }
         }
     }
@@ -236,4 +253,45 @@ function __setID3v2_test3($file, $ranonce) {
         $frameID = $frame['frameID'];
         assert(!in_array($frameID, $bad_future), "bad frame $frameID made it into file anyway! (silent failure?)\n\nor maybe it was in the file to begin with don't go chasing rainbows\nin file: $tmpfile");
     }
+}
+
+function __setID3v2_test4($file, $ranonce) {
+    if($ranonce) return;
+
+    $tmpfile = "./tmp/".basename($file);
+    assert(copy($file, $tmpfile), "Couldn't copy $file to $tmpfile!");
+
+    $t = new TagLibMPEG($tmpfile);
+    $t->stripTags();
+
+    $from_file = [
+        'APIC' => [
+            'file' => './testfiles/image.jpg',
+            'mime' => 'image/jpeg',
+            'type' => TagLib::APIC_FRONTCOVER,
+            'desc' => 'optional description'
+        ],
+        'TIT2' => 'test'
+    ];
+    
+    $res = $t->setID3v2($from_file);
+
+    assert($res === true, "setID3v2 FAILED to set:\n"
+        .var_dump_string($from_file)
+        ."\nin file: $tmpfile");
+
+    unset($t);
+    $t = new TagLibMPEG($tmpfile);
+    $res = $t->getID3v2();
+    assert($res !== false, "no ID3v2 tag after setting\nin file: $tmpfile");
+
+    assert(is_array($res) && isset($res[0]));
+    $frame = $res[0];
+    assert($frame['frameID'] === 'APIC');
+    assert(isset($frame['data'],$frame['mime'],$frame['type'],$frame['desc']));
+    $a = $from_file['APIC'];
+    assert($frame['data'] === base64_encode(file_get_contents('./testfiles/image.jpg')));//$a['file'])));
+    assert($frame['mime'] === $a['mime']);
+    assert($frame['type'] === $a['type']);
+    assert($frame['desc'] === $a['desc']);
 }

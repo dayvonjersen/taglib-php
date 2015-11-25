@@ -655,7 +655,7 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
          */
         case "OWNE"_CASE:
         {
-            TagLib::ID3v2::OwnershipFrame *newFrame = new TagLib::ID3v2::OwnershipFrame(byteVector);
+            TagLib::ID3v2::OwnershipFrame *newFrame = new TagLib::ID3v2::OwnershipFrame(TagLib::String::Type::UTF8);
             const char* genericWarning = "OWNE aka OwnershipFrame requires an array argument e.g. \
     [\
         'date' => '19691231',\
@@ -957,8 +957,8 @@ PHP_METHOD(TagLibMPEG, setID3v2) {
         }
     }
 
-    const TagLib::StringList unsupported = tag->properties().unsupportedData();
-    tag->removeUnsupportedProperties(unsupported);
+//    const TagLib::StringList unsupported = tag->properties().unsupportedData();
+//    tag->removeUnsupportedProperties(unsupported);
 
     if(thisobj->file->save(TagLib::MPEG::File::TagTypes::ID3v2)) {
         RETURN_TRUE;
