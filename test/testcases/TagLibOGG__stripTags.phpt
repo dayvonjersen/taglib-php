@@ -7,5 +7,5 @@ function Test__TagLibOGG__stripTags($file) {
     $t->stripTags();
     unset($t);
     $t = new TagLibOGG($tmpfile);
-    assert($t->hasXiphComment() === false, "$tmpfile has ID3v1 after calling stripTags!");
+    assert($t->hasXiphComment() === false, "$tmpfile has XiphComment after calling stripTags!");
 }
