@@ -7,7 +7,7 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Installation/Configuration](#installation/configuration)
+2. [Installation/Configuration](#installation-configuration)
 	- [Requirements](#requirements)
     - [Installation](#installation)
 4. [TagLib](#taglib)
@@ -58,7 +58,7 @@ At this time I am planning to only support MP3, OGG, and FLAC.
 
 All I need from taglib is to read and write tags from audio  files, preferably as stupid-simple and self-contained as possible.
 
-## Installation/Configuration
+## <a id="installation-configuration">Installation/Configuration</a>
 
 ### Requirements
 
@@ -392,15 +392,26 @@ None
 
 ### <a id="taglibflac-hasxiphcomment">TagLibFLAC::hasXiphComment()</a>
 #### Description
-words
+Check whether file on disk has a XiphComment.
+
 ```php
 public bool hasXiphComment( void )
 ```
 #### Parameters
+None
+
 #### Return Values
+`TRUE` if the file has a XiphComment, `FALSE` otherwise.
+
+`FALSE` on failure
+
 #### Examples
 ```php
 // example usage
+$t = new TagLibFLAC('file.flac');
+if($t->hasXiphComment()) {
+	// do stuff
+}
 ```
 
 --------------------------------------------------------------------------------
@@ -907,14 +918,14 @@ TagLibOGG::SPEEX  = 4 // don't use this one
 #### Description
 Attempts to open the specified file path.
 ```php
-public __construct( string $filename[, int $type = TagLibOGG::VORBIS ])
+public __construct( string $filename[, int $codec = TagLibOGG::VORBIS ])
 ```
 
 #### Parameters
-`filename` - the file to open, **must** be a valid OGG file of `type` and php **must** have read **and** write permissions for the file.
-`type` - `int` codec used in the OGG container
+`filename` - the file to open, **must** be a valid OGG file of `codec` and php **must** have read **and** write permissions for the file.
+`codec` - `int` codec used in the OGG container
 
-***Most OGGs are vorbis***, which is also the **default** for `$type`, so you probably don't need to worry about this
+***Most OGGs are vorbis***, which is also the **default** for `$codec`, so you probably don't need to worry about this
 
 But OGG is actually a container which supports multiple codecs. If your OGG is a different codec, you must specify it in the constructor with one of the [Predefined Constants](#taglibogg-constants).
 
@@ -936,6 +947,8 @@ try {
 	echo "Something happened.\n", $e->getMessage();
 }
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibogg-getaudioproperties">TagLibOGG::getAudioProperties()</a>
 #### Description
@@ -1019,6 +1032,8 @@ print_r($f->getAudioProperties());
  */
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibogg-hasxiphcomment">TagLibOGG::hasXiphComment()</a>
 #### Description
 Check whether file on disk has a XiphComment.
@@ -1043,6 +1058,8 @@ if($t->hasXiphComment()) {
 }
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibogg-getxiphcomment">TagLibOGG::getXiphComment()</a>
 #### Description
 Get the XiphComment as an associative array.
@@ -1061,6 +1078,8 @@ None
 // example usage
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibogg-setxiphcomment">TagLibOGG::setXiphComment()</a>
 #### Description
 words
@@ -1073,6 +1092,8 @@ public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags
 ```php
 // example usage
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibogg-striptags">TagLibOGG::stripTags()</a>
 #### Description
@@ -1098,3 +1119,5 @@ $t->stripTags();
 // now it doesn't
 echo $t->hasXiphComment() ? 'true' : 'false'; // false
 ```
+
+--------------------------------------------------------------------------------
