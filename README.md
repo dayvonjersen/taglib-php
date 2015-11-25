@@ -1,5 +1,7 @@
 # taglib-php
 
+## XXX this readme is an unfinished WIP XXX
+
 A php extension which wraps [TagLib](http://taglib.github.io).
 
 ## Table of Contents
@@ -437,7 +439,7 @@ foreach($id3v2 as $frame) {
     $human_readable_data = '';
     switch($id) {
     case 'APIC':
-    	$human_readable = 'Picture';
+    	$human_readable_id = 'Picture';
         
         // write the file to disk...
         // get filetype by reading $frame['mime']
