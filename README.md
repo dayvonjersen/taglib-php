@@ -11,8 +11,20 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 	- [Requirements](#requirements)
     - [Installation](#installation)
 3. [Predefined Constants](#predefined-constants)
-4. TagLib
-5. TagLibFLAC
+4. [TagLib](#taglib)
+5. [TagLibFLAC](#taglibflac)
+	- [__construct()](#taglibflac-__construct)
+	- [getAudioProperties()](#taglibflac-getaudioproperties)
+	- [hasID3v1()](#taglibflac-hasid3v1)
+	- [getID3v1()](#taglibflac-getid3v1)
+	- [setID3v1()](#taglibflac-setid3v1)
+	- [hasID3v2()](#taglibflac-hasid3v2)
+	- [getID3v2()](#taglibflac-getid3v2)
+	- [setID3v2()](#taglibflac-setid3v2)
+	- [hasXiphComment()](#taglibflac-hasxiphcomment)
+	- [getXiphComment()](#taglibflac-getxiphcomment)
+	- [setXiphComment()](#taglibflac-setxiphcomment)
+	- [stripTags()](#taglibflac-striptags)
 6. [TagLibMPEG](#taglibmpeg)
 	- [__construct()](#taglibmpeg-__construct)
 	- [getAudioProperties()](#taglibmpeg-getaudioproperties)
@@ -29,6 +41,7 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 	- [hasXiphComment()](#taglibogg-hasxiphcomment)
 	- [getXiphComment()](#taglibogg-getxiphcomment)
 	- [setXiphComment()](#taglibogg-setxiphcomment)
+	- [stripTags()](#taglibogg-striptags)
 
 ## Introduction
 
@@ -94,16 +107,28 @@ TagLib::APIC_PUBLISHERLOGO      = 0x14
 
 ## <a id="taglib">TagLib Class</a>
 
-Just a container for the above constants.
+Just a container for the above [Predefined Constants](#predefined-constants).
 
 ## <a id="taglibflac">TagLibFLAC Class</a>
 ```php
 class TagLibFLAC {
     public __construct( string $filename )
+    
     public array getAudioProperties( void )
-    public bool|array getID3v1( void )
+    
     public bool hasID3v1( void )
+    public bool|array getID3v1( void )
+    public bool|array setID3v1( array $frames )
+    
     public bool hasID3v2( void )
+    public bool|array getID3v2( void )
+    public bool setID3v2( array $frames )
+    
+    public bool hasXiphComment( void )
+    public array getXiphComment( void )
+    public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+    
+    public bool stripTags( void )
 }
 ```
 
@@ -133,17 +158,197 @@ try {
 }
 ```
 
+### <a id="taglibflac-getaudioproperties">TagLibFLAC::getAudioProperties()</a>
+#### Description
+words
+```php
+public array getAudioProperties( void )
+```
+
+#### Parameters
+#### Return Values
+#### Examples
+```php
+// example usage
+```
+
+### <a id="taglibflac-hasid3v1">TagLibFLAC::hasID3v1()</a>
+#### Description
+Check whether file on disk has ID3v1 tag.
+
+```php
+public bool hasID3v1( void )
+```
+#### Parameters
+None
+
+#### Return Values
+`TRUE` if file has an ID3v1 tag, `FALSE` otherwise.
+
+#### Examples
+```php
+// example usage
+$t = new TagLibFLAC('file.flac');
+if($t->hasID3v1()) {
+	// do stuff
+}
+```
+
+### <a id="taglibflac-getid3v1">TagLibFLAC::getID3v1()</a>
+#### Description
+If the file on disk has an ID3v1 tag, get the ID3v1 tag as an associative array.
+```php
+public bool|array getID3v1( void )
+```
+#### Parameters
+None
+
+#### Return Values
+Returns an associative array of `string` frameIDs as keys and their `string` values.
+
+Returns `FALSE` if file does not have an ID3v1 tag.
+
+Also returns `FALSE` on failure.
+
+See also [id3.org/ID3v1](http://id3.org/ID3v1) and [wikipedia](https://en.wikipedia.org/wiki/ID3#Layout) for more information about ID3v1.
+#### Examples
+
+### <a id="taglibflac-setid3v1">TagLibFLAC::setID3v1()</a>
+#### Description
+```php
+public bool setID3v1( void )
+```
+
+#### Parameters
+None
+
+#### Return Values
+
+#### Examples
+
+### <a id="taglibflac-hasid3v2">TagLibFLAC::hasID3v2()</a>
+#### Description
+Check whether file on disk has ID3v2 tag.
+
+```php
+public bool hasID3v2( void )
+```
+
+#### Parameters
+None
+
+#### Return Values
+`TRUE` if file has an ID3v2 tag, `FALSE` otherwise.
+
+#### Examples
+```php
+// example usage
+$t = new TagLibFLAC('file.flac');
+if($t->hasID3v2()) {
+	// do stuff
+}
+```
+
+### <a id="taglibflac-getid3v2">TagLibFLAC::getID3v2()</a>
+#### Description
+If the file on disk has an ID3v2 tag, get the ID3v2 tag as an associative array.
+```php
+public bool|array getID3v2( void )
+```
+#### Parameters
+None
+
+#### Return Values
+Returns an associative array of `string` frameIDs as keys and their `string` values.
+
+Returns `FALSE` if file does not have an ID3v2 tag.
+
+Also returns `FALSE` on failure.
+
+See also [id3.org/ID3v2](http://id3.org/ID3v2) and [wikipedia](https://en.wikipedia.org/wiki/ID3#Layout) for more information about ID3v2.
+#### Examples
+
+### <a id="taglibflac-setid3v2">TagLibFLAC::setID3v2()</a>
+#### Description
+```php
+public bool setID3v2( void )
+```
+
+#### Parameters
+None
+
+#### Return Values
+
+#### Examples
+
+
+### <a id="taglibflac-hasxiphcomment">TagLibFLAC::hasXiphComment()</a>
+#### Description
+words
+```php
+public bool hasXiphComment( void )
+```
+#### Parameters
+#### Return Values
+#### Examples
+```php
+// example usage
+```
+
+### <a id="taglibflac-getxiphcomment">TagLibFLAC::getXiphComment()</a>
+#### Description
+words
+```php
+public bool|array getXiphComment( void )
+```
+#### Parameters
+#### Return Values
+#### Examples
+```php
+// example usage
+```
+
+### <a id="taglibflac-setxiphcomment">TagLibFLAC::setXiphComment()</a>
+#### Description
+words
+```php
+public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+```
+#### Parameters
+#### Return Values
+#### Examples
+```php
+// example usage
+```
+
+### <a id="taglibflac-striptags">TagLibFLAC::stripTags()</a>
+#### Description
+words
+```php
+public bool stripTags( void )
+```
+#### Parameters
+#### Return Values
+#### Examples
+```php
+// example usage
+```
+
 ## <a id="taglibmpeg">TagLibMPEG Class</a>
 ```php
 class TagLibMPEG {
     public __construct( string $filename )
+    
     public array getAudioProperties( void )
-    public bool|array getID3v1( void )
-    public bool|array getID3v2( void )
+    
     public bool hasID3v1( void )
-    public bool hasID3v2( void )
+    public bool|array getID3v1( void )
     public bool|array setID3v1( array $frames )
+    
+    public bool hasID3v2( void )
+    public bool|array getID3v2( void )
     public bool setID3v2( array $frames )
+    
     public bool stripTags( void )
 }
 ```
@@ -543,17 +748,23 @@ TagLib provides ways to remove individual tags without affecting the other(s) bu
 ```php
 class TagLibOGG {
     public __construct( string $filename[, int $type = TagLibOGG::VORBIS ])
+    
     public array getAudioProperties( void )
+    
+    public bool hasXiphComment( void )
     public array getXiphComment( void )
     public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+    
+    public bool stripTags( void )
 }
 ```
 ### <a id="taglibogg-__construct">TagLibOGG::__construct()</a>
 #### Description
 words
 ```php
-public void function_signature( void )
+public __construct( string $filename[, int $type = TagLibOGG::VORBIS ])
 ```
+
 #### Parameters
 #### Return Values
 #### Examples
@@ -561,15 +772,13 @@ public void function_signature( void )
 // example usage
 ```
 
-```php
-public __construct( string $filename[, int $type = TagLibOGG::VORBIS ])
-```
 ### <a id="taglibogg-getaudioproperties">TagLibOGG::getAudioProperties()</a>
 #### Description
 words
 ```php
-public void function_signature( void )
+public array getAudioProperties( void )
 ```
+
 #### Parameters
 #### Return Values
 #### Examples
@@ -577,14 +786,11 @@ public void function_signature( void )
 // example usage
 ```
 
-```php
-public array getAudioProperties( void )
-````
 ### <a id="taglibogg-hasxiphcomment">TagLibOGG::hasXiphComment()</a>
 #### Description
 words
 ```php
-public void function_signature( void )
+public bool hasXiphComment( void )
 ```
 #### Parameters
 #### Return Values
@@ -593,14 +799,11 @@ public void function_signature( void )
 // example usage
 ```
 
-```php
-public array hasXiphComment( void )
-```
 ### <a id="taglibogg-getxiphcomment">TagLibOGG::getXiphComment()</a>
 #### Description
 words
 ```php
-public void function_signature( void )
+public bool|array getXiphComment( void )
 ```
 #### Parameters
 #### Return Values
@@ -609,15 +812,11 @@ public void function_signature( void )
 // example usage
 ```
 
-```php
-public array getXiphComment( void )
-```
-
-### <a id="taglibogg-setXiphComment">TagLibOGG::setXiphComment()</a>
+### <a id="taglibogg-setxiphcomment">TagLibOGG::setXiphComment()</a>
 #### Description
 words
 ```php
-public void function_signature( void )
+public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
 ```
 #### Parameters
 #### Return Values
@@ -626,6 +825,27 @@ public void function_signature( void )
 // example usage
 ```
 
+### <a id="taglibogg-striptags">TagLibOGG::stripTags()</a>
+#### Description
+Clear XiphComment from file.
 ```php
-public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+public bool stripTags( void )
+```
+#### Parameters
+None
+
+#### Return Values
+Returns `TRUE` on success, `FALSE` on failure.
+
+#### Examples
+```php
+// example usage
+$t = new TagLibOGG('file.ogg');
+// say for argument's sake this file has a XiphComment.
+echo $t->hasXiphComment() ? 'true' : 'false'; // true
+
+$t->stripTags();
+
+// now it doesn't
+echo $t->hasXiphComment() ? 'true' : 'false'; // false
 ```
