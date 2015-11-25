@@ -406,6 +406,20 @@
                 "params": ["testfiles/xiphcomment+picture.ogg"],
                 "result": null
             }
+        ],
+        "stripTags": [
+            {
+                "params": ["testfiles/empty.ogg"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment.ogg"],
+                "result": null
+            },
+            {
+                "params": ["testfiles/xiphcomment+picture.ogg"],
+                "result": null 
+            }
         ]
     },
     "TagLibFLAC": {

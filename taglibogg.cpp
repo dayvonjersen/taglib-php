@@ -288,6 +288,48 @@ PHP_METHOD(TagLibOGG, getXiphComment) {
     }
 }
 
+PHP_METHOD(TagLibOGG, stripTags) {
+    tagliboggfile_object *thisobj = (tagliboggfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->initialized) {
+        RETURN_FALSE;
+    }
+
+    TagLib::PropertyMap propMap = thisobj->xiphcomment->properties();
+
+    int i = 0;
+    int size = propMap.size();
+    TagLib::String keys[size];
+    for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++) {
+        keys[i] = property->first;
+        i++;
+    }
+    for(i = 0; i < size; i++) {
+        propMap.erase(keys[i]);
+    }
+    thisobj->xiphcomment->setProperties(propMap);
+    switch(thisobj->type) {
+    case _OGG_VORBIS_:
+        if(thisobj->vorbisfile->save()) {
+            RETURN_TRUE;
+            return;
+        }
+        break;
+    case _OGG_OPUS_:
+        if(thisobj->opusfile->save()) {
+            RETURN_TRUE;
+            return;
+        }
+        break;
+    case _OGG_FLAC_:
+        if(thisobj->flacfile->save()) {
+            RETURN_TRUE;
+            return;
+        }
+        break;
+    }
+    RETURN_FALSE;
+}
+    
 /**
  * returns FALSE if something went wrong,
  * returns TRUE if everything went through */
@@ -377,5 +419,6 @@ static zend_function_entry php_taglibogg_methods[] = {
     PHP_ME(TagLibOGG, hasXiphComment,      NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibOGG, getXiphComment,      NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibOGG, setXiphComment,      NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibOGG, stripTags,           NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
