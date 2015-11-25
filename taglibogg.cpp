@@ -250,7 +250,7 @@ PHP_METHOD(TagLibOGG, getAudioProperties) {
         add_assoc_long(return_value, "channels", audioProperties->channels());
         add_assoc_long(return_value, "sampleWidth", audioProperties->sampleWidth());
         add_assoc_long(return_value, "sampleFrames", audioProperties->sampleFrames());
-        add_assoc_string(return_value, "signature", audioProperties->signature().data(), 1);
+//        add_assoc_string(return_value, "signature", audioProperties->signature().data(), 1);
     } break;
     }
 }
