@@ -10,8 +10,8 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 2. [Installation/Configuration](#installation/configuration)
 	- [Requirements](#requirements)
     - [Installation](#installation)
-3. [Predefined Constants](#predefined-constants)
 4. [TagLib](#taglib)
+	- [Predefined Constants](#taglib-constants)
 5. [TagLibFLAC](#taglibflac)
 	- [__construct()](#taglibflac-__construct)
 	- [getAudioProperties()](#taglibflac-getaudioproperties)
@@ -36,6 +36,7 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 	- [setID3v2()](#taglibmpeg-setid3v2)
 	- [stripTags()](#taglibmpeg-striptags)
 7. [TagLibOGG](#taglibogg)
+	- [Predefined Constants](#taglibogg-constants)
 	- [__construct()](#taglibogg-__construct)
 	- [getAudioProperties()](#taglibogg-getaudioproperties)
 	- [hasXiphComment()](#taglibogg-hasxiphcomment)
@@ -76,7 +77,11 @@ All I need from taglib is to read and write tags from audio  files, preferably a
 7. `sudo cp modules/taglib.so /path/to/extension_dir` (see `extension_dir` in your `php.ini`)
 8. add `extension=taglib.so` to your php.ini
 
-## Predefined Constants
+
+## <a id="taglib">TagLib Class</a>
+Just a container for these:
+
+## <a id="taglib-constants">Predefined Constants</a>
 
 For use with get/set ID3v2 functions in this extension:
 
@@ -105,10 +110,6 @@ TagLib::APIC_BANDLOGO           = 0x13
 TagLib::APIC_PUBLISHERLOGO      = 0x14
 ```
 
-## <a id="taglib">TagLib Class</a>
-
-Just a container for the above [Predefined Constants](#predefined-constants).
-
 ## <a id="taglibflac">TagLibFLAC Class</a>
 ```php
 class TagLibFLAC {
@@ -131,6 +132,8 @@ class TagLibFLAC {
     public bool stripTags( void )
 }
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibflac-__construct">TagLibFLAC::__construct()</a>
 #### Description
@@ -158,19 +161,48 @@ try {
 }
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibflac-getaudioproperties">TagLibFLAC::getAudioProperties()</a>
 #### Description
-words
+Get information about the FLAC file.
+
 ```php
 public array getAudioProperties( void )
 ```
 
 #### Parameters
+None
+
 #### Return Values
+An array with the following keys and possible values:
+
+ - `length` - `int` duration of audio in seconds
+ - `bitrate` - `int` bitrate of audio in kilobits per second (kbps)
+ - `sampleRate` - `int` sample rate of audio in Hz
+ - `channels` - `int` number of audio channels (mono = 1, stereo = 2, ...)
+ - `sampleWidth` - `int` bits per sample of audio
+ - `sampleFrames` - `int` number of frames in audio
+
 #### Examples
 ```php
 // example usage
+$t = new TagLibFLAC('file.flac');
+print_r($t->getAudioProperties());
+/**
+ * Array
+ * (
+ *	[length] => 1,
+ *	[bitrate] => 107,
+ *	[sampleRate] => 44100,
+ *	[channels] => 2,
+ *	[sampleWidth] => 16,
+ *	[sampleFrames] => 44100
+ * )
+ */
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibflac-hasid3v1">TagLibFLAC::hasID3v1()</a>
 #### Description
@@ -194,6 +226,8 @@ if($t->hasID3v1()) {
 }
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibflac-getid3v1">TagLibFLAC::getID3v1()</a>
 #### Description
 If the file on disk has an ID3v1 tag, get the ID3v1 tag as an associative array.
@@ -212,19 +246,88 @@ Also returns `FALSE` on failure.
 
 See also [id3.org/ID3v1](http://id3.org/ID3v1) and [wikipedia](https://en.wikipedia.org/wiki/ID3#Layout) for more information about ID3v1.
 #### Examples
+```php
+// example usage
+$t = new TagLibFLAC('file_with_id3v1_tag.flac');
+print_r($t->getID3v1());
+/**
+ * Array
+ * (
+ * 	[ALBUM] => album,
+ * 	[ARTIST] => artist,
+ * 	[COMMENT] => comment,
+ * 	[DATE] => 2000,
+ * 	[GENRE] => New Age,
+ * 	[TITLE] => title,
+ * 	[TRACKNUMBER] => 99
+ * )
+ */
+```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibflac-setid3v1">TagLibFLAC::setID3v1()</a>
 #### Description
+Write ID3v1 tag fields to file.
 ```php
-public bool setID3v1( void )
+public bool|array setID3v1( array $frames )
+```
+#### Parameters
+`$frames` is an associative `array` of `string` values with UPPERCASE `string` frame IDs as keys.
+
+e.g.
+```php
+$frames = ['ALBUM' => 'Abbey Road', 'ARTIST' => 'The Beatles'];
 ```
 
-#### Parameters
-None
+##### Caveats
+[TagLib will truncate values greater than 28-30 bytes](http://taglib.github.io/api/classTagLib_1_1ID3v1_1_1Tag.html#details). See also [id3.org/ID3v1](http://id3.org/ID3v1) and [wikipedia](https://en.wikipedia.org/wiki/ID3#Layout) for more information about ID3v1.
+
+Additionally, this function will issue `E_WARNING` errors and return `FALSE` if `$frames` is any other variable type than the one described here.
+
+In other words, this function will **not do any type conversion** but instead issue PHP errors and return `FALSE` if it encounters any unexpected type.
+
+So for something like TRACKNUMBER, 
+**ALWAYS convert to string**:
+```php
+$tracknumber = 99;
+$frames['TRACKNUMBER'] = sprintf("%d", $tracknumber);
+```
+**NEVER:**
+```php
+$tracknumber = 99;
+$frames['TRACKNUMBER'] = $tracknumber; // will cause errors!
+```
 
 #### Return Values
+Returns `TRUE` on success.
+
+Returns any values from `$frames` which could not be set as an associative `array` of `string` values.
+
+Returns `FALSE` on failure.
 
 #### Examples
+```php
+// example usage
+$t = new TagLibFLAC('file.flac');
+$frames = ['ALBUM' => 'Abbey Road', 'ARTIST' => 'The Beatles'];
+$ret = $t->setID3v1($frames);
+if($ret === true) {
+	echo "Tag set successfully!";
+} elseif(is_array($ret)) {
+	echo "Failed to set these values:\n", print_r($ret,1);
+    /**
+     * Array
+     * (
+     * 	[ALBUM] => 'Abbey Road'
+     * )
+     */
+} else {
+	echo "Something happened."
+}
+```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibflac-hasid3v2">TagLibFLAC::hasID3v2()</a>
 #### Description
@@ -249,6 +352,8 @@ if($t->hasID3v2()) {
 }
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibflac-getid3v2">TagLibFLAC::getID3v2()</a>
 #### Description
 If the file on disk has an ID3v2 tag, get the ID3v2 tag as an associative array.
@@ -268,6 +373,8 @@ Also returns `FALSE` on failure.
 See also [id3.org/ID3v2](http://id3.org/ID3v2) and [wikipedia](https://en.wikipedia.org/wiki/ID3#Layout) for more information about ID3v2.
 #### Examples
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibflac-setid3v2">TagLibFLAC::setID3v2()</a>
 #### Description
 ```php
@@ -281,6 +388,7 @@ None
 
 #### Examples
 
+--------------------------------------------------------------------------------
 
 ### <a id="taglibflac-hasxiphcomment">TagLibFLAC::hasXiphComment()</a>
 #### Description
@@ -295,6 +403,8 @@ public bool hasXiphComment( void )
 // example usage
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibflac-getxiphcomment">TagLibFLAC::getXiphComment()</a>
 #### Description
 words
@@ -307,6 +417,8 @@ public bool|array getXiphComment( void )
 ```php
 // example usage
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibflac-setxiphcomment">TagLibFLAC::setXiphComment()</a>
 #### Description
@@ -321,6 +433,8 @@ public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags
 // example usage
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibflac-striptags">TagLibFLAC::stripTags()</a>
 #### Description
 words
@@ -333,6 +447,7 @@ public bool stripTags( void )
 ```php
 // example usage
 ```
+
 
 ## <a id="taglibmpeg">TagLibMPEG Class</a>
 ```php
@@ -352,6 +467,9 @@ class TagLibMPEG {
     public bool stripTags( void )
 }
 ```
+
+--------------------------------------------------------------------------------
+
 ### <a id="taglibmpeg-__construct">TagLibMPEG::__construct()</a>
 #### Description
 Attempts to open the file path provided by `$filename`.
@@ -380,6 +498,8 @@ try {
 }
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibmpeg-getaudioproperties">TagLibMPEG::getAudioProperties()</a>
 #### Description
 Get information about the MP3 file.
@@ -394,7 +514,7 @@ An array with the following keys and possible values:
 
  - `length` - `int` duration of audio in seconds
  - `bitrate` - `int` bitrate of audio in kilobits per second (kbps)
- - `sampleRate` - `int` samplerate of audio in samples per second
+ - `sampleRate` - `int` samplerate of audio in Hz
  - `channels` - `int` number of audio channels (mono = 1, stereo = 2, ...)
  - `version` - `string` one of the following possible values:
  	- `"MPEG Version 1"`
@@ -433,6 +553,8 @@ print_r($t->getAudioProperties());
  */
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibmpeg-hasid3v1">TagLibMPEG::hasID3v1()</a>
 #### Description
 Check whether file on disk has ID3v1 tag.
@@ -454,6 +576,8 @@ if($t->hasID3v1()) {
 	// do stuff
 }
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibmpeg-getid3v1">TagLibMPEG::getID3v1()</a>
 #### Description
@@ -490,6 +614,8 @@ print_r($t->getID3v1());
  * )
  */
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibmpeg-setid3v1">TagLibMPEG::setID3v1()</a>
 #### Description
@@ -552,6 +678,8 @@ if($ret === true) {
 }
 ```
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibmpeg-hasid3v2">TagLibMPEG::hasID3v2()</a>
 #### Description
 Check whether file on disk has ID3v2 tag.
@@ -573,6 +701,8 @@ if($t->hasID3v2()) {
 	// do stuff
 }
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibmpeg-getid3v2">TagLibMPEG::getID3v2()</a>
 #### Description
@@ -702,6 +832,8 @@ See also [Predefined Constants](#predefined-constants) for possible Attached Pic
 
 And again, see [id3.org](http://id3.org/id3v2.3.0) for possible frameIDs.
 
+--------------------------------------------------------------------------------
+
 ### <a id="taglibmpeg-setid3v2">TagLibMPEG::setID3v2()</a>
 #### Description
 words
@@ -714,6 +846,8 @@ public bool setID3v2( array $frames )
 ```php
 // example usage
 ```
+
+--------------------------------------------------------------------------------
 
 ### <a id="taglibmpeg-striptags">TagLibMPEG::stripTags()</a>
 #### Description
@@ -758,55 +892,170 @@ class TagLibOGG {
     public bool stripTags( void )
 }
 ```
+
+## <a id="taglibogg-constants">Predefined Constants</a>
+```php
+TagLibOGG::VORBIS = 1
+TagLibOGG::OPUS   = 2
+TagLibOGG::FLAC   = 3
+TagLibOGG::SPEEX  = 4 // don't use this one
+```
+
+--------------------------------------------------------------------------------
+
 ### <a id="taglibogg-__construct">TagLibOGG::__construct()</a>
 #### Description
-words
+Attempts to open the specified file path.
 ```php
 public __construct( string $filename[, int $type = TagLibOGG::VORBIS ])
 ```
 
 #### Parameters
+`filename` - the file to open, **must** be a valid OGG file of `type` and php **must** have read **and** write permissions for the file.
+`type` - `int` codec used in the OGG container
+
+***Most OGGs are vorbis***, which is also the **default** for `$type`, so you probably don't need to worry about this
+
+But OGG is actually a container which supports multiple codecs. If your OGG is a different codec, you must specify it in the constructor with one of the [Predefined Constants](#taglibogg-constants).
+
+Except speex because [speex is deprecated](http://speex.org/).
+
+#### Exceptions
+Throws `Exception` on error.
+
 #### Return Values
+Returns a new `TagLibOGG` object on success or `NULL` on failure.
+
 #### Examples
 ```php
 // example usage
+try {
+	$t = new TagLibOGG('file.ogg');
+    echo "File is open and ready for reading/writing tags!";
+} catch(Exception $e) {
+	echo "Something happened.\n", $e->getMessage();
+}
 ```
 
 ### <a id="taglibogg-getaudioproperties">TagLibOGG::getAudioProperties()</a>
 #### Description
-words
+Get Information about the OGG.
 ```php
 public array getAudioProperties( void )
 ```
 
 #### Parameters
+None
+
 #### Return Values
+An array with the following keys and possible values, *depending on the codec of the OGG*:
+
+1. **Common to all codecs**:
+ - `length` - `int` duration of audio in seconds
+ - `bitrate` - `int` bitrate of audio in kilobits per second (kbps)
+ - `sampleRate` - `int` samplerate of audio in Hz
+ - `channels` - `int` number of audio channels (mono = 1, stereo = 2, ...)
+
+2. `TagLibOGG::VORBIS` only:
+ - `vorbisVersion` - `int` Returns the Vorbis version, currently "0" (as specified by the spec).
+ - `bitrateMaximum` - `int` maximum bitrate
+ - `bitrateNominal` - `int` nominal bitrate
+ - `bitrateMinimum` - `int` minimum bitrate
+
+3. `TagLibOGG::OPUS` only:
+ - `opusVersion` - `int` Returns the Opus version, in the range 0...255.
+ - `inputSampleRate` - `int` The Opus codec supports decoding at multiple sample rates, there is no single sample rate of the encoded stream. This returns the sample rate of the original audio stream.
+
+4. `TagLibOGG::FLAC` only:
+ - `sampleWidth` - `int` bits per sample of audio
+ - `sampleFrames` - `int` number of frames in audio
+
+
+
 #### Examples
 ```php
-// example usage
+// vorbis
+$v = new TagLibOGG('vorbis.ogg', TagLibOGG::VORBIS);
+print_r($v->getAudioProperties());
+/**
+ * Array(
+ * 	[length] => 1,
+ * 	[bitrate] => 120,
+ * 	[sampleRate] => 44100,
+ * 	[channels] => 1,
+ * 	[vorbisVersion] => 0,
+ * 	[bitrateMaximum] => 0,
+ * 	[bitrateNominal] => 120000,
+ * 	[bitrateMinimum] => 0
+ * )
+ */
+ 
+// opus
+$o = new TagLibOGG('opus.ogg', TagLibOGG::OPUS);
+print_r($o->getAudioProperties());
+/**
+ * Array(
+ * 	[length] => 1,
+ * 	[bitrate] => 120,
+ * 	[sampleRate] => 44100,
+ * 	[channels] => 1,
+ * 	[opusVersion] => 2,
+ * 	[inputSampleRate] => 44100
+ * )
+ */
+ 
+// flac
+$f = new TagLibOGG('flac.ogg', TagLibOGG::FLAC);
+print_r($f->getAudioProperties());
+/**
+ * Array(
+ * 	[length] => 1,
+ * 	[bitrate] => 120,
+ * 	[sampleRate] => 44100,
+ * 	[channels] => 1,
+ *	[sampleWidth] => 16,
+ *	[sampleFrames] => 44100
+ * )
+ */
 ```
 
 ### <a id="taglibogg-hasxiphcomment">TagLibOGG::hasXiphComment()</a>
 #### Description
-words
+Check whether file on disk has a XiphComment.
+
 ```php
 public bool hasXiphComment( void )
 ```
 #### Parameters
+None
+
 #### Return Values
+`TRUE` if the file has a XiphComment, `FALSE` otherwise.
+
+`FALSE` on failure
+
 #### Examples
 ```php
 // example usage
+$t = new TagLibOGG('file.ogg');
+if($t->hasXiphComment()) {
+	// do stuff
+}
 ```
 
 ### <a id="taglibogg-getxiphcomment">TagLibOGG::getXiphComment()</a>
 #### Description
-words
+Get the XiphComment as an associative array.
+
 ```php
 public bool|array getXiphComment( void )
 ```
+
 #### Parameters
+None
+
 #### Return Values
+
 #### Examples
 ```php
 // example usage
