@@ -287,6 +287,111 @@ PHP_METHOD(TagLibFLAC, getID3v1) {
         add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
     }
 }
+PHP_METHOD(TagLibFLAC, getID3v2) {
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->file->hasID3v2Tag()) {
+        RETURN_FALSE;
+    }
+
+    TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
+
+    array_init(return_value);
+
+    TagLib::ID3v2::FrameList frameList = thisobj->file->ID3v2Tag()->frameList();
+    for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator frame = frameList.begin(); frame != frameList.end(); frame++) {
+        char *key;
+        spprintf(&key, 4, "%s", (*frame)->frameID().data());
+
+        zval *subarray;
+        MAKE_STD_ZVAL(subarray);
+        array_init(subarray);
+
+        add_assoc_string(subarray,"frameID",key,1);
+
+        switch(_charArrForSwitch(key)) {
+        case "APIC"_CASE:
+        {   
+            TagLib::ID3v2::AttachedPictureFrame *apic = (TagLib::ID3v2::AttachedPictureFrame*)(*frame);
+            int retLen;
+            unsigned char *picdat = php_base64_encode((const unsigned char *)apic->picture().data(), apic->picture().size(), &retLen); 
+
+            add_assoc_string(subarray, "data", (char*)picdat, 1);
+            add_assoc_string(subarray, "mime", (char*)(apic->mimeType().toCString()),1);
+            add_assoc_long(  subarray, "type", apic->type());
+            add_assoc_string(subarray, "desc", (char*)(apic->description().toCString()),1);
+        }   break;
+        default:
+            add_assoc_string(subarray, "data", (char *) (*frame)->toString().toCString(), 1);
+        }
+
+        add_next_index_zval(return_value, subarray);
+    }
+}
+
+PHP_METHOD(TagLibFLAC, setID3v2) {
+    zval *newFrames;
+    taglibmpegfile_object *thisobj = (taglibmpegfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+    zend_bool overwrite_existing_tags = true;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l", &newFrames, &overwrite_existing_tags) == FAILURE) {
+        RETURN_FALSE;
+    }
+
+    if(Z_TYPE_P(newFrames) != IS_ARRAY) {
+        php_error(E_WARNING, "TagLibFLAC::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames");
+        RETURN_FALSE;
+    }
+    TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
+    TagLib::ID3v2::Header *header = tag->header();
+    HashTable *hIndex = Z_ARRVAL_P(newFrames);
+    HashPosition pointer;
+    zval **data;
+
+    for(zend_hash_internal_pointer_reset_ex(hIndex, &pointer);
+        zend_hash_get_current_data_ex(hIndex, (void**)&data, &pointer) == SUCCESS;
+        zend_hash_move_forward_ex(hIndex, &pointer))
+    {
+        char *frameID;
+        uint frameID_length, index_type;
+        ulong index;
+        index_type = zend_hash_get_current_key_ex(hIndex, &frameID, &frameID_length, &index, 0, &pointer);
+
+        if(index_type != HASH_KEY_IS_STRING)
+        {
+            php_error(E_WARNING, "TagLibFLAC::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames");
+            RETURN_FALSE;
+            break;
+        }
+        const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
+ 
+    if(overwrite_existing_tags) {
+        TagLib::ID3v2::FrameList l = tag->frameListMap()[frameID];
+            if(!l.isEmpty()) {
+            for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator it = l.begin(); it != l.end(); it++) {
+            tag->removeFrame((*it),true);
+        }
+        }
+    }
+
+        if(id3v2_set_frame(tag, data, byteVector, frameID) == false) {
+            RETURN_FALSE;
+        }
+
+        if(taglib_error()) {
+            RETURN_FALSE;
+        }
+    }
+
+    const TagLib::StringList unsupported = tag->properties().unsupportedData();
+    tag->removeUnsupportedProperties(unsupported);
+
+    if(thisobj->file->save()) {
+        RETURN_TRUE;
+    }
+
+    taglib_error();
+    RETURN_FALSE;
+}
 
 /**
  * Now we assemble the above defined methods into the class or something
@@ -300,6 +405,6 @@ static zend_function_entry php_taglibflac_methods[] = {
     PHP_ME(TagLibFLAC, hasID3v1,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, hasID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, getID3v1,            NULL, ZEND_ACC_PUBLIC)
-//    PHP_ME(TagLibFLAC, getID3v2,            NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibFLAC, getID3v2,            NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };

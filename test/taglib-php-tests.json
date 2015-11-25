@@ -544,6 +544,8 @@
                 "params": ["testfiles/xiphcomment+picture.flac"],
                 "result": false
             }
-        ]
+        ],
+        "getID3v2": [],
+        "setID3v2": []
     }
 }
