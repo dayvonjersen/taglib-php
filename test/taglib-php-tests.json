@@ -409,13 +409,13 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 314,
                     "sampleRate": 44100,
                     "channels": 1,
                     "vorbisVersion": 0,
-                    "bitrateMinimum": 0,
                     "bitrateNominal": 120000,
-                    "bitrateMaximum": 0
+                    "bitrateMaximum": 0,
+                    "bitrateMinimum": 0,
+                    "bitrate": 120
                 }
             },
             {
@@ -424,13 +424,13 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 314,
                     "sampleRate": 44100,
                     "channels": 1,
                     "vorbisVersion": 0,
-                    "bitrateMinimum": 0,
                     "bitrateNominal": 120000,
-                    "bitrateMaximum": 0
+                    "bitrateMaximum": 0,
+                    "bitrateMinimum": 0,
+                    "bitrate": 120
                 }
             },
             {
@@ -439,13 +439,13 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 306,
                     "sampleRate": 44100,
                     "channels": 1,
                     "vorbisVersion": 0,
-                    "bitrateMinimum": 0,
                     "bitrateNominal": 120000,
-                    "bitrateMaximum": 0
+                    "bitrateMaximum": 0,
+                    "bitrateMinimum": 0,
+                    "bitrate": 120
                 }
             }
         ],

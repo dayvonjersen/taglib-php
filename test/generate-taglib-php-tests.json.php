@@ -319,18 +319,36 @@ function mp3Properties($file) {
 }
 
 function oggProperties($file) {
-    return [
+    $p = [
         'length' => (int)soxi($file, 'D'),
-        'bitrate' => (int)preg_replace('/[^\d]/', '', soxi($file, 'B')),
         'sampleRate' => (int)soxi($file, 'r'),
         'channels' => (int)soxi($file, 'c'),
-        'vorbisVersion' => 0,
-
-        // cheating a bit here
-        'bitrateMinimum' => 0,
-        'bitrateNominal' => 120000,
-        'bitrateMaximum' => 0
+        'vorbisVersion' => 0
     ];
+
+    $text = `ogginfo $file`;
+    assert(!empty(trim($text)), "ogginfo is either not installed or $file is not a valid OGG.");
+    foreach(explode("\n", $text) as $line) {
+        if(preg_match("/^Nominal bitrate: ([\d\.]+)/", $line, $m)) {
+            $p['bitrateNominal'] = ((int)$m[1])*1000;
+            continue;
+        }
+        if(preg_match("/^(Upper|Lower) bitrate/", $line, $m)) {
+            $key = $m[1] == 'Upper' ? 'Maximum' : 'Minimum';
+            if(strstr($line, 'not set')) {
+                $value = 0;
+            } elseif(preg_match("/([\d\.]+)/", $line, $m2)) {
+                $value = ((int)$m2[1])*1000;
+            } else {
+                assert(false, "$file\n\n$line");
+            }
+            $p["bitrate$key"] = $value;
+            continue;
+        }
+    }
+
+    $p['bitrate'] = isset($p['bitrateNominal']) ? (int)($p['bitrateNominal']/1000) : 0;
+    return $p;
 }
 
 echo json_encode($classes,JSON_PRETTY_PRINT);
