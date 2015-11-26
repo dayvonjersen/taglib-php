@@ -1,293 +1,382 @@
 {
+    "TagLib": [],
     "TagLibMPEG": {
         "__construct": [
             {
-                "params": ["testfiles/empty.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v1.mp3"],
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/empty+picture.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
                 "result": null
-            }            
+            }
         ],
         "getAudioProperties": [
             {
-                "params": ["testfiles/empty.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 327,
+                    "bitrate": 754,
                     "sampleRate": 44100,
                     "channels": 1,
                     "version": "MPEG Version 1",
-                    "channelMode": "Mono",
-                    "layer": 3,
                     "protectionEnabled": false,
                     "isCopyrighted": false,
-                    "isOriginal": true
+                    "isOriginal": true,
+                    "layer": 3,
+                    "channelMode": "Mono"
                 }
             },
             {
-                "params": ["testfiles/id3v1.mp3"],
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 327,
+                    "bitrate": 320,
                     "sampleRate": 44100,
                     "channels": 1,
                     "version": "MPEG Version 1",
-                    "channelMode": "Mono",
-                    "layer": 3,
                     "protectionEnabled": false,
                     "isCopyrighted": false,
-                    "isOriginal": true
+                    "isOriginal": true,
+                    "layer": 3,
+                    "channelMode": "Mono"
                 }
             },
             {
-                "params": ["testfiles/id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 327,
+                    "bitrate": 351,
                     "sampleRate": 44100,
                     "channels": 1,
                     "version": "MPEG Version 1",
-                    "channelMode": "Mono",
-                    "layer": 3,
                     "protectionEnabled": false,
                     "isCopyrighted": false,
-                    "isOriginal": true
+                    "isOriginal": true,
+                    "layer": 3,
+                    "channelMode": "Mono"
                 }
             },
             {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 327,
+                    "bitrate": 351,
                     "sampleRate": 44100,
                     "channels": 1,
                     "version": "MPEG Version 1",
-                    "channelMode": "Mono",
-                    "layer": 3,
                     "protectionEnabled": false,
                     "isCopyrighted": false,
-                    "isOriginal": true
+                    "isOriginal": true,
+                    "layer": 3,
+                    "channelMode": "Mono"
                 }
             },
             {
-                "params": ["testfiles/empty+picture.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 327,
+                    "bitrate": 320,
                     "sampleRate": 44100,
                     "channels": 1,
                     "version": "MPEG Version 1",
-                    "channelMode": "Mono",
-                    "layer": 3,
                     "protectionEnabled": false,
                     "isCopyrighted": false,
-                    "isOriginal": true
+                    "isOriginal": true,
+                    "layer": 3,
+                    "channelMode": "Mono"
                 }
             }
         ],
         "hasID3v1": [
             {
-                "params": ["testfiles/empty.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/id3v1.mp3"],
-                "result": true
-            },
-            {
-                "params": ["testfiles/id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
                 "result": true
             },
             {
-                "params": ["testfiles/empty+picture.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
                 "result": true
             }
         ],
         "hasID3v2": [
             {
-                "params": ["testfiles/empty.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/id3v1.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
                 "result": false
-            },
-            {
-                "params": ["testfiles/id3v2.mp3"],
-                "result": true
-            },
-            {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
-                "result": true
-            },
-            {
-                "params": ["testfiles/empty+picture.mp3"],
-                "result": true
             }
         ],
         "getID3v1": [
             {
-                "params": ["testfiles/empty.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/id3v1.mp3"],
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
                 "result": {
-                    "ALBUM": "album",
-                    "ARTIST": "artist",
-                    "COMMENT": "comment",
                     "DATE": "2000",
                     "GENRE": "New Age",
                     "TITLE": "title",
+                    "ARTIST": "artist",
+                    "ALBUM": "album",
+                    "COMMENT": "comment",
                     "TRACKNUMBER": "99"
                 }
             },
             {
-                "params": ["testfiles/id3v2.mp3"],
-                "result": false
-            },
-            {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
                 "result": {
-                    "ALBUM": "album",
-                    "ARTIST": "artist",
-                    "COMMENT": "comment",
                     "DATE": "2000",
                     "GENRE": "New Age",
                     "TITLE": "title",
+                    "ARTIST": "artist",
+                    "ALBUM": "album",
+                    "COMMENT": "comment",
                     "TRACKNUMBER": "99"
-                }
-            },
-            {
-                "params": ["testfiles/empty+picture.mp3"],
-                "result": {
-                    "COMMENT": ""
                 }
             }
         ],
         "setID3v1": [
             {
-                "params": ["testfiles/empty.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v1.mp3"],
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/empty+picture.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
                 "result": null
             }
         ],
         "getID3v2": [
             {
-                "params": ["testfiles/empty.mp3"],
-                "result": false
-            },
-            {
-                "params": ["testfiles/id3v1.mp3"],
-                "result": false
-            },
-            {
-                "params": ["testfiles/id3v2.mp3"],
-                "result": {
-                    "COMM": "comment",
-                    "TALB": "album",
-                    "TCON": "10",
-                    "TIT2": "title",
-                    "TPE1": "artist",
-                    "TRCK": "99",
-                    "TDRC": "2000",
-                    "WXXX": "[] http://www.example.com"
-                }
-            },
-            {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
-                "result": {
-                    "COMM": "comment",
-                    "TALB": "album",
-                    "TCON": "10",
-                    "TIT2": "title",
-                    "TPE1": "artist",
-                    "TRCK": "99",
-                    "TDRC": "2000",
-                    "WXXX": "[] http://www.example.com"
-                }
-            },
-            {
-                "params": ["testfiles/empty+picture.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
                 "result": {
                     "APIC": "..."
                 }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
+                "result": {
+                    "COMM": "comment",
+                    "TALB": "album",
+                    "TCON": "10",
+                    "TIT2": "title",
+                    "TPE1": "artist",
+                    "TRCK": "99",
+                    "TDRC": "2000",
+                    "WXXX": "[] http:\/\/www.example.com"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
+                "result": {
+                    "COMM": "comment",
+                    "TALB": "album",
+                    "TCON": "10",
+                    "TIT2": "title",
+                    "TPE1": "artist",
+                    "TRCK": "99",
+                    "TDRC": "2000",
+                    "WXXX": "[] http:\/\/www.example.com"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
+                "result": false
             }
         ],
         "setID3v2": [
             {
-                "params": ["testfiles/empty.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v1.mp3"],
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/empty+picture.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
                 "result": null
             }
         ],
         "stripTags": [
             {
-                "params": ["testfiles/empty.mp3"],
+                "params": [
+                    ".\/testfiles\/empty+picture.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v1.mp3"],
+                "params": [
+                    ".\/testfiles\/empty.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v2.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/id3v1+id3v2.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.mp3"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/empty+picture.mp3"],
+                "params": [
+                    ".\/testfiles\/id3v1.mp3"
+                ],
                 "result": null
             }
         ]
@@ -295,154 +384,233 @@
     "TagLibOGG": {
         "__construct": [
             {
-                "params": ["testfiles/empty.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment.ogg"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.ogg"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment+picture.ogg"],
+                "params": [
+                    ".\/testfiles\/empty.ogg"
+                ],
                 "result": null
             }
         ],
         "getAudioProperties": [
             {
-                "params": ["testfiles/empty.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment.ogg"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 120,
+                    "bitrate": 314,
                     "sampleRate": 44100,
                     "channels": 1,
                     "vorbisVersion": 0,
-                    "bitrateMaximum": 0,
+                    "bitrateMinimum": 0,
                     "bitrateNominal": 120000,
-                    "bitrateMinimum": 0
+                    "bitrateMaximum": 0
                 }
             },
             {
-                "params": ["testfiles/xiphcomment.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.ogg"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 120,
+                    "bitrate": 314,
                     "sampleRate": 44100,
                     "channels": 1,
                     "vorbisVersion": 0,
-                    "bitrateMaximum": 0,
+                    "bitrateMinimum": 0,
                     "bitrateNominal": 120000,
-                    "bitrateMinimum": 0
+                    "bitrateMaximum": 0
                 }
             },
             {
-                "params": ["testfiles/xiphcomment+picture.ogg"],
+                "params": [
+                    ".\/testfiles\/empty.ogg"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 120,
+                    "bitrate": 306,
                     "sampleRate": 44100,
                     "channels": 1,
                     "vorbisVersion": 0,
-                    "bitrateMaximum": 0,
+                    "bitrateMinimum": 0,
                     "bitrateNominal": 120000,
-                    "bitrateMinimum": 0
+                    "bitrateMaximum": 0
                 }
             }
         ],
         "hasXiphComment": [
             {
-                "params": ["testfiles/empty.ogg"],
-                "result": false
-            },
-            {
-                "params": ["testfiles/xiphcomment.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment.ogg"
+                ],
                 "result": true
             },
             {
-                "params": ["testfiles/xiphcomment+picture.ogg"],
-                "result": true 
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.ogg"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.ogg"
+                ],
+                "result": false
             }
         ],
         "getXiphComment": [
             {
-                "params": ["testfiles/empty.ogg"],
-                "result": []
-            },
-            {
-                "params": ["testfiles/xiphcomment.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment.ogg"
+                ],
                 "result": {
+                    "DATE": "2000",
                     "ALBUM": "album",
                     "ARTIST": "artist",
                     "COMMENT": "comment",
-                    "DATE": "2000",
                     "GENRE": "music",
                     "TITLE": "title",
                     "TRACKNUMBER": "99"
                 }
             },
             {
-                "params": ["testfiles/xiphcomment+picture.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.ogg"
+                ],
                 "result": {
+                    "DATE": "2000",
                     "ALBUM": "album",
                     "ARTIST": "artist",
                     "COMMENT": "comment",
-                    "DATE": "2000",
                     "GENRE": "music",
                     "TITLE": "title",
-                    "TRACKNUMBER": "99",
-                    "METADATA_BLOCK_PICTURE": "..."
+                    "TRACKNUMBER": "99"
                 }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.ogg"
+                ],
+                "result": false
             }
         ],
         "setXiphComment": [
             {
-                "params": ["testfiles/empty.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment.ogg"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.ogg"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment+picture.ogg"],
+                "params": [
+                    ".\/testfiles\/empty.ogg"
+                ],
                 "result": null
             }
         ],
         "stripTags": [
             {
-                "params": ["testfiles/empty.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment.ogg"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment.ogg"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.ogg"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment+picture.ogg"],
-                "result": null 
+                "params": [
+                    ".\/testfiles\/empty.ogg"
+                ],
+                "result": null
             }
         ]
     },
     "TagLibFLAC": {
         "__construct": [
             {
-                "params": ["testfiles/empty.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment.flac"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment+picture.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
                 "result": null
             }
         ],
         "getAudioProperties": [
             {
-                "params": ["testfiles/empty.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 107,
+                    "bitrate": 110,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
@@ -450,10 +618,12 @@
                 }
             },
             {
-                "params": ["testfiles/xiphcomment.flac"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 108,
+                    "bitrate": 609,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
@@ -461,10 +631,90 @@
                 }
             },
             {
-                "params": ["testfiles/xiphcomment+picture.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
                 "result": {
                     "length": 1,
-                    "bitrate": 108,
+                    "bitrate": 147,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "sampleWidth": 16,
+                    "sampleFrames": 44100
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": {
+                    "length": 1,
+                    "bitrate": 115,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "sampleWidth": 16,
+                    "sampleFrames": 44100
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": {
+                    "length": 1,
+                    "bitrate": 109,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "sampleWidth": 16,
+                    "sampleFrames": 44100
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": {
+                    "length": 1,
+                    "bitrate": 115,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "sampleWidth": 16,
+                    "sampleFrames": 44100
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": {
+                    "length": 1,
+                    "bitrate": 144,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "sampleWidth": 16,
+                    "sampleFrames": 44100
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": {
+                    "length": 1,
+                    "bitrate": 143,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "sampleWidth": 16,
+                    "sampleFrames": 44100
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
+                "result": {
+                    "length": 1,
+                    "bitrate": 147,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
@@ -474,92 +724,499 @@
         ],
         "hasXiphComment": [
             {
-                "params": ["testfiles/empty.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/xiphcomment.flac"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
                 "result": true
             },
             {
-                "params": ["testfiles/xiphcomment+picture.flac"],
-                "result": true 
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
+                "result": true
             }
         ],
         "getXiphComment": [
             {
-                "params": ["testfiles/empty.flac"],
-                "result": []
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
+                "result": false
             },
             {
-                "params": ["testfiles/xiphcomment.flac"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
                 "result": {
+                    "DATE": "2000",
                     "ALBUM": "album",
                     "ARTIST": "artist",
                     "COMMENT": "comment",
-                    "DATE": "2000",
                     "GENRE": "music",
                     "TITLE": "title",
                     "TRACKNUMBER": "99"
                 }
             },
             {
-                "params": ["testfiles/xiphcomment+picture.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
                 "result": {
+                    "DATE": "2000",
                     "ALBUM": "album",
                     "ARTIST": "artist",
                     "COMMENT": "comment",
-                    "DATE": "2000",
                     "GENRE": "music",
                     "TITLE": "title",
-                    "TRACKNUMBER": "99",
-                    "METADATA_BLOCK_PICTURE": "..."
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": {
+                    "DATE": "2000",
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENT": "comment",
+                    "GENRE": "music",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": {
+                    "DATE": "2000",
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENT": "comment",
+                    "GENRE": "music",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
+                "result": {
+                    "DATE": "2000",
+                    "ALBUM": "album",
+                    "ARTIST": "artist",
+                    "COMMENT": "comment",
+                    "GENRE": "music",
+                    "TITLE": "title",
+                    "TRACKNUMBER": "99"
                 }
             }
         ],
         "setXiphComment": [
             {
-                "params": ["testfiles/empty.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment.flac"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
                 "result": null
             },
             {
-                "params": ["testfiles/xiphcomment+picture.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
                 "result": null
             }
         ],
         "hasID3v1": [
             {
-                "params": ["testfiles/empty.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/xiphcomment.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/xiphcomment+picture.flac"],
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
                 "result": false
             }
         ],
         "hasID3v2": [
             {
-                "params": ["testfiles/empty.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/xiphcomment.flac"],
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
                 "result": false
             },
             {
-                "params": ["testfiles/xiphcomment+picture.flac"],
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
+                "result": true
+            }
+        ],
+        "getID3v1": [
+            {
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
+                "result": {
+                    "DATE": "2000",
+                    "GENRE": "Blues",
+                    "TITLE": "title",
+                    "ARTIST": "artist",
+                    "ALBUM": "album",
+                    "COMMENT": "comment",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
+                "result": {
+                    "DATE": "2000",
+                    "GENRE": "Blues",
+                    "TITLE": "title",
+                    "ARTIST": "artist",
+                    "ALBUM": "album",
+                    "COMMENT": "comment",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": {
+                    "DATE": "2000",
+                    "GENRE": "Blues",
+                    "TITLE": "title",
+                    "ARTIST": "artist",
+                    "ALBUM": "album",
+                    "COMMENT": "comment",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": {
+                    "DATE": "2000",
+                    "GENRE": "Blues",
+                    "TITLE": "title",
+                    "ARTIST": "artist",
+                    "ALBUM": "album",
+                    "COMMENT": "comment",
+                    "TRACKNUMBER": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
                 "result": false
             }
         ],
-        "getID3v2": [],
-        "setID3v2": []
+        "getID3v2": [
+            {
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
+                "result": {
+                    "TPE1": "artist",
+                    "TALB": "album",
+                    "TIT2": "title",
+                    "COMM": "comment",
+                    "TCON": "0",
+                    "TDRC": "2000",
+                    "TRCK": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": {
+                    "TPE1": "artist",
+                    "TALB": "album",
+                    "TIT2": "title",
+                    "COMM": "comment",
+                    "TCON": "0",
+                    "TDRC": "2000",
+                    "TRCK": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": {
+                    "TPE1": "artist",
+                    "TALB": "album",
+                    "TIT2": "title",
+                    "COMM": "comment",
+                    "TCON": "0",
+                    "TDRC": "2000",
+                    "TRCK": "99"
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
+                "result": {
+                    "TPE1": "artist",
+                    "TALB": "album",
+                    "TIT2": "title",
+                    "COMM": "comment",
+                    "TCON": "0",
+                    "TDRC": "2000",
+                    "TRCK": "99"
+                }
+            }
+        ]
     }
 }

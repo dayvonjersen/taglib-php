@@ -2,5 +2,7 @@
 function Test__TagLibOGG__getAudioProperties($file, $result) {
     $t = new TagLibOGG($file);
     $actual = $t->getAudioProperties();
-    assert($actual === $result, 'Expected: '.var_dump_string($result)."\nGot: ".var_dump_string($actual)."\nFile: $file");
+    foreach($actual as $field => $value) {
+        assert(isset($result[$field]) && $value === $result[$field], "$field\n\nExpected: ".var_dump_string($result[$field])."\nGot: ".var_dump_string($value)."\nFile: $file");
+    }
 }

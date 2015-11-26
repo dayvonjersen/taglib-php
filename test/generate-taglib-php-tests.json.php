@@ -20,7 +20,7 @@ while(($f = $d->read())!==false) {
     if(is_dir($f)) continue;
 
     $info = [
-        'filename' => $f
+        'filename' => "./testfiles/$f"
     ];
 
     switch(end(explode('.', $f))) {
@@ -87,13 +87,14 @@ foreach($classes as $class => $methods) {
                 $result = !empty($file['xiphcomment']);
                 break;
             case 'getID3v1':
-                $result = $file['id3v1'];
+                $result = empty($file['id3v1']) ? false : $file['id3v1'];
                 break;
             case 'getID3v2':
-                $result = $file['id3v2'];
+                $result = empty($file['id3v2']) ? false : $file['id3v2'];
                 break;
             case 'getXiphComment':
                 $result = $file['xiphcomment'];
+                $result = empty($file['xiphcomment']) ? false : $file['xiphcomment'];
                 break;
 
             case '__construct':
@@ -143,7 +144,7 @@ function id3v1($file) {
         $text = $m[1];
         $id3v1 = [];
         preg_match("/Year: (\d+), Genre: (.*) \(\d+\)/", $text, $q);
-        if(!is_null($q[1])) $id3v1['YEAR'] = $q[1];
+        if(!is_null($q[1])) $id3v1['DATE'] = $q[1];
         if(!is_null($q[2])) $id3v1['GENRE'] = $q[2];
         $text = str_replace($q[0], '', $text);
         preg_match_all("/(Title|Artist|Album|Comment|Track)\s*: ([^\s]{0,30})/", $text, $n, PREG_SET_ORDER);
@@ -168,7 +169,7 @@ function id3v2($file) {
 
     $id3v2 = [];
     foreach(explode("\n", $text) as $line) {
-        if(preg_match('/^([A-Z]{4}) \(.+\): (.*)/', $line, $m)) {
+        if(preg_match('/^([A-Z0-9]{4}) \(.+\): (.*)/s', $line, $m)) {
             $frame = $m[1];
             $value = $m[2];
             switch($frame) {
@@ -185,6 +186,10 @@ function id3v2($file) {
             case 'WXXX':
             case 'TXXX':
                 $value = preg_replace('/^\((.*?)\): /', '[\1] ', $value);
+                if(!strstr($value, '[')) $value = '[] '.$value;
+                break;
+            case 'TYER':
+                $frame = 'TDRC';
                 break;
             }
             $id3v2[$frame] = $value;
@@ -235,7 +240,8 @@ function mp3Properties($file) {
         'version' => 'MPEG Version 1',
         'protectionEnabled' => false,
         'isCopyrighted' => false,
-        'isOriginal' => true
+        'isOriginal' => true,
+        'layer' => 3
     ];
     // cheating a bit here
     $r['channelMode'] = $r['channels'] == 1 ? 'Mono': 'Stereo';

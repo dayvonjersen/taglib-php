@@ -17,7 +17,7 @@ function Test__TagLibMPEG__getID3v2($file, $result) {
                 assert("\$desc === ''");
                 assert(base64_encode(file_get_contents('./testfiles/image.jpg')) === $data);
             } else {
-                assert("isset(\$result['$frameID'])");
+                assert("isset(\$result['$frameID'])", "Unexpected: $frameID\nGot: ".var_dump_string($data)."\nFile: $file");
                 assert($result[$frameID] === $data, 'Expected: '.var_dump_string($result[$frameID])."\nGot: ".var_dump_string($data)."\nFile: $file");
             }
         }
