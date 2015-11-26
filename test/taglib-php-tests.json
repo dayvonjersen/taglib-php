@@ -39,16 +39,16 @@
                     ".\/testfiles\/empty+picture.mp3"
                 ],
                 "result": {
-                    "length": 1,
-                    "bitrate": 754,
-                    "sampleRate": 44100,
-                    "channels": 1,
                     "version": "MPEG Version 1",
-                    "protectionEnabled": false,
+                    "layer": 3,
+                    "bitrate": 320,
+                    "sampleRate": 44100,
+                    "channelMode": "Mono",
+                    "channels": 1,
                     "isCopyrighted": false,
                     "isOriginal": true,
-                    "layer": 3,
-                    "channelMode": "Mono"
+                    "length": 1,
+                    "protectionEnabled": false
                 }
             },
             {
@@ -56,16 +56,16 @@
                     ".\/testfiles\/empty.mp3"
                 ],
                 "result": {
-                    "length": 1,
+                    "version": "MPEG Version 1",
+                    "layer": 3,
                     "bitrate": 320,
                     "sampleRate": 44100,
+                    "channelMode": "Mono",
                     "channels": 1,
-                    "version": "MPEG Version 1",
-                    "protectionEnabled": false,
                     "isCopyrighted": false,
                     "isOriginal": true,
-                    "layer": 3,
-                    "channelMode": "Mono"
+                    "length": 1,
+                    "protectionEnabled": false
                 }
             },
             {
@@ -73,16 +73,16 @@
                     ".\/testfiles\/id3v2.mp3"
                 ],
                 "result": {
-                    "length": 1,
-                    "bitrate": 351,
-                    "sampleRate": 44100,
-                    "channels": 1,
                     "version": "MPEG Version 1",
-                    "protectionEnabled": false,
+                    "layer": 3,
+                    "bitrate": 320,
+                    "sampleRate": 44100,
+                    "channelMode": "Mono",
+                    "channels": 1,
                     "isCopyrighted": false,
                     "isOriginal": true,
-                    "layer": 3,
-                    "channelMode": "Mono"
+                    "length": 1,
+                    "protectionEnabled": false
                 }
             },
             {
@@ -90,16 +90,16 @@
                     ".\/testfiles\/id3v1+id3v2.mp3"
                 ],
                 "result": {
-                    "length": 1,
-                    "bitrate": 351,
-                    "sampleRate": 44100,
-                    "channels": 1,
                     "version": "MPEG Version 1",
-                    "protectionEnabled": false,
+                    "layer": 3,
+                    "bitrate": 320,
+                    "sampleRate": 44100,
+                    "channelMode": "Mono",
+                    "channels": 1,
                     "isCopyrighted": false,
                     "isOriginal": true,
-                    "layer": 3,
-                    "channelMode": "Mono"
+                    "length": 1,
+                    "protectionEnabled": false
                 }
             },
             {
@@ -107,16 +107,16 @@
                     ".\/testfiles\/id3v1.mp3"
                 ],
                 "result": {
-                    "length": 1,
+                    "version": "MPEG Version 1",
+                    "layer": 3,
                     "bitrate": 320,
                     "sampleRate": 44100,
+                    "channelMode": "Mono",
                     "channels": 1,
-                    "version": "MPEG Version 1",
-                    "protectionEnabled": false,
                     "isCopyrighted": false,
                     "isOriginal": true,
-                    "layer": 3,
-                    "channelMode": "Mono"
+                    "length": 1,
+                    "protectionEnabled": false
                 }
             }
         ],

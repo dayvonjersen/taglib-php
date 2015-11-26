@@ -214,7 +214,7 @@ function oggz($file) {
 
 function soxi($file, $flag) {
     $text = `soxi -$flag $file`;
-    assert(!empty(trim($text)), "oggz is either not installed or $file is not a valid OGG file");
+    assert(!empty(trim($text)), "soxi is either not installed or $file is not a valid audio file");
     return trim($text);
 }
 
@@ -230,22 +230,92 @@ function flacProperties($file) {
 }
 
 function mp3Properties($file) {
-    $r = [
-        'length' => (int)soxi($file, 'D'),
-        'bitrate' => (int)preg_replace('/[^\d]/', '', soxi($file, 'B')),
-        'sampleRate' => (int)soxi($file, 'r'),
-        'channels' => (int)soxi($file, 'c'),
+    $text = `mp3info -x $file`;
+    assert(!empty(trim($text)), "mp3info is either not installed for $file is not a valid MP3.");
+    $p = [];
+    foreach(explode("\n", $text) as $line) {
+        if(preg_match("/^Media Type:  MPEG ([\d\.]+) Layer (I{1,3})/", $line, $m)) {
+            $v = (float)$m[1];
+            if((int)$v == $v) $v = (int)$v;
+            $p['version'] = "MPEG Version $v";
+            $p['layer'] = strlen($m[2]);
+            continue;
+        }
+        if(preg_match("/^Audio:\s+(Variable|\d+) kbps, (\d+) kHz \(([\w\s]+)\)/", $line, $m)) {
+            if($m[1] === 'Variable') {
+                $text2 = `mp3info -r a -x $file`;
+                foreach(explode("\n", $text2) as $line2) {
+                    if(preg_match("/^Audio:\s+([\d\.]+) kbps/", $line2, $m2)) {
+                        $p['bitrate'] = (int)$m2[1];
+                        break;
+                    }
+                }
+            } else {
+                $p['bitrate'] = (int)$m[1];
+            }
+            $khz = $m[2];
+            $hz = 0;
+            switch($khz) {
+            case 11: $hz = 11025; break;
+            case 22: $hz = 22050; break;
+            case 44: $hz = 44100; break;
+            case 88: $hz = 88200; break;
+            case 176: $hz = 176400; break;
+            case 352: $hz = 352800; break;
+            default: $hz = $khz * 1000;
+            }
+            $p['sampleRate'] = $hz;
+            $mode = $m[3];
+            $chan = 0;
+            switch($mode) {
+            case 'mono':
+                $mode = 'Mono';
+                $chan = 1;
+                break;
+            case 'stereo':
+                $mode = 'Stereo';
+                $chan = 2;
+                break;
+            case 'dual mono':
+                $mode = 'Dual Mono';
+                $chan = 2;
+                break;
+            }
+            $p['channelMode'] = $mode;
+            $p['channels'] = $chan;
+            continue;
+        }
+        if(preg_match("/^(Copyright|Original):\s+(Yes|No)/", $line, $m)) {
+            if($m[1] == 'Copyright') {
+                $m[1].= 'ed';
+            }
+            $p["is{$m[1]}"] = ($m[2] == 'Yes');
+            continue;
+        }
+        if(preg_match("/^Length:\s+([\d:]+)/", $line, $m)) {
+            $t = explode(':', $m[1]);
+            $h=$m=$s=0;
+            switch(count($t)) {
+            case 3:
+                $h=(int)$t[0];
+                $m=(int)$t[1];
+                $s=(int)$t[2];
+                break;
+            case 2:
+                $m=(int)$t[0];
+                $s=(int)$t[1];
+                break;
+            default: assert(false, "$file\n\n$line");
+            }
+            $p['length'] = $h*3600+$m*60+$s;
+            continue;
+        }
+    }
 
-        //cheating a bit here
-        'version' => 'MPEG Version 1',
-        'protectionEnabled' => false,
-        'isCopyrighted' => false,
-        'isOriginal' => true,
-        'layer' => 3
-    ];
-    // cheating a bit here
-    $r['channelMode'] = $r['channels'] == 1 ? 'Mono': 'Stereo';
-    return $r;
+    //cheating a bit here
+    $p['protectionEnabled'] = false;
+
+    return $p;
 }
 
 function oggProperties($file) {
