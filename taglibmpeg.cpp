@@ -393,12 +393,12 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
          */
         case "APIC"_CASE:
         {
-            const char *genericWarning = "AttachedPictureFrame expects a specific array argument, e.g.: \
-    [\
-     'data' => base64_encode(file_get_contents($newPicture)),\
-     'mime' => 'image/jpeg',\
-     'type' => TagLib::APIC_FRONTCOVER,\
-     'desc' => 'optional description'\
+            const char *genericWarning = "AttachedPictureFrame expects a specific array argument, e.g.: \n\
+    [\n\
+     'data' => base64_encode(file_get_contents($newPicture)),\n\
+     'mime' => 'image/jpeg',\n\
+     'type' => TagLib::APIC_FRONTCOVER,\n\
+     'desc' => 'optional description'\n\
     ]";
             TagLib::ID3v2::AttachedPictureFrame *pictureFrame = new TagLib::ID3v2::AttachedPictureFrame(byteVector);
             if(Z_TYPE_PP(data) != IS_ARRAY) {
@@ -531,10 +531,10 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         {   
             TagLib::ID3v2::UserTextIdentificationFrame *newFrame = new TagLib::ID3v2::UserTextIdentificationFrame(byteVector);
 
-            const char* genericWarning = "TXXX aka UserTextIdentificationFrame requires an array argument e.g.\
-    [\
-    'desc' => 'Description of Frame',\
-    'text' => ''\
+            const char* genericWarning = "TXXX aka UserTextIdentificationFrame requires an array argument e.g.\n\
+    [\n\
+    'desc' => 'Description of Frame',\n\
+    'text' => ''\n\
     ]";
 
             if(Z_TYPE_PP(data) != IS_ARRAY) {
@@ -613,10 +613,10 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "WXXX"_CASE:
         {   
             TagLib::ID3v2::UserUrlLinkFrame *newFrame = new TagLib::ID3v2::UserUrlLinkFrame(byteVector);
-            const char* genericWarning = "WXXX aka UserUrlLinkFrame requires an array argument e.g. \
-    [\
-        'desc' => 'Description of URL',\
-        'text' => 'http://www.example.com/'\
+            const char* genericWarning = "WXXX aka UserUrlLinkFrame requires an array argument e.g. \n\
+    [\n\
+        'desc' => 'Description of URL',\n\
+        'text' => 'http://www.example.com/'\n\
     ]";
 
             if(Z_TYPE_PP(data) != IS_ARRAY) {
@@ -656,11 +656,11 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "OWNE"_CASE:
         {
             TagLib::ID3v2::OwnershipFrame *newFrame = new TagLib::ID3v2::OwnershipFrame(TagLib::String::Type::UTF8);
-            const char* genericWarning = "OWNE aka OwnershipFrame requires an array argument e.g. \
-    [\
-        'date' => '19691231',\
-        'paid' => '$0.99',\
-        'seller' => 'someone'\
+            const char* genericWarning = "OWNE aka OwnershipFrame requires an array argument e.g. \n\
+    [\n\
+        'date' => '19691231',\n\
+        'paid' => '$0.99',\n\
+        'seller' => 'someone'\n\
     ]";
 
             if(Z_TYPE_PP(data) != IS_ARRAY) {
@@ -711,10 +711,10 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "PRIV"_CASE:
         {
             TagLib::ID3v2::PrivateFrame *newFrame = new TagLib::ID3v2::PrivateFrame();
-            const char* genericWarning = "PRIV aka PrivateFrame requires an array argument e.g. \
-    [\
-        'owner' => 'nobody@example.com',\
-        'data' => base64_encode('some data...')\
+            const char* genericWarning = "PRIV aka PrivateFrame requires an array argument e.g. \n\
+    [\n\
+        'owner' => 'nobody@example.com',\n\
+        'data' => base64_encode('some data...')\n\
     ]";
             
             if(Z_TYPE_PP(data) != IS_ARRAY) {
@@ -757,10 +757,10 @@ static bool id3v2_set_frame(TagLib::ID3v2::Tag *tag, zval **data, TagLib::ByteVe
         case "UFID"_CASE:
         {
             TagLib::ID3v2::UniqueFileIdentifierFrame *newFrame = new TagLib::ID3v2::UniqueFileIdentifierFrame(byteVector);
-            const char* genericWarning = "UFID aka UniqueFileIdentifierFrame requires an array argument e.g. \
-    [\
-        'owner' => 'http://somemusicdatabase.example.com/',\
-        'id' => '123456789'\
+            const char* genericWarning = "UFID aka UniqueFileIdentifierFrame requires an array argument e.g. \n\
+    [\n\
+        'owner' => 'http://somemusicdatabase.example.com/',\n\
+        'id' => '123456789'\n\
     ]";
 
             if(Z_TYPE_PP(data) != IS_ARRAY) {
