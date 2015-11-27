@@ -562,12 +562,6 @@
             },
             {
                 "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
-                ],
-                "result": null
-            },
-            {
-                "params": [
                     ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
                 ],
                 "result": null
@@ -626,19 +620,6 @@
             {
                 "params": [
                     ".\/testfiles\/xiphcomment+picture.flac"
-                ],
-                "result": {
-                    "length": 1,
-                    "sampleRate": 44100,
-                    "channels": 1,
-                    "sampleWidth": 16,
-                    "sampleFrames": 44100,
-                    "bitrate": 108
-                }
-            },
-            {
-                "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
                 ],
                 "result": {
                     "length": 1,
@@ -756,12 +737,6 @@
             },
             {
                 "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
-                ],
-                "result": false
-            },
-            {
-                "params": [
                     ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
                 ],
                 "result": true
@@ -823,12 +798,6 @@
                     "TITLE": "title",
                     "TRACKNUMBER": "99"
                 }
-            },
-            {
-                "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
-                ],
-                "result": false
             },
             {
                 "params": [
@@ -920,12 +889,6 @@
             },
             {
                 "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
-                ],
-                "result": null
-            },
-            {
-                "params": [
                     ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
                 ],
                 "result": null
@@ -982,12 +945,6 @@
             },
             {
                 "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
-                ],
-                "result": false
-            },
-            {
-                "params": [
                     ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
                 ],
                 "result": true
@@ -1039,12 +996,6 @@
             {
                 "params": [
                     ".\/testfiles\/xiphcomment+picture.flac"
-                ],
-                "result": false
-            },
-            {
-                "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
                 ],
                 "result": false
             },
@@ -1109,12 +1060,6 @@
             {
                 "params": [
                     ".\/testfiles\/xiphcomment+picture.flac"
-                ],
-                "result": false
-            },
-            {
-                "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
                 ],
                 "result": false
             },
@@ -1195,12 +1140,6 @@
             {
                 "params": [
                     ".\/testfiles\/xiphcomment+picture.flac"
-                ],
-                "result": false
-            },
-            {
-                "params": [
-                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
                 ],
                 "result": false
             },
