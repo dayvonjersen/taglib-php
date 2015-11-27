@@ -219,14 +219,27 @@ function soxi($file, $flag) {
 }
 
 function flacProperties($file) {
-    return [
+    $p = [
         'length' => (int)soxi($file, 'D'),
-        'bitrate' => (int)preg_replace('/[^\d]/', '', soxi($file, 'B')),
         'sampleRate' => (int)soxi($file, 'r'),
         'channels' => (int)soxi($file, 'c'),
         'sampleWidth' => (int)soxi($file, 'b'),
         'sampleFrames' => (int)soxi($file, 's')
     ];
+    if($p['length'] > 0) {
+        $tmpfile = "tmpxxx___$file";
+        assert(copy($file, $tmpfile), "failed to copy file");
+        `metaflac --remove-all --dont-use-padding $tmpfile`;
+        `id3v2 -D $tmpfile`;
+        $text = `metaflac --list $tmpfile`;
+        assert(preg_match('/length: (\d+)/', $text, $b));
+        $streamLength = filesize($tmpfile) - $b[1];
+        unlink($tmpfile);
+        $p['bitrate'] = (int)( $streamLength * 8 / $p['length'] / 1000 );
+    } else {
+        $p['bitrate'] = 0;
+    }
+    return $p;
 }
 
 function mp3Properties($file) {

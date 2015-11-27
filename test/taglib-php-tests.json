@@ -562,6 +562,12 @@
             },
             {
                 "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
                     ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
                 ],
                 "result": null
@@ -610,11 +616,11 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 110,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             },
             {
@@ -623,11 +629,24 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 609,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
+                }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
+                ],
+                "result": {
+                    "length": 1,
+                    "sampleRate": 44100,
+                    "channels": 1,
+                    "sampleWidth": 16,
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             },
             {
@@ -636,11 +655,11 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 147,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             },
             {
@@ -649,11 +668,11 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 115,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             },
             {
@@ -662,11 +681,11 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 109,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             },
             {
@@ -675,11 +694,11 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 115,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             },
             {
@@ -688,11 +707,11 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 144,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             },
             {
@@ -701,11 +720,11 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 143,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             },
             {
@@ -714,11 +733,11 @@
                 ],
                 "result": {
                     "length": 1,
-                    "bitrate": 147,
                     "sampleRate": 44100,
                     "channels": 1,
                     "sampleWidth": 16,
-                    "sampleFrames": 44100
+                    "sampleFrames": 44100,
+                    "bitrate": 108
                 }
             }
         ],
@@ -734,6 +753,12 @@
                     ".\/testfiles\/xiphcomment+picture.flac"
                 ],
                 "result": true
+            },
+            {
+                "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
+                ],
+                "result": false
             },
             {
                 "params": [
@@ -798,6 +823,12 @@
                     "TITLE": "title",
                     "TRACKNUMBER": "99"
                 }
+            },
+            {
+                "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
+                ],
+                "result": false
             },
             {
                 "params": [
@@ -889,6 +920,12 @@
             },
             {
                 "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
                     ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
                 ],
                 "result": null
@@ -945,6 +982,12 @@
             },
             {
                 "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
                     ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
                 ],
                 "result": true
@@ -996,6 +1039,12 @@
             {
                 "params": [
                     ".\/testfiles\/xiphcomment+picture.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
                 ],
                 "result": false
             },
@@ -1060,6 +1109,12 @@
             {
                 "params": [
                     ".\/testfiles\/xiphcomment+picture.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
                 ],
                 "result": false
             },
@@ -1140,6 +1195,12 @@
             {
                 "params": [
                     ".\/testfiles\/xiphcomment+picture.flac"
+                ],
+                "result": false
+            },
+            {
+                "params": [
+                    ".\/testfiles\/tmpxxxx__xiphcomment+picture.flac"
                 ],
                 "result": false
             },
