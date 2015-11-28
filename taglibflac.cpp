@@ -287,6 +287,7 @@ PHP_METHOD(TagLibFLAC, getID3v1) {
         add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
     }
 }
+
 PHP_METHOD(TagLibFLAC, getID3v2) {
     taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     if(!thisobj->file->hasID3v2Tag()) {
@@ -327,152 +328,15 @@ PHP_METHOD(TagLibFLAC, getID3v2) {
         add_next_index_zval(return_value, subarray);
     }
 }
+
 PHP_METHOD(TagLibFLAC, setID3v1) {
-    zval *newProperties;
-    zend_bool overwrite_existing_tags = false;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE) {
-        RETURN_FALSE;
-    }
-    if(Z_TYPE_P(newProperties) != IS_ARRAY) {
-        RETURN_FALSE;
-    }
-    
-    taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
-    TagLib::ID3v1::Tag *id3v1;
-
-    if(!thisobj->file->hasID3v1Tag()) {
-    id3v1 = thisobj->file->ID3v1Tag(true);
-    overwrite_existing_tags = true;
-
-        TagLib::PropertyMap propMap = id3v1->properties();
-    propMap.removeEmpty();
-    propMap.erase(propMap);
-    } else {
-    id3v1 = thisobj->file->ID3v1Tag();
-    }
-
-    TagLib::PropertyMap propMap = id3v1->properties();
-
-    HashTable *hIndex = Z_ARRVAL_P(newProperties);
-    HashPosition pointer;
-    zval **data;
-    for(zend_hash_internal_pointer_reset_ex(hIndex, &pointer);
-        zend_hash_get_current_data_ex(hIndex, (void**)&data, &pointer) == SUCCESS;
-        zend_hash_move_forward_ex(hIndex, &pointer))
-    {
-        char *key;
-        uint key_length, key_type;
-        ulong index;
-        key_type = zend_hash_get_current_key_ex(hIndex, &key, &key_length, &index, 0, &pointer);
-
-        if(key_type != HASH_KEY_IS_STRING) {
-            php_error(E_WARNING, "TagLibFLAC::setID3v1 expects associative array of string values!");
-            RETURN_FALSE;
-            break;
-        }
-
-        if(Z_TYPE_PP(data) != IS_STRING) {
-            php_error(E_WARNING, "TagLibFLAC::setID3v1 expects associative array of string values!");
-            RETURN_FALSE;
-            break;
-        }
-        TagLib::String *destKey = new TagLib::String((const char *)key);
-        TagLib::StringList *destValue = new TagLib::StringList(*(new TagLib::String(Z_STRVAL_PP(data))));
-
-        // default PropertyMap::insert() behavior is append
-        if(propMap.contains(*destKey) && overwrite_existing_tags) {
-            propMap.erase(*destKey);
-        }
-
-        if(!propMap.insert(*destKey,*destValue) || taglib_error()) {
-            php_error(E_WARNING, "PropertyMap::insert() failed, possibly invalid key provided.");
-            break;
-        }
-    }
-
-    TagLib::PropertyMap failedToSet = id3v1->setProperties(propMap);
-    if(thisobj->file->save()) {
-        if(failedToSet.begin() == failedToSet.end()) {
-            RETURN_TRUE;
-        } else {
-            array_init(return_value);
-            for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = failedToSet.begin(); 
-                property != failedToSet.end(); 
-                property++) {
-                add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
-            }       
-        } 
-    } else {
-        taglib_error();
-        RETURN_FALSE;   
-    }
+    php_error(E_WARNING, "TagLibFLAC::setID3v1 is not available.");
+    RETURN_FALSE;   
 }
 
 PHP_METHOD(TagLibFLAC, setID3v2) {
-    zval *newFrames;
-    taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
-    zend_bool overwrite_existing_tags = true;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l", &newFrames, &overwrite_existing_tags) == FAILURE) {
-        RETURN_FALSE;
-    }
-
-    if(Z_TYPE_P(newFrames) != IS_ARRAY) {
-        php_error(E_WARNING, "TagLibFLAC::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames");
-        RETURN_FALSE;
-    }
-    TagLib::ID3v2::Tag *tag = thisobj->file->ID3v2Tag(true);
-    TagLib::ID3v2::Header *header = tag->header();
-    HashTable *hIndex = Z_ARRVAL_P(newFrames);
-    HashPosition pointer;
-    zval **data;
-
-    for(zend_hash_internal_pointer_reset_ex(hIndex, &pointer);
-        zend_hash_get_current_data_ex(hIndex, (void**)&data, &pointer) == SUCCESS;
-        zend_hash_move_forward_ex(hIndex, &pointer))
-    {
-        char *frameID;
-        uint frameID_length, index_type;
-        ulong index;
-        index_type = zend_hash_get_current_key_ex(hIndex, &frameID, &frameID_length, &index, 0, &pointer);
-
-        if(index_type != HASH_KEY_IS_STRING)
-        {
-            php_error(E_WARNING, "TagLibFLAC::setID3v2 expects associative array of FRAME_IDs as keys. See http://id3.org/id3v2.3.0#Declared_ID3v2_frames");
-            RETURN_FALSE;
-            break;
-        }
-        const TagLib::ByteVector byteVector = TagLib::ByteVector::fromCString(frameID, frameID_length);
- 
-    if(overwrite_existing_tags) {
-        TagLib::ID3v2::FrameList l = tag->frameListMap()[frameID];
-            if(!l.isEmpty()) {
-            for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator it = l.begin(); it != l.end(); it++) {
-            tag->removeFrame((*it),true);
-        }
-        }
-    }
-
-        if(id3v2_set_frame(tag, data, byteVector, frameID) == false) {
-            RETURN_FALSE;
-        }
-
-        if(taglib_error()) {
-            RETURN_FALSE;
-        }
-    }
-
-    const TagLib::StringList unsupported = tag->properties().unsupportedData();
-    tag->removeUnsupportedProperties(unsupported);
-
-    if(thisobj->file->save()) {
-        RETURN_TRUE;
-    }
-
-    taglib_error();
-    RETURN_FALSE;
+    php_error(E_WARNING, "TagLibFLAC::setID3v2 is not available.");
+    RETURN_FALSE;   
 }
 
 static TagLib::PropertyMap clearProperties(TagLib::PropertyMap propMap) {
@@ -490,24 +354,6 @@ static TagLib::PropertyMap clearProperties(TagLib::PropertyMap propMap) {
     return propMap;
 }
 
-static void clearID3v2Frames(TagLib::ID3v2::Tag *tag) {
-    TagLib::ID3v2::FrameList frameList = tag->frameList();
-    int len = frameList.size();
-    TagLib::ID3v2::Frame *frames[len];
-    int i = 0;
-    for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator frame = frameList.begin(); frame != frameList.end(); frame++) {
-        frames[i] = *frame;
-        i++;
-    }
-    for(i = 0; i < len; i++) {
-        tag->removeFrame(frames[i],true);
-    }
-    if(!tag->isEmpty()) {
-        php_printf("what the FUCK\n");
-        *(int *)0=0;
-    }
-}
-
 PHP_METHOD(TagLibFLAC, stripTags) {
     taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     if(!thisobj->initialized) {
@@ -517,16 +363,10 @@ PHP_METHOD(TagLibFLAC, stripTags) {
         thisobj->file->setProperties(clearProperties(thisobj->file->properties()));
     }
     if(thisobj->file->hasID3v2Tag()) {
-        TagLib::ID3v2::Tag *id3v2 = thisobj->file->ID3v2Tag(true);
-        clearID3v2Frames(id3v2);
-        id3v2->removeUnsupportedProperties(id3v2->properties().unsupportedData());
-        thisobj->file->setProperties(clearProperties(thisobj->file->properties()));
+        php_error(E_WARNING, "TagLibFLAC::stripTags() cannot remove ID3v1 tags");
     }
     if(thisobj->file->hasID3v1Tag()) {
-        TagLib::ID3v1::Tag *id3v1 = thisobj->file->ID3v1Tag(true);
-        id3v1->setProperties(clearProperties(id3v1->properties()));
-        id3v1->removeUnsupportedProperties(id3v1->properties().unsupportedData());
-        thisobj->file->setProperties(clearProperties(thisobj->file->properties()));
+        php_error(E_WARNING, "TagLibFLAC::stripTags() cannot remove ID3v1 tags");
     }
 
     if(thisobj->file->save()) {

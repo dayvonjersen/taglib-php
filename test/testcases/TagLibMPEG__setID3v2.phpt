@@ -1,14 +1,14 @@
 <?php
 function Test__TagLibMPEG__setID3v2($file) {
     static $ranonce = false;
-    __setID3v2_test1($file);
-    __setID3v2_test2($file);
-    __setID3v2_test3($file, $ranonce);
-    __setID3v2_test4($file, $ranonce);
+    __MPEG_setID3v2_test1($file);
+    __MPEG_setID3v2_test2($file);
+    __MPEG_setID3v2_test3($file, $ranonce);
+    __MPEG_setID3v2_test4($file, $ranonce);
     $ranonce = true;
 }
 
-function __setID3v2_test1($file) {
+function __MPEG_setID3v2_test1($file) {
     $tmpfile = "./tmp/".basename($file);
     assert(copy($file, $tmpfile), "Couldn't copy $file to $tmpfile!");
 
@@ -55,7 +55,7 @@ function __setID3v2_test1($file) {
     }
 }
 
-function __setID3v2_test2($file) {
+function __MPEG_setID3v2_test2($file) {
     $t = new TagLibMPEG($file);
     $badvalues = [
     ['TBPM' => 120],
@@ -72,7 +72,7 @@ function __setID3v2_test2($file) {
     }
 }
 
-function __setID3v2_test3($file, $ranonce) {
+function __MPEG_setID3v2_test3($file, $ranonce) {
     // we don't need to do this test more than once tbh
     // Mon 23 Nov 2015 03:05:19 PM EST: this also strips any existing tags from the file first so it would be redundant in any case...
     // this test is designed to only test if all ID3v2 frames are supported.
@@ -255,7 +255,7 @@ function __setID3v2_test3($file, $ranonce) {
     }
 }
 
-function __setID3v2_test4($file, $ranonce) {
+function __MPEG_setID3v2_test4($file, $ranonce) {
     if($ranonce) return;
 
     $tmpfile = "./tmp/".basename($file);
