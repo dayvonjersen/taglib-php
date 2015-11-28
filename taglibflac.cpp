@@ -486,7 +486,26 @@ static TagLib::PropertyMap clearProperties(TagLib::PropertyMap propMap) {
     for(i = 0; i < size; i++) {
         propMap.erase(keys[i]);
     }
+    propMap.removeEmpty();
     return propMap;
+}
+
+static void clearID3v2Frames(TagLib::ID3v2::Tag *tag) {
+    TagLib::ID3v2::FrameList frameList = tag->frameList();
+    int len = frameList.size();
+    TagLib::ID3v2::Frame *frames[len];
+    int i = 0;
+    for(TagLib::List<TagLib::ID3v2::Frame*>::Iterator frame = frameList.begin(); frame != frameList.end(); frame++) {
+        frames[i] = *frame;
+        i++;
+    }
+    for(i = 0; i < len; i++) {
+        tag->removeFrame(frames[i],true);
+    }
+    if(!tag->isEmpty()) {
+        php_printf("what the FUCK\n");
+        *(int *)0=0;
+    }
 }
 
 PHP_METHOD(TagLibFLAC, stripTags) {
@@ -494,19 +513,20 @@ PHP_METHOD(TagLibFLAC, stripTags) {
     if(!thisobj->initialized) {
         RETURN_FALSE;
     }
-
     if(thisobj->file->hasXiphComment()) {
-        thisobj->xiphcomment->setProperties(clearProperties(thisobj->xiphcomment->properties()));
+        thisobj->file->setProperties(clearProperties(thisobj->file->properties()));
     }
-
+    if(thisobj->file->hasID3v2Tag()) {
+        TagLib::ID3v2::Tag *id3v2 = thisobj->file->ID3v2Tag(true);
+        clearID3v2Frames(id3v2);
+        id3v2->removeUnsupportedProperties(id3v2->properties().unsupportedData());
+        thisobj->file->setProperties(clearProperties(thisobj->file->properties()));
+    }
     if(thisobj->file->hasID3v1Tag()) {
         TagLib::ID3v1::Tag *id3v1 = thisobj->file->ID3v1Tag(true);
         id3v1->setProperties(clearProperties(id3v1->properties()));
-    }
-
-    if(thisobj->file->hasID3v2Tag()) {
-        TagLib::ID3v2::Tag *id3v2 = thisobj->file->ID3v2Tag(true);
-        id3v2->setProperties(clearProperties(id3v2->properties()));
+        id3v1->removeUnsupportedProperties(id3v1->properties().unsupportedData());
+        thisobj->file->setProperties(clearProperties(thisobj->file->properties()));
     }
 
     if(thisobj->file->save()) {
