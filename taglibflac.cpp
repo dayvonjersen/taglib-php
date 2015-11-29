@@ -199,7 +199,7 @@ PHP_METHOD(TagLibFLAC, setXiphComment) {
     }
 
     zval *newProperties;
-    zend_bool overwrite_existing_tags = false;
+    zend_bool overwrite_existing_tags = true;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE) {
         RETURN_FALSE;

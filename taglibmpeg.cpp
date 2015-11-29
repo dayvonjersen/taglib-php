@@ -228,7 +228,7 @@ PHP_METHOD(TagLibMPEG, getID3v1) {
  */
 PHP_METHOD(TagLibMPEG, setID3v1) {
     zval *newProperties;
-    zend_bool overwrite_existing_tags = false;
+    zend_bool overwrite_existing_tags = true;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|b", &newProperties, &overwrite_existing_tags) == FAILURE) {
         RETURN_FALSE;
@@ -242,14 +242,14 @@ PHP_METHOD(TagLibMPEG, setID3v1) {
     TagLib::ID3v1::Tag *id3v1;
 
     if(!thisobj->file->hasID3v1Tag()) {
-    id3v1 = thisobj->file->ID3v1Tag(true);
-    overwrite_existing_tags = true;
+        id3v1 = thisobj->file->ID3v1Tag(true);
+        overwrite_existing_tags = true;
 
         TagLib::PropertyMap propMap = id3v1->properties();
-    propMap.removeEmpty();
-    propMap.erase(propMap);
+        propMap.removeEmpty();
+        propMap.erase(propMap);
     } else {
-    id3v1 = thisobj->file->ID3v1Tag();
+        id3v1 = thisobj->file->ID3v1Tag();
     }
 
     TagLib::PropertyMap propMap = id3v1->properties();
