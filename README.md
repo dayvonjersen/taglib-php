@@ -270,15 +270,17 @@ print_r($t->getID3v1());
 #### Description
 Write ID3v1 tag fields to file.
 ```php
-public bool|array setID3v1( array $frames )
+public bool|array setID3v1( array $frames[, bool $overwrite_existing_tags = TRUE ] )
 ```
 #### Parameters
-`$frames` is an associative `array` of `string` values with UPPERCASE `string` frame IDs as keys.
-
-e.g.
+`$frames` is an associative `array` of `string` values with UPPERCASE `string` frame IDs as keys e.g.:
 ```php
 $frames = ['ALBUM' => 'Abbey Road', 'ARTIST' => 'The Beatles'];
 ```
+`$overwrite_existing_tags`
+ - if `TRUE` (default), tags already present in the file with frame IDs matching the keys of `$frames` will be overwritten with the values passed in.
+ - if `FALSE`, tags already present will **not be overwritten** and will be **returned** by this function.
+
 
 ##### Caveats
 [TagLib will truncate values greater than 28-30 bytes](http://taglib.github.io/api/classTagLib_1_1ID3v1_1_1Tag.html#details). See also [id3.org/ID3v1](http://id3.org/ID3v1) and [wikipedia](https://en.wikipedia.org/wiki/ID3#Layout) for more information about ID3v1.
@@ -632,15 +634,16 @@ print_r($t->getID3v1());
 #### Description
 Write ID3v1 tag fields to file.
 ```php
-public bool|array setID3v1( array $frames )
+public bool|array setID3v1( array $frames[, bool $overwrite_existing_tags = TRUE ] )
 ```
 #### Parameters
-`$frames` is an associative `array` of `string` values with UPPERCASE `string` frame IDs as keys.
-
-e.g.
+`$frames` is an associative `array` of `string` values with UPPERCASE `string` frame IDs as keys e.g.:
 ```php
 $frames = ['ALBUM' => 'Abbey Road', 'ARTIST' => 'The Beatles'];
 ```
+`$overwrite_existing_tags`
+ - if `TRUE` (default), tags already present in the file with frame IDs matching the keys of `$frames` will be overwritten with the values passed in.
+ - if `FALSE`, tags already present will **not be overwritten** and will be **returned** by this function.
 
 ##### Caveats
 [TagLib will truncate values greater than 28-30 bytes](http://taglib.github.io/api/classTagLib_1_1ID3v1_1_1Tag.html#details). See also [id3.org/ID3v1](http://id3.org/ID3v1) and [wikipedia](https://en.wikipedia.org/wiki/ID3#Layout) for more information about ID3v1.

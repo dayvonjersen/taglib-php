@@ -24,7 +24,7 @@ function Test__TagLibFLAC__setXiphComment($file) {
     $new_tags = $t->getXiphComment();
     assert($new_tags !== false, "No tags found in file after setXiphComment w/ overwrite original tags = TRUE!");
     foreach($new_tags as $frameID => $value) {
-        assert($original_tags[$frameID] == $value, "overwrite original tags = TRUE\n$frameID was:\n".var_dump_string($original_tags[$frameID])."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile");
+        assert($original_tags[$frameID] == $value, "overwrite original tags = TRUE\n$frameID was:\n".var_dump_string(isset($original_tags[$frameID]) ? $original_tags[$frameID]:null)."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile");
     }
     unset($t);
     assert(copy($file, $tmpfile), "Couldn't copy $file to $tmpfile!");
@@ -44,7 +44,7 @@ function Test__TagLibFLAC__setXiphComment($file) {
     $new_tags = $t->getXiphComment();
     if(is_array($new_tags)) {
         foreach($new_tags as $frameID => $value) {
-            assert($original_tags[$frameID] == $value, "overwrite original tags = FALSE\n$frameID was:\n".var_dump_string($original_tags[$frameID])."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile\n".var_dump_string($original_tags));
+            assert(isset($original_tags[$frameID]) && $original_tags[$frameID] == $value, "overwrite original tags = FALSE\n$frameID was:\n".var_dump_string(isset($original_tags[$frameID])?$original_tags[$frameID]:null)."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile\n".var_dump_string($original_tags));
         }
     }
     assert($new_tags !== false, "failed to set any tags\nin file: $tmpfile");

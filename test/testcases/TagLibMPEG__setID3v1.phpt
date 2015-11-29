@@ -32,9 +32,9 @@ function Test__TagLibMPEG__setID3v1($file) {
     if(!$was_empty && isset($original_tags['title'])) {
         assert($retval === false, "overwrite original tags = FALSE\nsetID3v2() returned\n".var_dump_string($retval)."\noriginal tags were:\n".var_dump_string($original_tags)."\nin file: $tmpfile");
     } elseif(is_array($retval)) {
-	foreach($retval as $frameID => $value) {
-	    assert(isset($original_tags[$frameID]));
-	}
+        foreach($retval as $frameID => $value) {
+            assert(isset($original_tags[$frameID]));
+        }
     } else {
         assert($retval === true, "overwrite original tags = FALSE\nsetID3v2() returned\n".var_dump_string($retval)."\noriginal tags were:\n".var_dump_string($original_tags)."\nin file: $tmpfile");
     }
@@ -44,12 +44,14 @@ function Test__TagLibMPEG__setID3v1($file) {
     }
     if(is_array($new_tags)) {
         foreach($new_tags as $frameID => $value) {
-	    if(isset($original_tags[$frameID])) {
-	        assert($original_tags[$frameID] === $value, "overwrite original tags = FALSE\n$frameID was:\n".var_dump_string($original_tags[$frameID])."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile");
-	    } else {
-		$k = strtolower($frameID);
-		assert(isset($new_values[$k]) && $new_values[$k] === $value, "overwrite original tags = FALSE\n$frameID was:\n".var_dump_string($original_tags[$frameID])."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile");
-	    }
+            if(isset($original_tags[$frameID])) {
+                assert($original_tags[$frameID] === $value, "overwrite original tags = FALSE\n$frameID was:\n".var_dump_string($original_tags[$frameID])."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile");
+            } else {
+                $k = strtolower($frameID);
+                $new_value = isset($new_values[$k]) ? $new_values[$k] : null;
+                $old_value = isset($original_tags[$frameID]) ? $original_tags[$frameID] : null;
+                assert($new_value === $value, "overwrite original tags = FALSE\n$frameID was:\n".var_dump_string($old_value)."\nis now:\n".var_dump_string($value)."\nin file: $tmpfile");
+            }
         }
     }
 }

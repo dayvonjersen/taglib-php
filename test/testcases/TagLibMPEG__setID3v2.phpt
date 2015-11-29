@@ -61,14 +61,14 @@ function __MPEG_setID3v2_test2($file) {
     ['TBPM' => 120],
     "string",
     null,
-    bool,
+    false,
     12,
     (new stdClass),
     [0 => ['TPE1' => "value"]]
     ];
     foreach($badvalues as $badvalue) {
-    $retval = @$t->setID3v2($badvalue);
-        assert($retval === false, "sent non-typesafe value:\n".var_dump_string($badvalue)."\ngot back: \n".var_dump_string($retval)."\nin file: $tmpfile");
+        $retval = @$t->setID3v2($badvalue);
+        assert($retval === false, "sent non-typesafe value:\n".var_dump_string($badvalue)."\ngot back: \n".var_dump_string($retval)."\nin file: $file");
     }
 }
 
