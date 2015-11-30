@@ -187,6 +187,31 @@ PHP_METHOD(TagLibFLAC, getXiphComment) {
     for(TagLib::Map<TagLib::String,TagLib::StringList>::Iterator property = propMap.begin(); property != propMap.end(); property++) {
         add_assoc_string(return_value, property->first.toCString(), (char *)(property->second.toString().toCString()), 1);
     }
+
+}
+
+PHP_METHOD(TagLibFLAC, getPictures) {
+    taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->initialized) {
+        RETURN_FALSE;
+    }
+
+    array_init(return_value);
+
+    TagLib::List<TagLib::FLAC::Picture*> pictureList = thisobj->file->pictureList();
+    for(TagLib::List<TagLib::FLAC::Picture*>::Iterator pic = pictureList.begin(); pic != pictureList.end(); pic++) {
+        zval *subarray;
+        MAKE_STD_ZVAL(subarray);
+        array_init(subarray);
+        int retLen;
+        unsigned char *picdata = php_base64_encode((const unsigned char*)((*pic)->data().data()), (*pic)->data().size(), &retLen);
+
+        add_assoc_string(subarray, "data", (char*)picdata, 1);
+        add_assoc_string(subarray, "mime", (char*)((*pic)->mimeType().toCString()),1);
+        add_assoc_long(subarray, "type", (*pic)->type());
+        add_assoc_string(subarray, "desc", (char*)((*pic)->description().toCString()),1);
+        add_next_index_zval(return_value, subarray);
+    }
 }
 
 /**
@@ -392,5 +417,6 @@ static zend_function_entry php_taglibflac_methods[] = {
     PHP_ME(TagLibFLAC, setID3v1,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, setID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, stripTags,           NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibFLAC, getPictures,         NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
