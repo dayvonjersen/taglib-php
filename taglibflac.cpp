@@ -190,6 +190,72 @@ PHP_METHOD(TagLibFLAC, getXiphComment) {
 
 }
 
+PHP_METHOD(TagLibFLAC, setPicture) {
+    taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->initialized) {
+        RETURN_FALSE;
+    }
+
+    zval *arr;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &arr) == FAILURE) {
+        RETURN_FALSE;
+    }
+
+    if(Z_TYPE_P(arr) != IS_ARRAY) {
+        RETURN_FALSE;
+    }
+    HashTable *pictureArray = Z_ARRVAL_P(arr);
+    zval **data, **mime, **type, **desc;
+
+    TagLib::FLAC::Picture* pictureObj = new TagLib::FLAC::Picture();
+    if(zend_hash_find(pictureArray, "data", 5, (void**)&data) == SUCCESS) {
+        if(Z_TYPE_PP(data) != IS_STRING) {
+            RETURN_FALSE;
+        }
+        int decsize;
+        unsigned char *b64data = php_base64_decode((const unsigned char *)Z_STRVAL_PP(data),Z_STRLEN_PP(data),&decsize);
+        TagLib::ByteVector dataVector = TagLib::ByteVector::fromCString((const char*)b64data,(size_t)decsize);
+        pictureObj->setData(dataVector);
+    } else {
+        RETURN_FALSE;
+    }
+
+    if(zend_hash_find(pictureArray, "mime", 5, (void**)&mime) == SUCCESS) {
+        if(Z_TYPE_PP(mime) != IS_STRING) {
+            RETURN_FALSE;
+        }
+        TagLib::String *mimeType = new TagLib::String(Z_STRVAL_PP(mime));
+        pictureObj->setMimeType(*mimeType);
+    } else {
+        RETURN_FALSE;
+    }
+
+    if(zend_hash_find(pictureArray, "type", 5, (void**)&type) == SUCCESS) {
+        if(Z_TYPE_PP(type) != IS_LONG) {
+            RETURN_FALSE;
+        }
+        int pictureType = Z_LVAL_PP(type);
+        if(pictureType >= 0x0 && pictureType <= 0x14) {
+            pictureObj->setType((TagLib::FLAC::Picture::Type)pictureType);
+        }
+    }
+
+    if(zend_hash_find(pictureArray, "desc", 5, (void **)&desc) == SUCCESS) {
+        if(Z_TYPE_PP(desc) != IS_STRING) {
+            RETURN_FALSE;
+        }
+        TagLib::String *description = new TagLib::String(Z_STRVAL_PP(desc));
+        pictureObj->setDescription(*description);
+    }
+
+    thisobj->file->addPicture(pictureObj);
+    if(thisobj->file->save()) {
+        RETURN_TRUE;
+    }
+
+    RETURN_FALSE;
+}
+
 PHP_METHOD(TagLibFLAC, hasPicture) {
     taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     if(!thisobj->initialized) {
@@ -406,6 +472,8 @@ PHP_METHOD(TagLibFLAC, stripTags) {
         php_error(E_WARNING, "TagLibFLAC::stripTags() cannot remove ID3v1 tags");
     }
 
+    thisobj->file->removePictures();
+
     if(thisobj->file->save()) {
         RETURN_TRUE;
     }
@@ -431,5 +499,6 @@ static zend_function_entry php_taglibflac_methods[] = {
     PHP_ME(TagLibFLAC, stripTags,           NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, hasPicture,          NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, getPictures,         NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibFLAC, setPicture,          NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };

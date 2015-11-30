@@ -1497,6 +1497,62 @@
                 ],
                 "result": null
             }
+        ],
+        "setPicture": [
+            {
+                "params": [
+                    ".\/testfiles\/id3v1.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment+picture.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2+xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/empty.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+id3v2.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v1+xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/xiphcomment.flac"
+                ],
+                "result": null
+            },
+            {
+                "params": [
+                    ".\/testfiles\/id3v2+xiphcomment.flac"
+                ],
+                "result": null
+            }
         ]
     }
 }

@@ -99,6 +99,7 @@ foreach($classes as $class => $methods) {
 
             case 'hasPicture':
             case 'getPictures':
+            case 'setPicture':
             case '__construct':
             case 'setID3v1':
             case 'setID3v2':
