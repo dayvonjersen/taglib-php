@@ -121,7 +121,7 @@ Convenience method to turn the integers into their respective strings.
 public static getPictureTypeAsString(int $type)
 ```
 #### Parameters
-`type` - one of the above [Predefined Constants]("#taglib-constants")
+`type` - one of the above [Predefined Constants](#taglib-constants)
 
 #### Return Values
 A `string` representation of the associated constant, with each word Capitalized.
