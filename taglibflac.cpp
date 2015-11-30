@@ -190,6 +190,18 @@ PHP_METHOD(TagLibFLAC, getXiphComment) {
 
 }
 
+PHP_METHOD(TagLibFLAC, hasPicture) {
+    taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+    if(!thisobj->initialized) {
+        RETURN_FALSE;
+    }
+    
+    if(thisobj->file->pictureList().size() > 0) {
+        RETURN_TRUE;
+    }
+    RETURN_FALSE;
+}
+
 PHP_METHOD(TagLibFLAC, getPictures) {
     taglibflacfile_object *thisobj = (taglibflacfile_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
     if(!thisobj->initialized) {
@@ -417,6 +429,7 @@ static zend_function_entry php_taglibflac_methods[] = {
     PHP_ME(TagLibFLAC, setID3v1,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, setID3v2,            NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, stripTags,           NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(TagLibFLAC, hasPicture,          NULL, ZEND_ACC_PUBLIC)
     PHP_ME(TagLibFLAC, getPictures,         NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };

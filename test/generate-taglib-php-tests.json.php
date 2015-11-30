@@ -97,6 +97,8 @@ foreach($classes as $class => $methods) {
                 $result = empty($file['xiphcomment']) ? false : $file['xiphcomment'];
                 break;
 
+            case 'hasPicture':
+            case 'getPictures':
             case '__construct':
             case 'setID3v1':
             case 'setID3v2':
