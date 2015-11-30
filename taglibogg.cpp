@@ -41,17 +41,6 @@ struct tagliboggfile_object {
 zend_object_handlers tagliboggfile_object_handlers;
 void tagliboggfile_free_storage(void *object TSRMLS_DC) {
     tagliboggfile_object *obj = (tagliboggfile_object *)object;
-    switch(obj->type) {
-    case _OGG_VORBIS_:
-        delete obj->vorbisfile;
-        break;
-    case _OGG_OPUS_:
-        delete obj->opusfile;
-        break;
-    case _OGG_FLAC_:
-        delete obj->flacfile;
-        break;
-    }
 
     zend_hash_destroy(obj->std.properties);
     FREE_HASHTABLE(obj->std.properties);
@@ -143,7 +132,7 @@ PHP_METHOD(TagLibOGG, __construct) {
         thisobj->vorbisfile  = new TagLib::Ogg::Vorbis::File(oggFileName);
         if(taglib_error() || !thisobj->vorbisfile->isValid()) {
             delete thisobj->vorbisfile;
-            char msg[sizeof(oggFileName)+24];
+            char msg[sizeof(oggFileName)+25];
             php_sprintf(msg, "%s cannot be open or read", oggFileName);
             php_exception((const char*)msg);
             RETURN_FALSE;
@@ -157,7 +146,7 @@ PHP_METHOD(TagLibOGG, __construct) {
         thisobj->opusfile    = new TagLib::Ogg::Opus::File(oggFileName);
         if(taglib_error() || !thisobj->opusfile->isValid()) {
             delete thisobj->opusfile;
-            char msg[sizeof(oggFileName)+24];
+            char msg[sizeof(oggFileName)+25];
             php_sprintf(msg, "%s cannot be open or read", oggFileName);
             php_exception((const char*)msg);
             RETURN_FALSE;
@@ -171,7 +160,7 @@ PHP_METHOD(TagLibOGG, __construct) {
         thisobj->flacfile    = new TagLib::Ogg::FLAC::File(oggFileName);
         if(taglib_error() || !thisobj->flacfile->isValid()) {
             delete thisobj->flacfile;
-            char msg[sizeof(oggFileName)+24];
+            char msg[sizeof(oggFileName)+25];
             php_sprintf(msg, "%s cannot be open or read", oggFileName);
             php_exception((const char*)msg);
             RETURN_FALSE;
