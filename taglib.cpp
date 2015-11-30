@@ -149,7 +149,47 @@ void taglibbase_register_constants(zend_class_entry *ce) {
     _defineclassconstant( APIC_BANDLOGO,           0x13);
     _defineclassconstant( APIC_PUBLISHERLOGO,      0x14);
 }
+
+/**
+ * public static function getPictureTypeAsString($type)
+ */
+PHP_METHOD(TagLib, getPictureTypeAsString) {
+    int type;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &type) == FAILURE) {
+        RETURN_FALSE;
+    }
+
+    const char *str;
+    switch(type) {
+    case 0x00: str = "Other"; break;
+    case 0x01: str = "File Icon"; break;
+    case 0x02: str = "Other File Icon"; break;
+    case 0x03: str = "Front Cover"; break;
+    case 0x04: str = "Back Cover"; break;
+    case 0x05: str = "Leaflet Page"; break;
+    case 0x06: str = "Media"; break;
+    case 0x07: str = "Lead Artist"; break;
+    case 0x08: str = "Artist"; break;
+    case 0x09: str = "Conductor"; break;
+    case 0x0A: str = "Band"; break;
+    case 0x0B: str = "Composer"; break;
+    case 0x0C: str = "Lyricist"; break;
+    case 0x0D: str = "Recording Location"; break;
+    case 0x0E: str = "During Recording"; break;
+    case 0x0F: str = "During Performance"; break;
+    case 0x10: str = "Movie Screencapture"; break;
+    case 0x11: str = "<°))))><"; break;
+    case 0x12: str = "Illustration"; break;
+    case 0x13: str = "Band Logo"; break;
+    case 0x14: str = "Publisher Logo"; break;
+    default:
+        RETURN_FALSE;
+    }
+    RETVAL_STRING((char*)str, 1);
+    return;
+}
 static zend_function_entry php_taglibbase_methods[] = {
+    PHP_ME(TagLib, getPictureTypeAsString,  NULL, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
     { NULL, NULL, NULL }
 };
 

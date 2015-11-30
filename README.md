@@ -12,6 +12,7 @@ A php extension which wraps [TagLib](http://taglib.github.io).
     - [Installation](#installation)
 4. [TagLib](#taglib)
 	- [Predefined Constants](#taglib-constants)
+    - [getPictureTypeAsString()](#taglib-getpicturetypeasstring)
 5. [TagLibFLAC](#taglibflac)
 	- [__construct()](#taglibflac-__construct)
 	- [getAudioProperties()](#taglibflac-getaudioproperties)
@@ -79,7 +80,7 @@ All I need from taglib is to read and write tags from audio  files, preferably a
 
 
 ## <a id="taglib">TagLib Class</a>
-Just a container for these:
+Really just a container for these:
 
 ## <a id="taglib-constants">Predefined Constants</a>
 
@@ -109,6 +110,31 @@ TagLib::APIC_ILLUSTRATION       = 0x12
 TagLib::APIC_BANDLOGO           = 0x13
 TagLib::APIC_PUBLISHERLOGO      = 0x14
 ```
+
+------------------------------------------------------------------------------
+
+### <a id="taglib-getpicturetypeasstring">TagLib::getPictureTypeAsString()</a>
+#### Description
+Convenience method to turn the integers into their respective strings.
+
+```php
+public static getPictureTypeAsString(int $type)
+```
+#### Parameters
+`type` - one of the above [Predefined Constants]("#taglib-constants")
+
+#### Return Values
+A `string` representation of the associated constant, with each word Capitalized.
+
+Returns `FALSE` if `$type` is not an `int` or is not in the range `0..20`.
+
+#### Examples
+```php
+// example usage
+echo TagLib::getPictureTypeAsString(TagLib::APIC_FRONTCOVER); // "Front Cover"
+```
+
+-------------------------------------------------------------------------------
 
 ## <a id="taglibflac">TagLibFLAC Class</a>
 ```php
