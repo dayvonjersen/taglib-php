@@ -1180,10 +1180,17 @@ public bool setID3v2( array $frames[, bool $overwrite_existing_tags = TRUE ] )
 #### Parameters
  - `frames` - associative `array` of new frames with `string` frameID for keys and different values depending on the  frameID:
   - `APIC` (Attached Picture Frame) -  => an associative `array` with the following fields:
-    - `data` **required** - `string` base64 encoded image data to write
     - `mime` **required** - `string` mimetype of associated image
     - `type` (optional) - `int` one of the `APIC_*` constants, see [Predefined Constants](#taglib-constants)
     - `desc` (optional) - `string` short description (think "caption") of the picture
+
+    ###### and one of the following required fields, but not both:
+
+    - `data` - `string` base64 encoded image data to write 
+
+    ##### OR
+
+    - `file` - `string` path to image file on disk to write
 
   - `TXXX` (User Text Identification Frame) -  => an associative `array` with the following fields:
     - `desc` **required** - `string` Description of the Frame itself
