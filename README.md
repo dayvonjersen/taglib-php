@@ -57,17 +57,29 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 
 ## Introduction
 
-At first I wanted to make a full-fledged, 1:1 extension to the entire TagLib API for php. Upon fully exploring my options in accomplishing such a thing, I found that it's too ambitious and not really necessary for what I need at this time.
+###### History
 
-[swig](http://www.swig.org) can probably accomplish it, but would involve a lot of tweaking via custom .cpp and .i files anyway so if you came here looking for that, sorry, but look into swig.
+At first I wanted to make a full-fledged, 1:1 extension to the entire TagLib API for php, similar to [Perl's Audio::TagLib](http://search.cpan.org/~gleach/Audio-TagLib/). [swig](http://www.swig.org) can probably accomplish such a thing, but is too ambitious a task and not really necessary for what I need at this time.
 
-Instead, this is going to use the taglib functions in C++ and expose useful methods packaged in a class to php for specific audio formats.
+###### Present Day
 
-Previously, I had written scripts in ruby and perl (both of which have taglib wrappers with lots of features exposed and are available right now by the way) to accomplish this. I am basing much of this on those scripts.
+This extension aims to provide a unified, quasi-lowlevel interface to audio file metadata tagging:
 
-At this time I am planning to only support MP3, OGG, and FLAC.
+ - for MP3, OGG, and FLAC files only
+ - getters and setters for the actual tags in a file
+ 	- using their actual field names rather than any abstractions.
+ - common, consistent parameters and naming in the interface whereever possible
+ 	- for example, all embedded picture data is required to be set and returned as base64 encoded data
 
-All I need from taglib is to read and write tags from audio  files, preferably as stupid-simple and self-contained as possible.
+This extension is meant to be used to:
+
+ - extract *all* metadata from an audio file in a single operation
+ - remove *all* metadata from an audio file \* in a single operation
+ - write a *complete* set of metadata to an audio file in a single operation
+
+The user is free to implement abstractions on top of this extension on their own, in PHP.
+
+\* See [On ID3v2 and FLAC...](#id3v2-flac-problems)
 
 ## <a id="installation-configuration">Installation/Configuration</a>
 
@@ -94,6 +106,8 @@ If you know C++ and/or have familiarity with the TagLib API and/or the PHP Exten
 1. gcc, g++, cmake, etc
 2. taglib
 3. php
+4. any prerequisites thereof
+
 
 ### Installation
 
@@ -189,7 +203,7 @@ The one exception to this being **class constructors**, which will throw `Except
 It is therefore recommended that you wrap class constructors in a `try`-`catch` block, e.g:
 
 ```php
-try{
+try {
 	$t = new TagLibMPEG($path_to_mp3);
 } catch(Exception $e) {
 	echo "Whoops! That wasn't a valid file!\n", $e->getMessage();
