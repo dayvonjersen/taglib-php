@@ -72,33 +72,23 @@ All I need from taglib is to read and write tags from audio  files, preferably a
 
 ## <a id="installation-configuration">Installation/Configuration</a>
 
-\* ~ \* ~ \*
-
 ** linux only at the moment ** (not tested on BSD or OSX, or anything else for that matter)
-
-\* ~ \* ~ \*
 
 ** PHP5 only at the moment **
 
-\* ~ \* ~ \*
-
 ** no support for PHP7 planned yet ** (different extension API)
-
-\* ~ \* ~ \*
 
 ** no support for HHVM planned yet ** (way different extension API)
 
-\* ~ \* ~ \*
-
 ** no support for windows planned ever **
-
-\* ~ \* ~ \*
 
 # this is very much a proof-of-concept, work-in-progress, no-waranty-guaranteed, use-at-your-risk, here-be-dragons, no-good-very-bad, you-might-not-need, considered-harmful, disclaimer-of-damages-notwithstanding, etc, etc
 
 don't use this if you're not ready to break fast and move stuff.
 
 If you know C++ and/or have familiarity with the TagLib API and/or the PHP Extension API in addition to knowing PHP please consider contributing :3
+
+--------------------------------------------------------------------------------
 
 ### Requirements
 
@@ -108,7 +98,8 @@ If you know C++ and/or have familiarity with the TagLib API and/or the PHP Exten
 
 ### Installation
 
-1. get [taglib](http://taglib.github.io) **v.1.9.1** and compile
+1. get [taglib v.1.9.1](http://taglib.github.io/releases/taglib-1.9.1.tar.gz) and compile
+ - please see the README and installation instructions included with their release.
 
 2. get the source code for your current php version by either:
  - `apt-get source php5`
