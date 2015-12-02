@@ -589,10 +589,50 @@ words
 public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = TRUE ])
 ```
 #### Parameters
+ - `newProperties` - associative `array` argument of `string` field names as keys and `string` new values
+ - `ovewrite_existing_tags` - `boolean` whether to overwrite (`TRUE`) or *append to* (`FALSE`) existing tags.
+
+I can't stress enough that `$overwrite_existing_tags = FALSE` is a bad idea. 
+
 #### Return Values
+Returns `TRUE` on success, `FALSE` on failure.
 #### Examples
 ```php
 // example usage
+$t = new TagLibFLAC('file.flac');
+print_r($t->getXiphComment());
+/**
+ * Array(
+ * 	[TITLE] => something
+ * )
+ */
+$t->setXiphComment(['TITLE' => 'new title'])
+print_r($t->getXiphComment());
+/**
+ * Array(
+ * 	[TITLE] => new title
+ * )
+ */
+
+//
+// $overwrite_existing_tags = FALSE is a bad idea, here's what it would do:
+//
+unset($t);
+$t = new TagLibFLAC('file.flac');
+print_r($t->getXiphComment());
+/**
+ * Array(
+ * 	[TITLE] => new title
+ * )
+ */
+$t->setXiphComment(['TITLE' => 'new title'], false)
+print_r($t->getXiphComment());
+/**
+ * Array(
+ * 	[TITLE] => new title new title
+ * )
+ */
+// see? absolutely useless.
 ```
 
 --------------------------------------------------------------------------------
@@ -1120,16 +1160,72 @@ And again, see [id3.org](http://id3.org/id3v2.3.0) for possible frameIDs.
 
 ### <a id="taglibmpeg-setid3v2">TagLibMPEG::setID3v2()</a>
 #### Description
-words
+Writes new ID3v2 frames to file.
 ```php
-public bool setID3v2( array $frames )
+public bool setID3v2( array $frames[, bool $overwrite_existing_tags = TRUE ] )
 ```
 #### Parameters
+ - `frames` - associative `array` of new frames with `string` frameID for keys and different values depending on the  frameID:
+  - `APIC` (Attached Picture Frame) -  => an associative `array` with the following fields:
+    - `data` **required** - `string` base64 encoded image data to write
+    - `mime` **required** - `string` mimetype of associated image
+    - `type` (optional) - `int` one of the `APIC_*` constants, see [Predefined Constants](#taglib-constants)
+    - `desc` (optional) - `string` short description (think "caption") of the picture
+
+  - `TXXX` (User Text Identification Frame) -  => an associative `array` with the following fields:
+    - `desc` **required** - `string` Description of the Frame itself
+    - `text` **required** - `string` contents of the frame
+
+  - `WXXX` (User URL Link Frame) => an associative `array` with the following fields:
+    - `desc` **required** - `string` link text
+    - `text` **required** - `string` URL
+
+  - `OWNE` (Ownership Frame) => an associative `array` with the following fields:
+    - `date` **required** - `string` date in `YYYYMMDD` format
+    - `paid` **required** - `string` a price, including currency symbol e.g. `$0.99`
+    - `seller` **required** - `string` name of seller
+
+  - `PRIV` (Private Frame) => an associative `array` with the following fields:
+    - `owner` **required** - `string` usually an email address
+    - `data` **required** - `string` whatever
+
+  - `UFID` (Unique File Identifier Frame) => an associative `array` with the following fields:
+    - `owner` **required** - `string` URL to some music identification database
+    - `id` **required** - `string` id in that database corresponding to the sound in this file
+
+  - **Additionally, the following frameIDs are explicitly not allowed:**
+    - AENC, COMR, ENCR, EQUA, ETCO, GEOB, GRID, IPLS, LINK, MCDI, MLLT, PCNT, POPM, POSS, RBUF, RVAD, RVRB, SYLT, SYTC, USER
+
+  - All others not listed above => a `string` value.
+
+ - `overwrite_existing_tags` - `boolean` 
+    - if `TRUE`, will remove tags with matching frameIDs provided in `$frames` from file
+    - if `FALSE`, will add new frames regardless of any previously set values.
+
+
+See also [id3.org](http://id3.org/id3v2.3.0) for <s>massive migranes</s> all possible frameIDs defined by that specification.
+
 #### Return Values
+Returns `TRUE` on success.
+
+Returns `FALSE` and issues `E_WARNING` on failure.
 #### Examples
 ```php
 // example usage
+$t = new TagLibMPEG('file.mp3');
+$t->setID3v2(['TPE1' => 'an artist']);
+print_r($t->getID3v2());
+/**
+ * Array(
+ * 	0 => Array(
+ * 		[frameID] => TPE1
+ * 		[data] => an artist
+ * 	)
+ * )
+ */
 ```
+
+After making this extension I thoroughly hate ID3v2, everything about it and everything it represents.
 
 --------------------------------------------------------------------------------
 
