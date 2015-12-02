@@ -1,7 +1,5 @@
 # taglib-php
 
-## XXX this readme is an unfinished WIP XXX
-
 A php extension which wraps [TagLib](http://taglib.github.io).
 
 ## Table of Contents
@@ -55,6 +53,7 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 
 ###### Known Issues
 1. [On ID3v2 and FLAC...](#id3v2-flac-problems)
+2. [Bitrates returned by getAudioProperties()](#bitrates)
 
 ## Introduction
 
@@ -584,7 +583,7 @@ print_r($t->getXiphComment());
 
 ### <a id="taglibflac-setxiphcomment">TagLibFLAC::setXiphComment()</a>
 #### Description
-words
+Writes new entries to the XiphComment in the file on disk.
 ```php
 public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = TRUE ])
 ```
@@ -1431,8 +1430,7 @@ if($t->hasXiphComment()) {
 
 ### <a id="taglibogg-getxiphcomment">TagLibOGG::getXiphComment()</a>
 #### Description
-Get the XiphComment as an associative array.
-
+If the file on disk has a XiphComment, gets it as an associative array.
 ```php
 public bool|array getXiphComment( void )
 ```
@@ -1441,25 +1439,86 @@ public bool|array getXiphComment( void )
 None
 
 #### Return Values
+Returns an associative array of `string` field names as keys and their `string` values.
+
+Returns `FALSE` if file does not have a XiphComment
+
+Also returns `FALSE` on failure.
+
+See also [wiki.xiph.org/VorbisComment](https://wiki.xiph.org/VorbisComment).
 
 #### Examples
 ```php
 // example usage
+$t = new TagLibOGG('file.ogg');
+print_r($t->getXiphComment());
+/*
+ * Array
+ * (
+ * 	[ALBUM] => album,
+ * 	[ARTIST] => artist,
+ * 	[COMMENT] => comment,
+ * 	[DATE] => 2000,
+ * 	[GENRE] => New Age,
+ * 	[TITLE] => title,
+ * 	[TRACKNUMBER] => 99
+ * )
+ */
 ```
 
 --------------------------------------------------------------------------------
 
 ### <a id="taglibogg-setxiphcomment">TagLibOGG::setXiphComment()</a>
 #### Description
-words
+Writes new entries to the XiphComment in the file on disk.
 ```php
 public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = TRUE ])
 ```
 #### Parameters
+ - `newProperties` - associative `array` argument of `string` field names as keys and `string` new values
+ - `ovewrite_existing_tags` - `boolean` whether to overwrite (`TRUE`) or *append to* (`FALSE`) existing tags.
+
+I can't stress enough that `$overwrite_existing_tags = FALSE` is a bad idea. 
+
 #### Return Values
+Returns `TRUE` on success, `FALSE` on failure.
 #### Examples
 ```php
 // example usage
+$t = new TagLibOGG('file.ogg');
+print_r($t->getXiphComment());
+/**
+ * Array(
+ * 	[TITLE] => something
+ * )
+ */
+$t->setXiphComment(['TITLE' => 'new title'])
+print_r($t->getXiphComment());
+/**
+ * Array(
+ * 	[TITLE] => new title
+ * )
+ */
+
+//
+// $overwrite_existing_tags = FALSE is a bad idea, here's what it would do:
+//
+unset($t);
+$t = new TagLibOGG('file.ogg');
+print_r($t->getXiphComment());
+/**
+ * Array(
+ * 	[TITLE] => new title
+ * )
+ */
+$t->setXiphComment(['TITLE' => 'new title'], false)
+print_r($t->getXiphComment());
+/**
+ * Array(
+ * 	[TITLE] => new title new title
+ * )
+ */
+// see? absolutely useless.
 ```
 
 --------------------------------------------------------------------------------
@@ -1495,3 +1554,49 @@ echo $t->hasXiphComment() ? 'true' : 'false'; // false
 
 ## <a id="id3v2-flac-problems">On ID3v2 and FLAC...</a>
 
+[skip to tl;dr](#id3v2flactldr)
+
+FLACs are not meant to have ID3v2 tags <sup style="color:blue">[citation needed]</sup> but they can anyway. TagLib does a great job of reading information from FLACs with any combination of ID3v1, ID3v2, and XiphComments, in addition to any METADATA_BLOCK(s) found in the file.
+
+The issues are:
+
+1. [TagLib::FLAC::File::save](http://taglib.github.io/api/classTagLib_1_1FLAC_1_1File.html#aa478cd764bd1618ceef16c507528da65)
+	>Save the file. This will primarily save the XiphComment, but will also keep any old ID3-tags up to date. If the file has no XiphComment, one will be constructed from the ID3-tags.
+
+	What this means is that a FLAC file with an ID3v1 or ID3v2 **must** have a XiphComment.
+
+2. [[TagLib] Cannot remove ID3 tags from FLAC files.](https://github.com/taglib/taglib/issues/646)
+
+
+So if a FLAC comes to you with an ID3v1 or ID3v2 tag *you can never fully remove it* and, as a side-effect of `save()`, the zombie tags will *copy themselves into the XiphComment*.
+
+My advice to users of this extension in order to get around this sticky situation is to:
+
+1. Read all relevant data from ID3 tags using [`TagLibFLAC::getID3v1()`](#taglibflac-getid3v1) and [`TagLibFLAC::getID3v2()`](#taglibflac-getid3v2) first.
+
+2. **Remove ID3 tags from FLAC files using external tools** such as `id3v2`
+    - which is available in debian with `apt-get install id3v2`
+    - [on sourceForge](http://id3v2.sourceforge.net/)
+    - [archive of id3v2.org](https://web.archive.org/web/20020328084621/http://www.id3v2.org/)
+
+3. **Never write new ID3 tags to FLAC files**
+    - which is why [TagLibFLAC::setID3v1()](#taglibflac-setid3v1) and [TagLibFLAC::setID3v2()](#taglibflac-setid3v2) are disabled, only ever returning `FALSE`.
+
+This is why the tests are spurting out a bunch of tl;dr instead of "OK" atm. Speaking of tl;dr:
+
+<a id="id3v2flactldr">**tl;dr**</a> FLAC files with ID3 tags will cause issues</a>
+
+## <a id="bitrates">Bitrates returned by getAudioProperties()</a>
+
+MP3 bitrates returned by `TagLibMPEG::getAudioProperties()` in the `"bitrate"` field are known to be inaccurate.
+
+OGG bitrates returned by `TagLibOGG::getAudioProperties()` in the `"bitrate"` field are also inaccurate, use `"bitrateNominal"` which is in bits per second and not the typical kbps...
+
+###### Not an issue, just a note:
+On the other hand, FLAC bitrates returned by `TagLibFLAC::getAudioProperties()` in the `"bitrate"` field **are more accurate than any other tool or media player I've come across** including `soxi` and even `metaflac`.
+
+This is due to the fact that in order to get an accurate reading for the bitrate
+
+>bitrate = filesize in bytes * 8 / length in seconds
+
+Metadata must not be included with the filesize. For audio files containing embedded images the discrepancy can be substantial.
