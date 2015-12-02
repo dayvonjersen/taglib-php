@@ -320,7 +320,7 @@ class TagLibFLAC {
     
     public bool hasXiphComment( void )
     public array getXiphComment( void )
-    public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+    public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = TRUE ])
     
     public bool hasPicture( void )
     public array getPictures( void )
@@ -517,18 +517,11 @@ See also [id3.org/ID3v2](http://id3.org/ID3v2) and [wikipedia](https://en.wikipe
 
 --------------------------------------------------------------------------------
 
-### <a id="taglibflac-setid3v2">TagLibFLAC::setID3v2()</a>
-#### Description
-```php
-public bool setID3v2( void )
-```
+### <s><a id="taglibflac-setid3v2">TagLibFLAC::setID3v2()</a></s> DISABLED
 
-#### Parameters
-None
+#### Always returns `FALSE`. Don't use.
 
-#### Return Values
-
-#### Examples
+See also [On ID3v2 and FLAC...](#id3v2-flac-problems)
 
 --------------------------------------------------------------------------------
 
@@ -560,12 +553,16 @@ if($t->hasXiphComment()) {
 
 ### <a id="taglibflac-getxiphcomment">TagLibFLAC::getXiphComment()</a>
 #### Description
-words
+If the file on disk has a XiphComment, gets it as an associative array.
 ```php
 public bool|array getXiphComment( void )
 ```
+
 #### Parameters
+None
+
 #### Return Values
+A
 #### Examples
 ```php
 // example usage
@@ -577,7 +574,7 @@ public bool|array getXiphComment( void )
 #### Description
 words
 ```php
-public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = TRUE ])
 ```
 #### Parameters
 #### Return Values
@@ -646,6 +643,7 @@ public bool stripTags( void )
 // example usage
 ```
 
+--------------------------------------------------------------------------------
 
 ## <a id="taglibmpeg">TagLibMPEG Class</a>
 ```php
@@ -1086,7 +1084,7 @@ class TagLibOGG {
     
     public bool hasXiphComment( void )
     public array getXiphComment( void )
-    public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+    public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = TRUE ])
     
     public bool stripTags( void )
 }
@@ -1272,7 +1270,7 @@ None
 #### Description
 words
 ```php
-public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = TRUE ])
 ```
 #### Parameters
 #### Return Values
