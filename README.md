@@ -6,10 +6,15 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 
 ## Table of Contents
 
+###### Preamble
 1. [Introduction](#introduction)
 2. [Installation/Configuration](#installation-configuration)
 	- [Requirements](#requirements)
     - [Installation](#installation)
+3. **[A note on Errors and Exceptions](#taglib-errors)**
+
+###### API Reference
+
 4. [TagLib](#taglib)
 	- [Predefined Constants](#taglib-constants)
     - [getPictureTypeAsString()](#taglib-getpicturetypeasstring)
@@ -18,13 +23,16 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 	- [getAudioProperties()](#taglibflac-getaudioproperties)
 	- [hasID3v1()](#taglibflac-hasid3v1)
 	- [getID3v1()](#taglibflac-getid3v1)
-	- [setID3v1()](#taglibflac-setid3v1)
+	- <s>[setID3v1()](#taglibflac-setid3v1)</s>
 	- [hasID3v2()](#taglibflac-hasid3v2)
 	- [getID3v2()](#taglibflac-getid3v2)
-	- [setID3v2()](#taglibflac-setid3v2)
+	- <s>[setID3v2()](#taglibflac-setid3v2)</s>
 	- [hasXiphComment()](#taglibflac-hasxiphcomment)
 	- [getXiphComment()](#taglibflac-getxiphcomment)
 	- [setXiphComment()](#taglibflac-setxiphcomment)
+	- [hasPicture()](#taglibflac-haspicture)
+	- [getPictures()](#taglibflac-haspicture)
+	- [setPicture()](#taglibflac-haspicture)
 	- [stripTags()](#taglibflac-striptags)
 6. [TagLibMPEG](#taglibmpeg)
 	- [__construct()](#taglibmpeg-__construct)
@@ -45,6 +53,9 @@ A php extension which wraps [TagLib](http://taglib.github.io).
 	- [setXiphComment()](#taglibogg-setxiphcomment)
 	- [stripTags()](#taglibogg-striptags)
 
+###### Known Issues
+1. [On ID3v2 and FLAC...](#id3v2-flac-problems)
+
 ## Introduction
 
 At first I wanted to make a full-fledged, 1:1 extension to the entire TagLib API for php. Upon fully exploring my options in accomplishing such a thing, I found that it's too ambitious and not really necessary for what I need at this time.
@@ -61,26 +72,182 @@ All I need from taglib is to read and write tags from audio  files, preferably a
 
 ## <a id="installation-configuration">Installation/Configuration</a>
 
+\* ~ \* ~ \*
+
+** linux only at the moment ** (not tested on BSD or OSX, or anything else for that matter)
+
+\* ~ \* ~ \*
+
+** PHP5 only at the moment **
+
+\* ~ \* ~ \*
+
+** no support for PHP7 planned yet ** (different extension API)
+
+\* ~ \* ~ \*
+
+** no support for HHVM planned yet ** (way different extension API)
+
+\* ~ \* ~ \*
+
+** no support for windows planned ever **
+
+\* ~ \* ~ \*
+
+# this is very much a proof-of-concept, work-in-progress, no-waranty-guaranteed, use-at-your-risk, here-be-dragons, no-good-very-bad, you-might-not-need, considered-harmful, disclaimer-of-damages-notwithstanding, etc, etc
+
+don't use this if you're not ready to break fast and move stuff.
+
+If you know C++ and/or have familiarity with the TagLib API and/or the PHP Extension API in addition to knowing PHP please consider contributing :3
+
 ### Requirements
 
-1. gcc, cmake, etc
+1. gcc, g++, cmake, etc
 2. taglib
 3. php
 
 ### Installation
 
-1. get [taglib](http://taglib.github.io) and compile
-2. get [php source](http://php.net/downloads.php) (or `apt-get source php5`) for your current php version (optionally compile a new version of php from source)
-3. `cd /path/to/php-source-code/ext/`
-4. `git clone git@github.com:generaltso/taglib-php`
-5. `cd taglib-php`
-6. run `./build.sh`
-7. `sudo cp modules/taglib.so /path/to/extension_dir` (see `extension_dir` in your `php.ini`)
-8. add `extension=taglib.so` to your php.ini
+1. get [taglib](http://taglib.github.io) **v.1.9.1** and compile
 
+2. get the source code for your current php version by either:
+ - `apt-get source php5`
+ - [official php source downloads](http://php.net/downloads.php)
+
+3. extract the files
+
+4. `cd /path/to/php-source-code/ext/`
+
+5. `git clone git@github.com:generaltso/taglib-php`
+
+6. `cd taglib-php`
+
+6. edit `build.sh` and change the following text:
+ 1. `/usr/local/include/taglib` to where the taglib `.h` files maybe found.
+ 	- (if you don't know, something like `sudo find / -name "tstringlist.h"` might help)
+ 	- `sudo find /usr -name "tstringlist.h"` might be faster
+
+ 2. `/usr/local/lib/php/modules` to where your php extension directory is
+    - see `extension_dir` in your `php.ini`
+    - `php -i` from CLI and `<?php phpinfo(); ?>` from a web script might also be really useful.
+    
+7. run `./build.sh --no-tests`
+	- this script will attempt to copy the built module to the extension directory you already specified, if you get a password prompt that's because it's doing exactly this:
+
+8. `sudo cp -R modules/* /path/to/extension_dir`
+
+9. add `extension=taglib.so` to your php.ini
+
+10. be sure to restart apache2 (for mod_php) or restart php5-fpm if you're using that.
+
+### To Run Tests:
+
+From `taglib-php` directory
+```bash
+$ cd test
+$ php -f taglib-php-tests.php | less -r
+```
+
+Please note that all audio files included with the test suite are 1 second clips of silence.
+
+It may be advantageous to test this extension against actual audio files of a typical length with actual tags.
+
+##### To add additional audio files to run against, you'll need the following utilities:
+
+```bash
+# apt-get install flac vorbis-tools sox libsox libsox-fmt-all libsox-fmt-mp3 mp3info id3v2 oggz
+```
+
+(*names of packages in debian, might be different for your platform, don't know where the source to all of these individually are*)
+
+Then, from `taglib-php/test` directory
+```bash
+$ cp /path/to/some.mp3 testfiles/
+$ cp /path/to/some.ogg testfiles/
+$ # and so on..., then:
+$ php -f generate-taglib-php-tests.json.php > taglib-php-tests.json
+```
+
+If contributing back, please ***don't*** include any of your own audio files or a modified `taglib-php-tests.json` file with your pull request...
+
+
+### To Write Tests:
+
+From `taglib-php/test`:
+```bash
+$ cd testcases
+$ ls
+```
+
+Pick a file at random and prepare for eyebleed.
+
+## <a id="taglib-errors">A note on Errors and Exceptions</a>
+
+###### PHP Errors
+The methods provided by this extension will issue PHP errors of level `E_WARNING` and return `FALSE` by default if they encounter an error.
+
+It is therefore recommended that you have `error_reporting` visible in your development environment in order to view the error messages during development, e.g:
+
+```php
+error_reporting(E_ALL|~E_STRICT);
+ini_set('display_errors', 1);
+```
+
+###### Exceptions
+The one exception to this being **class constructors**, which will throw `Exception` \*
+
+It is therefore recommended that you wrap class constructors in a `try`-`catch` block, e.g:
+
+```php
+try{
+	$t = new TagLibMPEG($path_to_mp3);
+} catch(Exception $e) {
+	echo "Whoops! That wasn't a valid file!\n", $e->getMessage();
+}
+```
+
+\* *because this is the only way I found to return `NULL` from a class constructor in a PHP extension. (`RETURN_NULL` does nothing as far as I can tell...)*
+
+###### Segmentation fault
+
+Also, please be aware that **there is the very real possiblity of Segmentation fault errors** occuring. 
+
+It is a high priority of mine to fix these programming errors (which are entirely my fault) but they may be *hard to detect* for the casual PHP user who has come to expect not running into segfaults during development.
+
+Segmentation faults will bring down the entire running PHP process immediately regardless of any preventative measures taken.
+
+The only indication that a Segmentation fault has occurred will be in the error log for your webserver\*, or from stderr if you're using php-cli.
+
+\* *maybe php-fpm has its own error log as well idk...*
+
+**Please file a bug report for any Segmentation faults you come across thank you very much**. 
+ - If the extension works for you except that you come across this in some PHP code you wrote, please include in your report a complete PHP script which will reliably (as in, always) reproduce the Segmentation fault.
+ - If you can't load the extension, or the Segmentation fault occurs outside PHP userspace, a description will suffice.
+
+## <a id="taglib-debugging">A note on Debugging</a>
+
+###### gdb
+You should be able to debug cli php scripts using gdb (GNU Debugger) because the build script provided should include debugging symbols.
+
+```bash
+$ gdb php
+(gdb) set args -f /path/to/some.php
+(gdb) run
+...
+(gdb) bt
+```
+
+Or something.
+
+###### strip
+
+If you have OCD about overly bloated binaries, you can use `strip`
 
 ## <a id="taglib">TagLib Class</a>
-Really just a container for these:
+
+Really just a container for the [Predefined Constants](#taglib-constants).
+
+**NOTE**: The other classes in this extension: [TagLibFLAC](#taglibflac), [TagLibMPEG](#taglibmpeg), and [TagLibOGG](#taglibogg) do ***not*** inherit from, extend from, implement anything from or in any other way relate to this class. All of these classes exposed to the PHP userspace are distinct, independent entities.
 
 ## <a id="taglib-constants">Predefined Constants</a>
 
@@ -145,15 +312,19 @@ class TagLibFLAC {
     
     public bool hasID3v1( void )
     public bool|array getID3v1( void )
-    public bool|array setID3v1( array $frames )
+    //public bool|array setID3v1( array $frames ) // disabled, always returns false
     
     public bool hasID3v2( void )
     public bool|array getID3v2( void )
-    public bool setID3v2( array $frames )
+    //public bool setID3v2( array $frames ) // disabled, always returns false
     
     public bool hasXiphComment( void )
     public array getXiphComment( void )
     public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+    
+    public bool hasPicture( void )
+    public array getPictures( void )
+    public bool setPicture( array $arr )
     
     public bool stripTags( void )
 }
@@ -292,68 +463,11 @@ print_r($t->getID3v1());
 
 --------------------------------------------------------------------------------
 
-### <a id="taglibflac-setid3v1">TagLibFLAC::setID3v1()</a>
-#### Description
-Write ID3v1 tag fields to file.
-```php
-public bool|array setID3v1( array $frames[, bool $overwrite_existing_tags = TRUE ] )
-```
-#### Parameters
-`$frames` is an associative `array` of `string` values with UPPERCASE `string` frame IDs as keys e.g.:
-```php
-$frames = ['ALBUM' => 'Abbey Road', 'ARTIST' => 'The Beatles'];
-```
-`$overwrite_existing_tags`
- - if `TRUE` (default), tags already present in the file with frame IDs matching the keys of `$frames` will be overwritten with the values passed in.
- - if `FALSE`, tags already present will **not be overwritten** and will be **returned** by this function.
+### <s><a id="taglibflac-setid3v1">TagLibFLAC::setID3v1()</a></s> DISABLED
 
+#### Always returns `FALSE`. Don't use.
 
-##### Caveats
-[TagLib will truncate values greater than 28-30 bytes](http://taglib.github.io/api/classTagLib_1_1ID3v1_1_1Tag.html#details). See also [id3.org/ID3v1](http://id3.org/ID3v1) and [wikipedia](https://en.wikipedia.org/wiki/ID3#Layout) for more information about ID3v1.
-
-Additionally, this function will issue `E_WARNING` errors and return `FALSE` if `$frames` is any other variable type than the one described here.
-
-In other words, this function will **not do any type conversion** but instead issue PHP errors and return `FALSE` if it encounters any unexpected type.
-
-So for something like TRACKNUMBER, 
-**ALWAYS convert to string**:
-```php
-$tracknumber = 99;
-$frames['TRACKNUMBER'] = sprintf("%d", $tracknumber);
-```
-**NEVER:**
-```php
-$tracknumber = 99;
-$frames['TRACKNUMBER'] = $tracknumber; // will cause errors!
-```
-
-#### Return Values
-Returns `TRUE` on success.
-
-Returns any values from `$frames` which could not be set as an associative `array` of `string` values.
-
-Returns `FALSE` on failure.
-
-#### Examples
-```php
-// example usage
-$t = new TagLibFLAC('file.flac');
-$frames = ['ALBUM' => 'Abbey Road', 'ARTIST' => 'The Beatles'];
-$ret = $t->setID3v1($frames);
-if($ret === true) {
-	echo "Tag set successfully!";
-} elseif(is_array($ret)) {
-	echo "Failed to set these values:\n", print_r($ret,1);
-    /**
-     * Array
-     * (
-     * 	[ALBUM] => 'Abbey Road'
-     * )
-     */
-} else {
-	echo "Something happened."
-}
-```
+See also [On ID3v2 and FLAC...](#id3v2-flac-problems)
 
 --------------------------------------------------------------------------------
 
@@ -464,6 +578,51 @@ public bool|array getXiphComment( void )
 words
 ```php
 public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags = FALSE ])
+```
+#### Parameters
+#### Return Values
+#### Examples
+```php
+// example usage
+```
+
+--------------------------------------------------------------------------------
+
+### <a id="taglibflac-haspicture">TagLibFLAC::hasPicture()</a>
+#### Description
+
+```php
+public bool hasPicture( void )
+```
+#### Parameters
+#### Return Values
+#### Examples
+```php
+// example usage
+```
+
+--------------------------------------------------------------------------------
+
+### <a id="taglibflac-haspicture">TagLibFLAC::getPictures()</a>
+#### Description
+
+```php
+public array getPictures( void )
+```
+#### Parameters
+#### Return Values
+#### Examples
+```php
+// example usage
+```
+
+--------------------------------------------------------------------------------
+
+### <a id="taglibflac-haspicture">TagLibFLAC::setPicture()</a>
+#### Description
+
+```php
+public bool setPicture( array $arr )
 ```
 #### Parameters
 #### Return Values
@@ -1150,3 +1309,8 @@ echo $t->hasXiphComment() ? 'true' : 'false'; // false
 ```
 
 --------------------------------------------------------------------------------
+
+# Known Issues
+
+## <a id="id3v2-flac-problems">On ID3v2 and FLAC...</a>
+
