@@ -72,17 +72,17 @@ All I need from taglib is to read and write tags from audio  files, preferably a
 
 ## <a id="installation-configuration">Installation/Configuration</a>
 
-** linux only at the moment ** (not tested on BSD or OSX, or anything else for that matter)
+**linux only at the moment** (not tested on BSD or OSX, or anything else for that matter)
 
-** PHP5 only at the moment **
+**PHP5 only at the moment**
 
-** no support for PHP7 planned yet ** (different extension API)
+**no support for PHP7 planned yet** (different extension API)
 
-** no support for HHVM planned yet ** (way different extension API)
+**no support for HHVM planned yet** (way different extension API)
 
-** no support for windows planned ever **
+**no support for windows planned ever**
 
-# this is very much a proof-of-concept, work-in-progress, no-waranty-guaranteed, use-at-your-risk, here-be-dragons, no-good-very-bad, you-might-not-need, considered-harmful, disclaimer-of-damages-notwithstanding, etc, etc
+# this is very much a proof-of-concept, work-in-progress, no-warranty-guaranteed, use-at-your-risk, here-be-dragons, no-good-very-bad, you-might-not-need, considered-harmful, disclaimer-of-damages-notwithstanding, etc, etc
 
 don't use this if you're not ready to break fast and move stuff.
 
@@ -121,7 +121,7 @@ If you know C++ and/or have familiarity with the TagLib API and/or the PHP Exten
  2. `/usr/local/lib/php/modules` to where your php extension directory is
     - see `extension_dir` in your `php.ini`
     - `php -i` from CLI and `<?php phpinfo(); ?>` from a web script might also be really useful.
-    
+
 7. run `./build.sh --no-tests`
 	- this script will attempt to copy the built module to the extension directory you already specified, if you get a password prompt that's because it's doing exactly this:
 
@@ -553,10 +553,31 @@ public bool|array getXiphComment( void )
 None
 
 #### Return Values
-A
+Returns an associative array of `string` field names as keys and their `string` values.
+
+Returns `FALSE` if file does not have a XiphComment
+
+Also returns `FALSE` on failure.
+
+See also [wiki.xiph.org/VorbisComment](https://wiki.xiph.org/VorbisComment) and [xiph.org/flac/format.html](https://xiph.org/flac/format.html#metadata_block) for more information about FLAC metadata tags.
+
 #### Examples
 ```php
 // example usage
+$t = new TagLibFLAC('file.flac');
+print_r($t->getXiphComment());
+/*
+ * Array
+ * (
+ * 	[ALBUM] => album,
+ * 	[ARTIST] => artist,
+ * 	[COMMENT] => comment,
+ * 	[DATE] => 2000,
+ * 	[GENRE] => New Age,
+ * 	[TITLE] => title,
+ * 	[TRACKNUMBER] => 99
+ * )
+ */
 ```
 
 --------------------------------------------------------------------------------
@@ -578,12 +599,16 @@ public bool setXiphComment( array $newProperties[, bool $overwrite_existing_tags
 
 ### <a id="taglibflac-haspicture">TagLibFLAC::hasPicture()</a>
 #### Description
+Check if the file on disk has a [METADATA_BLOCK_PICTURE](https://xiph.org/flac/format.html#metadata_block_picture).
 
 ```php
 public bool hasPicture( void )
 ```
 #### Parameters
+None
+
 #### Return Values
+Returns `TRUE` if there is a 
 #### Examples
 ```php
 // example usage
@@ -593,45 +618,116 @@ public bool hasPicture( void )
 
 ### <a id="taglibflac-haspicture">TagLibFLAC::getPictures()</a>
 #### Description
+**Please note the "s" in getPictures (it's plural not singular)**
+
+Returns a numerically indexed array of all [METADATA_BLOCK_PICTURE](https://xiph.org/flac/format.html#metadata_block_picture)s in the file on disk.
 
 ```php
 public array getPictures( void )
 ```
 #### Parameters
+None
+
 #### Return Values
+If the file has no pictures, it returns an empty array (`[]`).
+
+Otherwise it's a numerically indexed array of associative arrays with the following values:
+ - `data` - `string` base64 encoded data of the picture
+ - `mime` - `string` mimetype of the picture
+ - `type` - `int` one of the `APIC_*` constants, see [Predefined Constants](#taglib-constants)
+ - `desc` - `string` short description (think "caption") of the picture
+
 #### Examples
 ```php
-// example usage
+$t = new TagLibFLAC('file.flac');
+if($t->hasPicture()) {
+	$pictures = $t->getPictures();
+    foreach($pictures as $index => $picture) {
+    	$ext = '';
+    	switch($picture['mime']) {
+        case 'image/jpeg':
+        case 'image/jpg':
+        	$ext = '.jpg';
+            break;
+        case 'image/png':
+        	$ext = '.png';
+            break;
+        // add more mimetype support here, for TIFF or GIF or whatever
+        // most images will be JPEG or PNG however
+        default:
+        	echo "Unsupported mimetype {$picture['mime']}!!\n";
+        }
+        $filename = "picture_$index$ext";
+        file_put_contents($filename, base64_decode($picture['data']));
+        // should find your image in e.g. picture_0.jpg
+        echo "Wrote ", TagLib::getPictureTypeAsString($picture['type']), " image to ", $filename, "\n";
+    }
+}
 ```
 
 --------------------------------------------------------------------------------
 
 ### <a id="taglibflac-haspicture">TagLibFLAC::setPicture()</a>
 #### Description
-
+Writes a [METADATA_BLOCK_PICTURE](https://xiph.org/flac/format.html#metadata_block_picture) to the file on disk.
 ```php
 public bool setPicture( array $arr )
 ```
+
 #### Parameters
+`arr` - an associative `array` with the following fields:
+ - `data` **required** - `string` base64 encoded image data to write
+ - `mime` **required** - `string` mimetype of associated image
+ - `type` (optional) - `int` one of the `APIC_*` constants, see [Predefined Constants](#taglib-constants)
+ - `desc` (optional) - `string` short description (think "caption") of the picture
+
 #### Return Values
+Returns `TRUE` on success, `FALSE` on failure.
+
 #### Examples
 ```php
 // example usage
+$t = new TagLibFLAC('file.flac');
+$success = $t->setPicture([
+	'data' => base64_encode(file_get_contents('my_image.jpg')),
+    'mime' => 'image/jpg',
+    'type' => TagLib::APIC_FRONTCOVER,
+    'desc' => 'sunset on my rooftop last summer'
+]);
+if($success) {
+	echo "Wrote image to file successfully.\n";
+} else {
+	echo "Something happened.\n";
+}
 ```
 
 --------------------------------------------------------------------------------
 
 ### <a id="taglibflac-striptags">TagLibFLAC::stripTags()</a>
 #### Description
-words
+Attempts to remove all metadata tags from file.
+
+See also [On ID3v2 and FLAC...](#id3v2-flac-problems)
 ```php
 public bool stripTags( void )
 ```
 #### Parameters
+None
+
 #### Return Values
+Returns `TRUE` on success, `FALSE` on failure.
+
+**May return true and FAIL to remove tags from file, see also [On ID3v2 and FLAC...](#id3v2-flac-problems)**
 #### Examples
 ```php
 // example usage
+$t = TagLibFLAC('file.flac');
+if( $t->hasXiphComment() && !($t->hasID3v1() || $t->hasID3v2()) )
+	$t->stripTags();
+    assert($t->hasXiphComment() === false);
+} else {
+	// ¯\_(ツ)_/¯
+}
 ```
 
 --------------------------------------------------------------------------------
