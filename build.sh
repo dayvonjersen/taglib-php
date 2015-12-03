@@ -1,12 +1,14 @@
 #!/bin/bash
 # what even is a computer
-export C_INCLUDE_PATH="/usr/local/include/taglib"
-export CPLUS_INCLUDE_PATH="/usr/local/include/taglib"
+export C_INCLUDE_PATH=$(taglib-config --cflags | sed 's/-I//')
+export CPLUS_INCLUDE_PATH=$C_INCLUDE_PATH
 
+php_ini=$( php --ini | grep "Loaded Configuration File:" | awk '{print $4}' )
+extension_dir=$(cat $php_ini | grep extension_dir | sed 's/\w\+="\(.*\)"/\1/')
 if [ "$1" != "--quick" ]; then
 # .
-    phpize --with-php-config=/etc/php5/fpm/php.ini   
-    ./configure --with-php-config=/usr/php5/fpm/php.ini --enable-debug --with-taglib
+    phpize --with-php-config=$php_ini   
+    ./configure --with-php-config=$php_ini --enable-debug --with-taglib
     if [[ $(grep "\-std=c++11" Makefile) = "" ]]; then
         sed -i.bak 's/\(^CXXFLAGS =\)/\1 -std=c++11/' Makefile
         if [[ $? = 1 ]]; then 
@@ -24,7 +26,7 @@ make 2> /tmp/q
 build_output=$(cat /tmp/q)
 if [ "$build_output" == "" ]; then 
     echo "Build succeeded, copying new module..."
-    sudo cp -R modules/* /usr/local/lib/php/modules 
+    sudo cp modules/taglib.so $extension_dir 
     if [ "$2" != "--no-tests" ]; then
         echo "Running tests..."
         cd test
@@ -38,5 +40,6 @@ if [ "$build_output" == "" ]; then
     echo "You can run the tests manually with:"
     echo "cd test && php -f taglib-php-tests.php"
 else
-    cat /tmp/q | less
+    less /tmp/q
+    exit 1;
 fi
