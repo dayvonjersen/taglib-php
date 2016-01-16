@@ -1,7 +1,7 @@
 <?php
 function Test__TagLibMPEG__stripTags($file) {
-    $tmpfile = "./tmp/".basename($file);
-    assert(copy($file,$tmpfile), "Could not copy $file to $tmpfile!");
+    $tmpfile = "./tmp/" . basename($file);
+    assert(copy($file, $tmpfile), "Could not copy $file to $tmpfile!");
 
     $t = new TagLibMPEG($tmpfile);
     $t->stripTags();
