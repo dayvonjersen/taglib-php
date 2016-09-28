@@ -8,7 +8,7 @@ extension_dir=$(cat $php_ini | grep extension_dir | sed 's/\w\+="\(.*\)"/\1/')
 if [ "$1" != "--quick" ]; then
 # .
     phpize --with-php-config=$php_ini   
-    ./configure --with-php-config=$php_ini --enable-debug --with-taglib
+    ./configure --with-php-config=`which php-config` --enable-debug --with-taglib
     if [[ $(grep "\-std=c++11" Makefile) = "" ]]; then
         sed -i.bak 's/\(^CXXFLAGS =\)/\1 -std=c++11/' Makefile
         if [[ $? = 1 ]]; then 
