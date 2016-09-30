@@ -159,7 +159,7 @@ It may be advantageous to test this extension against actual audio files of a ty
 ##### To add additional audio files to run against, you'll need the following utilities:
 
 ```bash
-# apt-get install flac vorbis-tools sox libsox libsox-fmt-all libsox-fmt-mp3 mp3info id3v2 oggz
+# apt-get install flac vorbis-tools sox libsox-dev libsox-fmt-all libsox-fmt-mp3 mp3info id3v2 oggz-tools
 ```
 
 (*names of packages in debian, might be different for your platform, don't know where the source to all of these individually are*)
