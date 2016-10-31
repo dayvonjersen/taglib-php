@@ -157,81 +157,82 @@ void taglibbase_register_constants(zend_class_entry *ce) {
  * public static function getPictureTypeAsString($type)
  */
 PHP_METHOD(TagLib, getPictureTypeAsString) {
-  int type;
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &type) == FAILURE) {
-    RETURN_FALSE;
+  zval *type;
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &type) == FAILURE) {
+      RETURN_FALSE;
   }
 
-  const char *str;
-  switch (type) {
+  if (Z_TYPE_P(type) != IS_LONG) {
+      RETURN_FALSE;
+  }
+
+  switch (Z_LVAL_P(type)) {
   case 0x00:
-    str = "Other";
+    RETURN_STRING("Other", 1);
     break;
   case 0x01:
-    str = "File Icon";
+    RETURN_STRING("File Icon", 1);
     break;
   case 0x02:
-    str = "Other File Icon";
+    RETURN_STRING("Other File Icon", 1);
     break;
   case 0x03:
-    str = "Front Cover";
+    RETURN_STRING("Front Cover", 1);
     break;
   case 0x04:
-    str = "Back Cover";
+    RETURN_STRING("Back Cover", 1);
     break;
   case 0x05:
-    str = "Leaflet Page";
+    RETURN_STRING("Leaflet Page", 1);
     break;
   case 0x06:
-    str = "Media";
+    RETURN_STRING("Media", 1);
     break;
   case 0x07:
-    str = "Lead Artist";
+    RETURN_STRING("Lead Artist", 1);
     break;
   case 0x08:
-    str = "Artist";
+    RETURN_STRING("Artist", 1);
     break;
   case 0x09:
-    str = "Conductor";
+    RETURN_STRING("Conductor", 1);
     break;
   case 0x0A:
-    str = "Band";
+    RETURN_STRING("Band", 1);
     break;
   case 0x0B:
-    str = "Composer";
+    RETURN_STRING("Composer", 1);
     break;
   case 0x0C:
-    str = "Lyricist";
+    RETURN_STRING("Lyricist", 1);
     break;
   case 0x0D:
-    str = "Recording Location";
+    RETURN_STRING("Recording Location", 1);
     break;
   case 0x0E:
-    str = "During Recording";
+    RETURN_STRING("During Recording", 1);
     break;
   case 0x0F:
-    str = "During Performance";
+    RETURN_STRING("During Performance", 1);
     break;
   case 0x10:
-    str = "Movie Screencapture";
+    RETURN_STRING("Movie Screencapture", 1);
     break;
   case 0x11:
-    str = "<°))))><";
+    RETURN_STRING("<°))))><", 1);
     break;
   case 0x12:
-    str = "Illustration";
+    RETURN_STRING("Illustration", 1);
     break;
   case 0x13:
-    str = "Band Logo";
+    RETURN_STRING("Band Logo", 1);
     break;
   case 0x14:
-    str = "Publisher Logo";
+    RETURN_STRING("Publisher Logo", 1);
     break;
   default:
     RETURN_FALSE;
   }
-  RETVAL_STRING((char *)str, 1);
-  return;
 }
 static zend_function_entry php_taglibbase_methods[] = {
     PHP_ME(TagLib, getPictureTypeAsString, NULL,

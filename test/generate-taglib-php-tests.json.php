@@ -6,8 +6,8 @@ foreach($ext->getClasses() as $class) {
     $className = $class->getName();
     $methods = [];
     foreach($class->getMethods() as $method) {
-        if($method->isPublic() && !$method->isStatic()) {
-            $methods[$method->getName()] = [];
+        if($method->isPublic()) {
+            $methods[$method->getName()] = $method->isStatic() ? [['params'=>[],'result'=>false]] : [];
         }
     }
     $classes[$className] = $methods;

@@ -4,7 +4,7 @@ export C_INCLUDE_PATH=$(taglib-config --cflags | sed 's/-I//')
 export CPLUS_INCLUDE_PATH=$C_INCLUDE_PATH
 
 php_ini=$( php --ini | grep "Loaded Configuration File:" | awk '{print $4}' )
-extension_dir=$(cat $php_ini | grep extension_dir | sed 's/\w\+="\(.*\)"/\1/')
+extension_dir=$(php-config --extension-dir)
 if [ "$1" != "--quick" ]; then
 # .
     phpize --with-php-config=$php_ini   
