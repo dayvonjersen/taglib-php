@@ -122,7 +122,7 @@ If you know C++ and/or have familiarity with the TagLib API and/or the PHP Exten
 
 4. `cd /path/to/php-source-code/ext/`
 
-5. `git clone git@github.com:generaltso/taglib-php`
+5. `git clone git@github.com:dayvonjersen/taglib-php`
 
 6. `cd taglib-php`
 

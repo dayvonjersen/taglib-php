@@ -5,7 +5,7 @@
  * Supports MPEG (MP3) and OGG, soon(tm): FLAC
  *
  * taglib.github.io
- * github.com/generaltso/taglib-php
+ * github.com/dayvonjersen/taglib-php
  */
 
 /**
